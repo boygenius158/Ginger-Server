@@ -5,6 +5,7 @@ import { AuthUseCase } from '../../application/usecase/authUseCase'
 import UserModel from '../../infrastructure/database/model/authModel'
 import { Schema } from 'mongoose'
 import { PremiumModel } from '../../infrastructure/database/model/PremiumModel'
+import ProfileSearchHistoryModel from '../../infrastructure/database/model/SearchHistoryModel'
 
 const router = express.Router()
 
@@ -58,7 +59,7 @@ router.get('/api/admin/premium-payment-details', async (req, res) => {
                     _id: 0, // Exclude the _id field if not needed
                     username: '$userDetails.username',
                     email: '$userDetails.email',
-                    profilePicture:'$userDetails.profilePicture',
+                    profilePicture: '$userDetails.profilePicture',
                     amount: 1
                 }
             }
@@ -74,42 +75,42 @@ router.get('/api/admin/premium-payment-details', async (req, res) => {
 
 router.get('/api/admin/total-revenue', async (req, res) => {
     try {
-      // Get the current date
-      const currentDate = new Date();
-  
-      // Calculate the date 30 days ago from the current date
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(currentDate.getDate() - 30);
-  
-      // Aggregate the total amount for the past 30 days
-      const result = await PremiumModel.aggregate([
-        {
-          $match: {
-            createdAt: {
-              $gte: thirtyDaysAgo,
-              $lte: currentDate,
+        // Get the current date
+        const currentDate = new Date();
+
+        // Calculate the date 30 days ago from the current date
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(currentDate.getDate() - 30);
+
+        // Aggregate the total amount for the past 30 days
+        const result = await PremiumModel.aggregate([
+            {
+                $match: {
+                    createdAt: {
+                        $gte: thirtyDaysAgo,
+                        $lte: currentDate,
+                    },
+                },
             },
-          },
-        },
-        {
-          $group: {
-            _id: null,
-            totalRevenue: { $sum: '$amount' },
-          },
-        },
-      ]);
-  
-      // Extract the total revenue from the result
-      const totalRevenue = result.length > 0 ? result[0].totalRevenue : 0;
-  
-      // Send the total revenue as a response
-      res.json({ totalRevenue });
-      console.log("Total revenue for the past 30 days:", totalRevenue);
+            {
+                $group: {
+                    _id: null,
+                    totalRevenue: { $sum: '$amount' },
+                },
+            },
+        ]);
+
+        // Extract the total revenue from the result
+        const totalRevenue = result.length > 0 ? result[0].totalRevenue : 0;
+
+        // Send the total revenue as a response
+        res.json({ totalRevenue });
+        console.log("Total revenue for the past 30 days:", totalRevenue);
     } catch (error) {
-      console.error("Error calculating total revenue:", error);
-      res.status(500).json({ error: "Internal Server Error" });
+        console.error("Error calculating total revenue:", error);
+        res.status(500).json({ error: "Internal Server Error" });
     }
-  });
+});
 
 
 router.get('/admin/dashboard', async (req, res) => {
@@ -190,13 +191,12 @@ router.get('/api/admin/chartData1', async (req, res) => {
 
 
 router.get('/api/user/searchUser', async (req, res) => {
+    console.log(req.query);
+
     const users = await UserModel.find({
 
         username: { $regex: '^' + req.query.searchQuery, $options: 'i' }
     })
-    // console.log("router is posted", req.query);
-    // console.log(users, "09088");
-
     res.json({ users })
 
 })
@@ -209,4 +209,36 @@ router.post('/api/user/miniProfile', async (req, res) => {
     // console.log("profileDetails", req.body);
 
 })
+
+router.post('/api/user/save-user-to-search-history', async (req, res) => {
+    const { userId, key } = req.body;
+
+    // Check if the combination of userId and searchedProfileId already exists
+    const existingEntry = await ProfileSearchHistoryModel.findOne({
+        userId: userId,
+        searchedProfileId: key._id
+    });
+
+    if (existingEntry) {
+        // If the combination already exists, return a response indicating so
+        return res.status(200).json({ message: "Entry already exists" });
+    }
+
+    // If it doesn't exist, create a new entry
+    const searchHistory = new ProfileSearchHistoryModel({
+        userId: userId,
+        searchedProfileId: key._id
+    });
+
+    await searchHistory.save();
+    res.status(201).json({ message: "Search history saved" });
+})
+
+router.post('/api/user/get-recent-searches', async (req, res) => {
+    console.log("/api/user/get-recent-searches", req.body);
+    const searches = await ProfileSearchHistoryModel.find({ userId: req.body.userId }).populate('searchedProfileId')
+
+    res.json({ searches })
+})
+
 export default router
