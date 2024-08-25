@@ -6,6 +6,7 @@ import UserModel from '../../infrastructure/database/model/authModel'
 import { Schema } from 'mongoose'
 import { PremiumModel } from '../../infrastructure/database/model/PremiumModel'
 import ProfileSearchHistoryModel from '../../infrastructure/database/model/SearchHistoryModel'
+import Message from '../../infrastructure/database/model/MessageModel'
 
 const router = express.Router()
 
@@ -239,6 +240,17 @@ router.post('/api/user/get-recent-searches', async (req, res) => {
     const searches = await ProfileSearchHistoryModel.find({ userId: req.body.userId }).populate('searchedProfileId')
 
     res.json({ searches })
+})
+
+router.post('/api/user/upload-audio-cloud', async (req, res) => {
+    console.log("audio-cloud", req.body.audio_url.url);
+    const schema = new Message({
+        sender: req.body.sender,
+        receiver: req.body.receiverId,
+        message: req.body.audio_url.url,
+        type: "audio"
+    })
+    await schema.save()
 })
 
 export default router

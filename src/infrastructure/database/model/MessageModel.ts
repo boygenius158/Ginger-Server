@@ -5,7 +5,7 @@ interface IMessage extends Document {
   sender: mongoose.Types.ObjectId;
   receiver: mongoose.Types.ObjectId;
   message: string;
-  type: 'text' | 'image';
+  type: 'text' | 'image' | 'audio';
   timestamp: Date;
   isRead: boolean;
 }
@@ -23,12 +23,12 @@ const messageSchema: Schema<IMessage> = new Schema({
     required: true
   },
   message: {
-    type: String,
+    type: String, 
     required: true
   },
   type: {
     type: String,
-    enum: ['text', 'image'],
+    enum: ['text', 'image','audio'],
   },
   timestamp: {
     type: Date,
