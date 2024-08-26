@@ -12,7 +12,7 @@ import mediaRouter from './presentation/routes/mediaRoutes'
 import adminRouter from './presentation/routes/AdminRoute'
 import { setupSocketIO } from './presentation/socket/SocketIO';
 import scheduleCronJobs from './infrastructure/cron/cronScheduler';
-
+import admin, { initializeFirebaseAdmin } from './config/firebase/firebaseAdmin';
 
 dotenv.config()
 const port = 5000;
@@ -24,10 +24,11 @@ app.use(cors());
 const server = http.createServer(app);
 connectDatabase();
 setupSocketIO(server)
+initializeFirebaseAdmin()
 
 app.get('/', (req, res) => {
     res.send("Hello World");
-});
+}); 
 
 app.use('/', authRouter);
 app.use('/', mediaRouter);

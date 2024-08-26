@@ -17,6 +17,7 @@ export interface IUser extends Document {
     followers?: mongoose.Types.ObjectId[]
     savedPosts?: mongoose.Types.ObjectId[]
     isBlocked?: boolean
+    fcmToken?: string
 }
 
 
@@ -34,7 +35,8 @@ const UserSchema: Schema<IUser> = new Schema({
     following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User', default: [] }],
     followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User', default: [] }],
     savedPosts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User', default: [] }],
-    isBlocked: { type: Boolean, default: false }
+    isBlocked: { type: Boolean, default: false },
+    fcmToken: { type: String, default: null }
 
 });
 
