@@ -12,7 +12,7 @@ import mediaRouter from './presentation/routes/mediaRoutes'
 import adminRouter from './presentation/routes/AdminRoute'
 import { setupSocketIO } from './presentation/socket/SocketIO';
 import scheduleCronJobs from './infrastructure/cron/cronScheduler';
-import admin, { initializeFirebaseAdmin } from './config/firebase/firebaseAdmin';
+import { initializeFirebaseAdmin } from './config/firebase/firebaseAdmin';
 
 dotenv.config()
 const port = 5000;

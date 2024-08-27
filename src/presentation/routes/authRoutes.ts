@@ -7,6 +7,8 @@ import { Schema } from 'mongoose'
 import { PremiumModel } from '../../infrastructure/database/model/PremiumModel'
 import ProfileSearchHistoryModel from '../../infrastructure/database/model/SearchHistoryModel'
 import Message from '../../infrastructure/database/model/MessageModel'
+import FCMToken from '../../infrastructure/database/model/fcmToken.model'
+import admin from '../../config/firebase/firebaseAdmin'
 
 const router = express.Router()
 
@@ -252,5 +254,71 @@ router.post('/api/user/upload-audio-cloud', async (req, res) => {
     })
     await schema.save()
 })
+router.post('/api/user/send-message', async (req, res) => {
+    try {
+        // Validate request
+        console.log(req.body,"send-message");
+        
+        const { recipientId } = req.body;
+        if (!recipientId) {
+            return res.status(400).json({ error: 'Recipient ID is required.' });
+        }
+
+        // Find the FCM token for the recipient
+        const user = await FCMToken.findOne({ userId: recipientId });
+        if (!user || !user.token) {
+            return res.status(404).json({ error: 'FCM token not found for the recipient.' });
+        }
+
+        // Prepare the notification message
+        const message = {
+            notification: {
+                title: "Hello",
+                body: "You Have A New Message",
+            },
+            token: user.token, // Use the found FCM token
+        };
+
+        // Send the notification
+        const response = await admin.messaging().send(message);
+        console.log("Successfully sent notification:", response);
+
+        // Respond to the client
+        res.status(200).json({ message: 'Notification sent successfully.', response });
+    } catch (error) {
+        console.error("Error sending notification:", error);
+        res.status(500).json({ error: 'Failed to send notification.' });
+    }
+});
+router.post('/api/user/fcm-token', async (req, res) => {
+    try {
+        console.log('"00',req.body);
+        
+        const { userId, token } = req.body;
+
+        // Check if token is null or undefined
+        if (!token) {
+            console.log("no token",req.body);
+            
+            return res.status(400).json({ error: 'FCM token is required' });
+        }
+
+        // Find the user by userId and update the token if it is different
+        const updatedUser = await FCMToken.findOneAndUpdate(
+            { userId },
+            { token },
+            { new: true, upsert: true } // upsert will create a new document if no match is found
+        );
+
+        res.status(200).json({ message: 'FCM token updated successfully', updatedUser });
+    } catch (error) {
+        console.error('Error updating FCM token:', error);
+        res.status(500).json({ error: 'Failed to update FCM token' });
+    }
+});
+
+
+
+
 
 export default router
