@@ -207,25 +207,37 @@ router.post('/api/user/premiumStatus', async (req, res) => {
 
 router.post('/api/user/savePost', async (req, res) => {
     // console.log("save post", req.body);
-    const objectId = new mongoose.Types.ObjectId(req.body.postId)
-    const user = await UserModel.findById(req.body.userId)
-    // console.log(user);
-    if (!user) {
-        return
+
+    try {
+
+        const objectId = new mongoose.Types.ObjectId(req.body.postId)
+        const user = await UserModel.findById(req.body.userId)
+        // console.log(user);
+        if (!user) {
+            return
+        }
+
+        if (!user.savedPosts) {
+            user.savedPosts = []
+        }
+
+        const postIndex = user.savedPosts.indexOf(objectId)
+
+        if (postIndex === -1) {
+            user.savedPosts.push(objectId)
+        } else {
+            user.savedPosts.splice(postIndex, 1)
+        }
+
+        await user.save()
+
+
+        res.json({ message: "Post saved/unsaved successfully" });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "An error occurred" });
     }
-    if (!user.savedPosts) {
-        user.savedPosts = []
-    }
-    if (!user.savedPosts.includes(objectId)) {
-        user.savedPosts.push(objectId)
-
-    }
-    await user.save()
-    // console.log(user);
-
-
-    res.json({})
-
 
 
 

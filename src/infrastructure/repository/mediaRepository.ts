@@ -144,6 +144,7 @@ export class MediaRepository implements IMediaRepository {
             }
 
             const following = user.following;
+            const savedPosts = user.savedPosts
 
             const posts = await PostModel.aggregate([
                 {
@@ -163,47 +164,11 @@ export class MediaRepository implements IMediaRepository {
                     $unwind: '$userDetails',
                 },
                 {
-                    $lookup: {
-                        from: 'comments',
-                        localField: '_id',
-                        foreignField: 'postId',
-                        as: 'comments',
-                    },
-                },
-                {
-                    $lookup: {
-                        from: 'users',
-                        localField: 'comments.userId',
-                        foreignField: '_id',
-                        as: 'commenterDetails',
-                    },
-                },
-                {
                     $addFields: {
-                        comments: {
-                            $map: {
-                                input: '$comments',
-                                as: 'comment',
-                                in: {
-                                    _id: '$$comment._id',
-                                    content: '$$comment.content',
-                                    createdAt: '$$comment.createdAt',
-                                    userId: '$$comment.userId',
-                                    commenter: {
-                                        $arrayElemAt: [
-                                            {
-                                                $filter: {
-                                                    input: '$commenterDetails',
-                                                    cond: { $eq: ['$$comment.userId', '$$this._id'] },
-                                                },
-                                            },
-                                            0,
-                                        ],
-                                    },
-                                },
-                            },
-                        },
-                    },
+                        isSaved: {
+                            $in: ['$_id', savedPosts]
+                        }
+                    }
                 },
                 {
                     $project: {
@@ -217,16 +182,8 @@ export class MediaRepository implements IMediaRepository {
                         'userDetails.username': 1,
                         'userDetails.email': 1,
                         'userDetails.profilePicture': 1,
-                        comments: {
-                            _id: 1,
-                            content: 1,
-                            createdAt: 1,
-                            userId: 1,
-                            commenter: {
-                                username: '$comments.commenter.username',
-                                email: '$comments.commenter.email',
-                            },
-                        },
+                        isSaved:1
+
                     },
                 },
                 {
@@ -271,7 +228,7 @@ export class MediaRepository implements IMediaRepository {
                 post.likeCount = (post.likeCount || 0) + 1;
             }
             await post.save();
-            
+
             return true;
         } catch (error) {
             console.error('Failed to like/unlike post:', error);
