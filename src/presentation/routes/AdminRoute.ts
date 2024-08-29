@@ -5,6 +5,7 @@ import express from 'express'
 // import { AdminController } from '../controllers/adminController'
 import UserModel from '../../infrastructure/database/model/authModel'
 import { PostModel } from '../../infrastructure/database/model/PostModel'
+import Report from '../../infrastructure/database/model/ReportModel'
 const router = express.Router()
 
 
@@ -44,13 +45,33 @@ router.post('/api/admin/blockUser', async (req, res) => {
 })
 
 router.post('/api/admin/filterPost', async (req, res) => {
-    console.log("filterPost triggered");
-    const post = await PostModel.find({ isReported: { $ne: [] } })
-    console.log(post);
-    res.json({ post })
+    // console.log("filterPost triggered");
+
+    const post = await Report.find({ actionTaken: false })
+        .populate({
+            path: 'postId',
+            populate: {
+                path: 'userId'
+            }
+        });
+
+    // console.log(post);
+
+    res.json({ post });
+});
+router.post('/api/admin/banPost', async (req, res) => {
+    console.log("banPost triggered", req.body.postId);
+    const post = await PostModel.findById(req.body.postId)
+    if (!post) {
+        return null
+    }
+    post.isBanned = true
+    await post.save()
 
 
-})
+
+    res.json({});
+});
 
 router.post('/api/admin/changeUsername', (req, res) => {
     console.log("change username");

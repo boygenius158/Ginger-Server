@@ -19,6 +19,7 @@ import Message from '../../infrastructure/database/model/MessageModel';
 import mongoose from 'mongoose';
 import { UserRole } from '../../domain/entities/User';
 import { Notification } from '../../infrastructure/database/model/NotificationModel';
+import Report from '../../infrastructure/database/model/ReportModel';
 
 
 
@@ -42,8 +43,22 @@ router.post('/api/user/likepost', controller.likePost.bind(controller))
 
 router.post('/api/user/postComment', controller.postComment.bind(controller))
 router.post('/api/user/uploadStory', controller.uploadStory.bind(controller))
-router.post('/api/user/reportPost', controller.reportPost.bind(controller))
+// router.post('/api/user/reportPost', controller.reportPost.bind(controller))
 router.post('/api/user/updateProfile', controller.updateProfile.bind(controller))
+
+
+router.post('/api/user/reportPost', async (req, res) => {
+    console.log("report post is hit", req.body);
+    const report = new Report({
+        reporterId: req.body.victimUser,
+        postId: req.body.postId,
+    })
+    await report.save()
+    res.json({})
+
+
+})
+
 
 router.post('/api/admin/fetch-notifications', async (req, res) => {
     console.log("fetch notifications", req.body);
@@ -208,31 +223,7 @@ router.post('/api/user/premiumStatus', async (req, res) => {
 })
 
 
-// router.post('/api/user/updateProfile', async (req, res) => {
-//     try {
-//         // Extract data from the request body
-//         const { name, bio, email } = req.body;
 
-//         console.log(req.body);
-
-//         const user = await UserModel.findOne({ email })
-//         if (!user) {
-//             console.log("user not found");
-//             return
-//         }
-//         console.log(user);
-//         user.bio = bio
-//         user.name = name
-//         await user.save()
-
-//         // Respond with success
-//         res.json({ success: true, message: 'Profile updated successfully' });
-
-//     } catch (error) {
-//         console.error('Error updating profile:', error);
-//         res.status(500).json({ success: false, message: 'Internal server error' });
-//     }
-// });
 
 router.post('/api/user/savePost', async (req, res) => {
     // console.log("save post", req.body);

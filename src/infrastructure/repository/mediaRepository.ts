@@ -150,6 +150,7 @@ export class MediaRepository implements IMediaRepository {
                 {
                     $match: {
                         userId: { $in: following },
+                        isBanned:false
                     },
                 },
                 {
