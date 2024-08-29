@@ -57,6 +57,35 @@ router.post('/api/admin/fetch-notifications', async (req, res) => {
 
 })
 
+router.post('/api/user/fetch-saved-posts', async (req, res) => {
+    try {
+        const { username } = req.body;
+
+        // Find the user by username
+        const user = await UserModel.findOne({ username: username })
+        console.log(user?.savedPosts);
+        const savedPostId = user?.savedPosts
+
+        const posts = await PostModel.find({
+            _id: { $in: savedPostId }
+        });
+
+        console.log(posts, "poiu");
+
+
+        if (!user) {
+            return res.status(400).json({ error: 'User not found' });
+        }
+
+        // If user is found, return the saved posts
+        return res.status(200).json({ savedPosts: posts });
+    } catch (error) {
+        console.error('Error fetching saved posts:', error);
+        return res.status(500).json({ error: 'Server error' });
+    }
+});
+
+
 router.post('/api/user/updateReadStatus', async (req, res) => {
     console.log("update read status", req.body);
     const { sender, recipient } = req.body
