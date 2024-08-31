@@ -126,9 +126,9 @@ export function setupSocketIO(server: any) {
 
           io.to(toSocketId).emit('notification', notification);
           const notifications2 = await Notification.findOne({ user: post.userId })
-          .sort({ createdAt: -1 }) // Sort by createdAt in descending order to get the latest
-          .populate('interactorId', 'username profilePicture') // Populate interactorId with specific fields
-          .exec();
+            .sort({ createdAt: -1 }) // Sort by createdAt in descending order to get the latest
+            .populate('interactorId', 'username profilePicture') // Populate interactorId with specific fields
+            .exec();
 
 
           io.to(toSocketId).emit('notification_stack', notifications2)
@@ -199,6 +199,34 @@ export function setupSocketIO(server: any) {
       }
 
     })
+
+    socket.on('force-logout', (email) => {
+      let targetSocketId = findSocketWithEmail(email);
+
+      if (!targetSocketId) {
+        console.error(`No socket found for email: ${email}`);
+        return; // Exit if no valid socket ID is found
+      }
+
+      console.log("Email of socket:", email);
+      console.log("Socket ID to target:", targetSocketId);
+
+      try {
+        io.to(targetSocketId).emit('force-logout2');
+        console.log(`Sent 'force-logout2' to socket ID: ${targetSocketId}`);
+      } catch (error) {
+        console.error(`Failed to send 'force-logout2' to socket ID: ${targetSocketId}`, error);
+      }
+    });
+
+    socket.on('audio-chat', ({recipientEmail,senderEmail,message,type}) => {
+      console.log("audio chat90000",senderEmail);
+      let targetSocketId = findSocketWithEmail(recipientEmail);
+
+      io.to(targetSocketId).emit('audio-chat')
+
+    })
+
     socket.on('disconnectUser', () => {
       console.log(`User disconnected: ${socket.id}`);
 

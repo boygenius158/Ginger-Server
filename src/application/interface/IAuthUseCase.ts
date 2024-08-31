@@ -8,6 +8,6 @@ export interface IAuthUseCase {
     getUserRole(email:string):Promise<string|null|undefined>
     storeotp(otp:string,email:string):Promise<User|null>
     verifyotp(otp:string,email:string):Promise<User|null>
-    verifyPassword(email:string,password:string):Promise<User|null>
+    verifyPassword(email:string,password:string):Promise<User|boolean>
     clearotp(email:string):Promise<User|null>
 }

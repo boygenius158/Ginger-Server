@@ -21,7 +21,7 @@ const router = express.Router()
 // router.post('/admin/dashboard',controller.fetchBarChart.bind(controller))
 router.post('/api/admin/userDetails', async (req, res) => {
     console.log("admin userDetails has been hit");
-    const userDetails = await UserModel.find({ roles: { $in: ['user'] } })
+    const userDetails = await UserModel.find({ roles: { $in: ['user', "premium"] } })
     console.log(userDetails);
 
 
@@ -35,7 +35,7 @@ router.post('/api/admin/blockUser', async (req, res) => {
 
     const user = await UserModel.findByIdAndUpdate(userId)
     if (user) {
-        user.isBlocked = !user.isBlocked
+        user.isBlocked = true
     }
 
     await user?.save()
@@ -43,6 +43,35 @@ router.post('/api/admin/blockUser', async (req, res) => {
     res.json({})
 
 })
+router.post('/api/admin/unblockUser', async (req, res) => {
+    console.log("admin blockUser has been hit");
+    const { userId } = req.body
+    console.log(userId);
+
+    const user = await UserModel.findByIdAndUpdate(userId)
+    if (user) {
+        user.isBlocked = false
+    }
+
+    await user?.save()
+
+    res.json({})
+
+})
+
+router.post('/api/admin/getBlockedUsers', async (req, res) => {
+    console.log("get-blocked-users");
+
+    // Fetch only the _id of the blocked users
+    const blockedUsers = await UserModel.find({ isBlocked: true }).select('_id');
+
+    // Extract the _id values into an array
+    const blockedUserIds = blockedUsers.map(user => user._id);
+
+    console.log(blockedUserIds, "blockedUserIds");
+    res.json({ blockedUserIds });
+});
+
 
 router.post('/api/admin/filterPost', async (req, res) => {
     // console.log("filterPost triggered");

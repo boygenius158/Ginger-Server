@@ -15,14 +15,14 @@ export class AuthRepository implements IAuthUserRepository {
             const { email, password } = user;
 
             const hashedPassword = password ? await bcrypt.hash(password, 10) : null;
-            const emailPrefix = email.substring(0,5)
+            const emailPrefix = email.substring(0, 5)
             const randomFiveDigitNumber = Math.floor(1000 + Math.random() * 9000)
             const username = `${emailPrefix}${randomFiveDigitNumber}`;
 
             const newUser = new UserModel({
                 email: email,
                 password: hashedPassword,
-                username:username
+                username: username
             });
 
             const savedUser = await newUser.save();
@@ -112,13 +112,20 @@ export class AuthRepository implements IAuthUserRepository {
             throw error;
         }
     }
-    async verifyPassword(email: string, password: string): Promise<User | null> {
+    async verifyPassword(email: string, password: string): Promise<User | boolean> {
         try {
             const user = await UserModel.findOne({ email })
 
             if (!user) {
                 throw new Error(`User with email ${email} not found`);
             }
+            if (user.isBlocked) {
+                // throw new Error('User is blocked');
+                console.log("yelp");
+                
+                return false
+            }
+
             const isPasswordValid = await bcrypt.compare(password, user.password)
             console.log(isPasswordValid, "adf");
 

@@ -18,8 +18,8 @@ export class authController {
             const userExists = await this.authUsecase.userExists(email);
             if (!userExists) {
                 const userData = await this.authUsecase.registerUser(req.body);
-                console.log(userData,"990099");
-                
+                console.log(userData, "990099");
+
                 return res.json(userData);
             }
             return res.json({ success: false, message: "User already exists" });
@@ -36,12 +36,12 @@ export class authController {
                 return res.status(401).json({ error: "User not found" });
             }
             // console.log(user,"{{{");
-            
+
             const user2 = await this.authUsecase.verifyPassword(req.body.email, req.body.password);
             // console.log("user",user2);
-            console.log(user,"popo");
+            console.log(user2, "popo");
             
-            return res.json(user);
+            return res.json(user2);
         } catch (error) {
             console.log(error);
             res.status(500).json({ error: 'Internal Server Error' });
@@ -55,7 +55,7 @@ export class authController {
                 return res.json(user);
             } else {
                 console.log("0099");
-                
+
                 const newUser = await this.authUsecase.registerUser(req.body);
                 return res.json(newUser);
             }
@@ -96,21 +96,21 @@ export class authController {
             console.error("Error in changePassword:", error);
             res.status(500).json({ error: 'Internal Server Error' });
         }
-    } 
+    }
 
     async checkRole(req: Request, res: Response, next: NextFunction) {
         try {
-            console.log("check role",req.body);
-            
+            console.log("check role", req.body);
+
             const user = await this.authUsecase.userExists(req.body.email);
             // console.log(user);
-            
+
             if (!user) {
                 return res.status(404).json({ success: false, message: "User not found" });
             }
             const userRole = await this.authUsecase.getUserRole(req.body.email);
-            console.log("Ds",userRole,"sd");
-            
+            console.log("Ds", userRole, "sd");
+
             if (userRole) {
                 return res.json({ success: true, role: userRole });
             } else {

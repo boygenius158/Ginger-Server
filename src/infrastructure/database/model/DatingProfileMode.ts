@@ -7,16 +7,20 @@ interface IDatingProfile extends Document {
   name: string;
   age: number;
   bio: string;
-  images: string[];
+  images: string;
+  likedUsers: ObjectId[];  // Users that this person has liked
+  likedByUsers: ObjectId[]; // Users who have liked this person
 }
 
 // Define the schema for the DatingProfile
 const DatingProfileSchema = new Schema<IDatingProfile>({
   userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-  name: { type: String, required: true },
-  age: { type: Number, required: true },
-  bio: { type: String, required: true },
-  images: { type: [String], default: [] }
+  name: { type: String, required: false },
+  age: { type: Number, required: false },
+  bio: { type: String, required: false },
+  images: { type: String, default: "" },
+  likedUsers: [{ type: Schema.Types.ObjectId, ref: 'User', default: [] }],
+  likedByUsers: [{ type: Schema.Types.ObjectId, ref: 'User', default: [] }],
 });
 
 // Create the model from the schema

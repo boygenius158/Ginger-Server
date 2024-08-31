@@ -7,6 +7,6 @@ export interface IAuthUserRepository {
     updatePassword(email:string,newPassword:string):Promise<User | null >
     storeotp(otp:string,email:string):Promise<User>,
     verifyotp(otp:string,email:string):Promise<User|null>
-    verifyPassword(otp:string,email:string):Promise<User | null>
+    verifyPassword(otp:string,email:string):Promise<User | boolean>
     clearotp(email:string):Promise<User|null>
 }

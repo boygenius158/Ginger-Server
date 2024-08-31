@@ -22,7 +22,7 @@ export class AuthUseCase implements IAuthUseCase {
 
         return user ? user : null;
     }
-    async verifyPassword(email: string, password: string): Promise<User | null> {
+    async verifyPassword(email: string, password: string): Promise<User | boolean> {
         const verify = await this._repository.verifyPassword(email, password)
         return verify
     }

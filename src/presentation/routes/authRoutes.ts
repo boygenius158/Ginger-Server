@@ -7,6 +7,7 @@ import { Schema } from 'mongoose'
 import { PremiumModel } from '../../infrastructure/database/model/PremiumModel'
 import ProfileSearchHistoryModel from '../../infrastructure/database/model/SearchHistoryModel'
 import Message from '../../infrastructure/database/model/MessageModel'
+import DatingProfile from '../../infrastructure/database/model/DatingProfileMode'
 
 const router = express.Router()
 
@@ -41,6 +42,42 @@ router.post('/api/user/premium-payment', async (req, res) => {
     console.log("payment server was reached");
 
 })
+router.post('/api/user/swipe-profiles', async (req, res) => {
+    console.log("swipe-profiles'", req.body);
+
+    const profiles = await DatingProfile.find({ userId: { $ne: req.body.userId } })
+    console.log(profiles.length);
+    res.json({ profiles })
+
+
+})
+router.post('/api/user/upload-dating-images', async (req, res) => {
+    console.log("upload-dating-images", req.body);
+    const profile = new DatingProfile({
+        userId: req.body.userId,
+        name: req.body.formData.name,
+        age: req.body.formData.age,
+        bio: req.body.formData.bio,
+        images: req.body.url
+
+    })
+    await profile.save()
+    res.json({})
+
+})
+router.post('/api/user/get-user-datingprofile', async (req, res) => {
+    console.log("get profie", req.body);
+    const user = await DatingProfile.findOne({ userId: req.body.userId })
+    res.json({ user })
+
+
+
+})
+router.post('/api/user/custombackendSession', async (req, res) => {
+    const user = await UserModel.findOne({ email: req.body.email })
+    res.json({ user })
+})
+
 router.get('/api/admin/premium-payment-details', async (req, res) => {
     try {
         const data = await PremiumModel.aggregate([
@@ -251,6 +288,7 @@ router.post('/api/user/upload-audio-cloud', async (req, res) => {
         type: "audio"
     })
     await schema.save()
+    res.json({})
 })
 
 export default router
