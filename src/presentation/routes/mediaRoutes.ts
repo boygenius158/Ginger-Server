@@ -20,6 +20,7 @@ import mongoose from 'mongoose';
 import { UserRole } from '../../domain/entities/User';
 import { Notification } from '../../infrastructure/database/model/NotificationModel';
 import Report from '../../infrastructure/database/model/ReportModel';
+import DatingProfile from '../../infrastructure/database/model/DatingProfileMode';
 
 
 
@@ -45,7 +46,114 @@ router.post('/api/user/postComment', controller.postComment.bind(controller))
 router.post('/api/user/uploadStory', controller.uploadStory.bind(controller))
 // router.post('/api/user/reportPost', controller.reportPost.bind(controller))
 router.post('/api/user/updateProfile', controller.updateProfile.bind(controller))
+router.post('/api/user/dating-tab2', async (req, res) => {
+    console.log("dating tab2", req.body);
+    const user = await DatingProfile.findOne({ userId: req.body.userId })
+    if (!user) {
+        return
+    }
+    user.images = req.body.url
+    await user.save()
+    console.log(user);
 
+    res.json({})
+
+})
+router.post('/api/user/dating-tab1', async (req, res) => {
+    try {
+        console.log("dating tab-1", req.body);
+
+        // Find the user by email (assuming email is unique)
+        const user = await DatingProfile.findOne({ userId: req.body.userId });
+
+        if (user) {
+            console.log("already exists");
+
+            const updatedProfile = await DatingProfile.updateOne(
+                { userId: req.body.userId },
+                {
+                    $set: {
+                        name: req.body.formData.name,
+                        age: req.body.formData.age,
+                        bio: req.body.formData.bio,
+                        gender: req.body.formData.gender
+                    }
+                }
+            );
+
+            res.json({ updatedProfile });
+
+        } else {
+            console.log("create new");
+
+            // Create a new profile if none exists
+            const profile = new DatingProfile({
+                userId: req.body.userId,
+                name: req.body.formData.name,
+                age: req.body.formData.age,
+                bio: req.body.formData.bio,
+                gender: req.body.formData.gender
+            });
+            await profile.save();
+            res.json({ profile });
+
+        }
+
+        // res.json({ success: true });
+    } catch (error) {
+        console.error("Error handling dating profile:", error);
+        res.status(500).json({ error: "An error occurred while processing your request." });
+    }
+});
+router.post('/api/user/dating-tab3', async (req, res) => {
+    const user = await DatingProfile.findOne({ userId: req.body.userId })
+    if (!user) {
+        console.log("user not found");
+
+        return
+    }
+    res.json({ images: user.images })
+
+})
+router.post('/api/user/dating-tab4', async (req, res) => {
+    console.log(req.body, "lol");
+    const user = await DatingProfile.findOne({ userId: req.body.userId })
+    if (!user) {
+        throw new Error
+    }
+    user.maximumAge = req.body.maximumAge,
+        user.profileVisibility = req.body.profileVisibility
+    await user.save()
+    console.log(user, ".:po098");
+
+
+})
+
+router.post('/api/user/settings', async (req, res) => {
+    console.log(req.body, "[]ee");
+    const user = await DatingProfile.findOne({ userId: req.body.userId })
+    const data = {
+        maximumAge: user?.maximumAge,
+        profileVisiblity: user?.profileVisibility,
+        gender:user?.gender
+    }
+    res.json({ data })
+
+})
+
+router.post('/api/user/dating-tab1-getdetails', async (req, res) => {
+    console.log(req.body, "=-0098");
+    const user = await DatingProfile.findOne({ userId: req.body.userId })
+    // console.log(user);
+    const formData = {
+        name: user?.name,
+        age: user?.age,
+        bio: user?.bio,
+        gender: user?.gender
+    }
+    res.json({ formData })
+
+})
 
 router.post('/api/user/reportPost', async (req, res) => {
     console.log("report post is hit", req.body);
@@ -176,6 +284,7 @@ router.post('/api/user/visitPost', async (req, res) => {
 
 
 })
+
 
 
 router.post('/create-payment-intent', async (req, res) => {
