@@ -219,8 +219,8 @@ export function setupSocketIO(server: any) {
       }
     });
 
-    socket.on('audio-chat', ({recipientEmail,senderEmail,message,type}) => {
-      console.log("audio chat90000",senderEmail);
+    socket.on('audio-chat', ({ recipientEmail, senderEmail, message, type }) => {
+      console.log("audio chat90000", senderEmail);
       let targetSocketId = findSocketWithEmail(recipientEmail);
 
       io.to(targetSocketId).emit('audio-chat')
@@ -239,6 +239,11 @@ export function setupSocketIO(server: any) {
         }
       }
     });
+
+    socket.on('swipe', (msg) => {
+      console.log(msg);
+
+    })
     socket.on('ImageMessage', async ({ recipientEmail, senderEmail, message, type }) => {
       console.log(recipientEmail, message, senderEmail);
 
