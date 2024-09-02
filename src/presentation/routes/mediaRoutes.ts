@@ -130,16 +130,33 @@ router.post('/api/user/dating-tab4', async (req, res) => {
 })
 
 router.post('/api/user/settings', async (req, res) => {
-    console.log(req.body, "[]ee");
-    const user = await DatingProfile.findOne({ userId: req.body.userId })
-    const data = {
-        maximumAge: user?.maximumAge,
-        profileVisiblity: user?.profileVisibility,
-        gender:user?.gender
-    }
-    res.json({ data })
+    try {
+        const { userId } = req.body;
 
-})
+        // Validate that userId is provided
+        if (!userId) {
+            return res.status(400).json({ error: 'User ID is required' });
+        }
+
+        // Fetch user settings from the database
+        const user = await DatingProfile.findOne({ userId });
+
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        const data = {
+            maximumAge: user.maximumAge || 18, // Default values if data is missing
+            profileVisibility: user.profileVisibility || false,
+            gender: user.gender || 'not specified'
+        };
+
+        return res.status(200).json({ data });
+    } catch (error) {
+        console.error('Error fetching user settings:', error);
+        return res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
 
 router.post('/api/user/dating-tab1-getdetails', async (req, res) => {
     console.log(req.body, "=-0098");
