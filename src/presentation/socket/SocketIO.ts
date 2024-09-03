@@ -4,6 +4,8 @@ import Message from "../../infrastructure/database/model/MessageModel";
 import mongoose from "mongoose";
 import { PostModel } from "../../infrastructure/database/model/PostModel";
 import { Notification } from "../../infrastructure/database/model/NotificationModel";
+import MatchService from "../../application/Services/MatchService";
+import UserService from "../../application/Services/UserService";
 
 
 
@@ -240,10 +242,48 @@ export function setupSocketIO(server: any) {
       }
     });
 
-    socket.on('swipe', (msg) => {
-      console.log(msg);
+    socket.on('swipe', async ({ profile, userId }) => {
+      console.log(profile.userId, "swiped by user", userId);
+      // // Handle the swipe event here
+      const email = await UserService.findEmailWithUserId(profile.userId)
+      // if(email){
+      //   const targetSocketId = findSocketWithEmail(email)
+
+      // }
+      const match = await MatchService.handleSwipe(userId, profile.userId)
+      console.log(match);
+      if (match) {
+        console.log("its a match");
+
+        //user-1
+        const user1Email = await UserService.findEmailWithUserId(userId)
+        const user2Email = await UserService.findEmailWithUserId(profile.userId)
+        if (!user1Email || !user2Email) {
+          throw new Error("One or both users do not have a registered email.");
+        }
+        const user1SocketId = findSocketWithEmail(user1Email)
+        const user2SocketId = findSocketWithEmail(user2Email)
+        io.to(user1SocketId).emit('match', "its a match")
+        io.to(user2SocketId).emit('match', "its a match")
+      }
+
+
+
+    });
+
+    socket.on('match_owner', async ({ userId }) => {
+      console.log(userId, "yuu");
+      const user = await UserService.findDatingProfile(userId)
+      const userEmail = await UserService.findEmailWithUserId(userId)
+      if (!user || !userEmail) {
+        throw new Error
+      }
+      console.log(user, "][=09987");
+      io.to(findSocketWithEmail(userEmail)).emit('profile-image', user.images[0])
+
 
     })
+
     socket.on('ImageMessage', async ({ recipientEmail, senderEmail, message, type }) => {
       console.log(recipientEmail, message, senderEmail);
 

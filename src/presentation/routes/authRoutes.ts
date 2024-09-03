@@ -45,12 +45,25 @@ router.post('/api/user/premium-payment', async (req, res) => {
 router.post('/api/user/swipe-profiles', async (req, res) => {
     console.log("swipe-profiles'", req.body);
 
-    const profiles = await DatingProfile.find({ userId: { $ne: req.body.userId } })
-    console.log(profiles.length);
-    res.json({ profiles })
+    const { userId, maximumAge, interestedGender } = req.body;
 
+    try {
+        // Fetch profiles excluding the current user and not liked by the current user
+        const profiles = await DatingProfile.find({
+            userId: { $ne: userId },  // Exclude the current user's profile
+            profileVisibility: true,  // Only fetch profiles that are visible
+            age: { $lte: maximumAge || Infinity },  // Apply maximum age filter if provided
+            interestedGender: interestedGender || { $exists: true },  // Apply interested gender filter if provided
+            likedByUsers: { $ne: userId }  // Exclude profiles that the user has already liked
+        });
 
-})
+        console.log(profiles.length);
+        res.json({ profiles });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "An error occurred while fetching profiles" });
+    }
+});
 router.post('/api/user/upload-dating-images', async (req, res) => {
     console.log("upload-dating-images", req.body);
     const profile = new DatingProfile({
