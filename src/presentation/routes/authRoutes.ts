@@ -78,6 +78,27 @@ router.post('/api/user/upload-dating-images', async (req, res) => {
     res.json({})
 
 })
+
+router.post('/api/user/fetch-matches', async (req, res) => {
+    const { userId } = req.body;
+    console.log(userId,"0999999");
+    
+    try {
+        // Find profiles where the current user has liked them and they have liked the current user back
+        const matches = await DatingProfile.find({
+            userId: { $ne: userId },  // Exclude the current user's profile
+            likedUsers: userId,  // The current user has liked these profiles
+            likedByUsers: userId  // These profiles have also liked the current user
+        }).populate('userId')
+        console.log(matches);
+        
+        res.json({ matches });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "An error occurred while fetching matches" });
+    }
+})
+
 router.post('/api/user/get-user-datingprofile', async (req, res) => {
     console.log("get profie", req.body);
     const user = await DatingProfile.findOne({ userId: req.body.userId })
