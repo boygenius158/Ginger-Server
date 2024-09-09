@@ -11,7 +11,7 @@ class Mailer {
             requireTLS: true,
             auth: {
                 user: "albindamn@gmail.com",
-                pass: "pnsw ibep tlms adga",
+                pass: "mpvv sxyg mvyp dbnp",
             },
         });
     }

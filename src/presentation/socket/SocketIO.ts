@@ -149,6 +149,19 @@ export function setupSocketIO(server: any) {
     });
 
 
+    socket.on('call', async (callee, caller) => {
+      console.log(caller, "calling ...");
+      const calleeSocketId = findSocketWithEmail(callee)
+      const callerSocketId = findSocketWithEmail(caller)
+      // console.log(calleeSocketId,);
+      const userdetails = await UserService.findUserDetailsWithEmail(caller)
+      console.log(userdetails,"lop",caller,);
+
+
+      io.to(calleeSocketId).emit('user_calling', userdetails)
+
+    })
+
     socket.on('offer', (offer, email) => {
       console.log(socket.id, "socketid");
       let targetSocketId = findSocketWithEmail(email)
@@ -183,6 +196,7 @@ export function setupSocketIO(server: any) {
       io.to(targetSocketId).emit('caller_notification', "hello world")
 
     })
+
     socket.on('onlineStatus', (recipient, sender) => {
       console.log(recipient, "onlineStatus");
       let socketFound = findSocketWithEmail(recipient)
@@ -244,12 +258,7 @@ export function setupSocketIO(server: any) {
 
     socket.on('swipe', async ({ profile, userId }) => {
       console.log(profile.userId, "swiped by user", userId);
-      // // Handle the swipe event here
-      const email = await UserService.findEmailWithUserId(profile.userId)
-      // if(email){
-      //   const targetSocketId = findSocketWithEmail(email)
 
-      // }
       const match = await MatchService.handleSwipe(userId, profile.userId)
       console.log(match);
       if (match) {
@@ -263,7 +272,7 @@ export function setupSocketIO(server: any) {
         }
         const user1SocketId = findSocketWithEmail(user1Email)
         const user2SocketId = findSocketWithEmail(user2Email)
-        io.to(user1SocketId).emit('match', "its a match")
+        io.to(user1SocketId).emit('match', "its a match") 
         io.to(user2SocketId).emit('match', "its a match")
       }
 

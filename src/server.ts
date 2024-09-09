@@ -10,6 +10,7 @@ import { connectDatabase } from './config/database/connection'
 import authRouter from './presentation/routes/authRoutes'
 import mediaRouter from './presentation/routes/mediaRoutes'
 import adminRouter from './presentation/routes/AdminRoute'
+import datingRouter from './presentation/routes/DatingRoute'
 import { setupSocketIO } from './presentation/socket/SocketIO';
 import scheduleCronJobs from './infrastructure/cron/cronScheduler';
 
@@ -32,6 +33,7 @@ app.get('/', (req, res) => {
 app.use('/', authRouter);
 app.use('/', mediaRouter);
 app.use('/', adminRouter);
+app.use('/', datingRouter);
 
 
 // Start the server using 'server.listen' instead of 'app.listen'

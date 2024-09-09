@@ -13,7 +13,19 @@ export interface IMediaUseCase {
     fetchFeed(email: string,offset:number,limit:number): Promise<Post[] | null>
     likePostAction(postsId: string, orginalUser: string): Promise<Post[] | null>
     postComment(email:string,postId:string,postedComment:string):Promise<Comment>
-    reportPost(postId:string,victimUser:string):Promise<boolean>
     uploadStory(url:string,userId:string):Promise<boolean>
     updateProfile(name:string,bio:string,email:string):Promise<boolean>
+    reportPost(reporterId: string, postId: string): Promise<void>;
+    fetchSavedPosts(username: string): Promise<any>; // Adjust return type as needed
+    updateReadStatus(sender: string, recipient: string): Promise<any>;
+    fetchHistoricalData(senderId: string, receiverId: string): Promise<any>;
+    getPremiumStatus(userId: string): Promise<any>;
+    getChatList(userId: string): Promise<any>;
+    visitPost(postId: string): Promise<any>;
+    fetchStories(userId: string): Promise<any>;
+    processAudioUpload(senderId: string, receiverId: string, audioUrl: string): Promise<void>;
+    execute(userId: string): Promise<any[]>;
+    executeSavePost(userId: string, postId: string): Promise<{ message: string }>;
+
+
 }

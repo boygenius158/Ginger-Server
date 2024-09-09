@@ -156,44 +156,32 @@ export class MediaController {
             res.status(500).json({ error: 'Internal Server Error' });
         }
     }
-    
+
     async postComment(req: Request, res: Response, next: NextFunction) {
         try {
             console.log(req.body);
-            
-            const { postedComment,userOfPost, postId } = req.body;
+
+            const { postedComment, userOfPost, postId } = req.body;
             console.log(postId);
-            
+
             const comment = await this.mediaUseCase.postComment(userOfPost, postedComment, postId);
             // console.log(comment);
-            
+
             // res.status(200).json(comment);
-                  res.json({ comment: comment });
+            res.json({ comment: comment });
 
         } catch (error) {
             console.log(error);
             res.status(500).json({ error: 'Internal Server Error' });
         }
     }
-    async reportPost(req: Request, res: Response, next: NextFunction) {
-        try {
-            const{postId,victimUser}= req.body
-            console.log(req.body);
-            
-            const result = await this.mediaUseCase.reportPost(postId,victimUser)
-            res.json({success:true})
 
-        } catch (error) {
-            console.log(error);
-            res.status(500).json({ error: 'Internal Server Error' });
-        }
-    }
     async uploadStory(req: Request, res: Response, next: NextFunction) {
         try {
             console.log(req.body);
-            
-            const usecase = await this.mediaUseCase.uploadStory(req.body.url,req.body.userId)
-            res.json({usecase})
+
+            const usecase = await this.mediaUseCase.uploadStory(req.body.url, req.body.userId)
+            res.json({ usecase })
         } catch (error) {
             console.log(error);
             res.status(500).json({ error: 'Internal Server Error' });
@@ -202,19 +190,146 @@ export class MediaController {
     async updateProfile(req: Request, res: Response, next: NextFunction) {
         try {
             console.log(req.body);
-            
-            const usecase = await this.mediaUseCase.updateProfile(req.body.name,req.body.bio,req.body.email)
-            res.json({usecase})
+
+            const usecase = await this.mediaUseCase.updateProfile(req.body.name, req.body.bio, req.body.email)
+            res.json({ usecase })
         } catch (error) {
             console.log(error);
             res.status(500).json({ error: 'Internal Server Error' });
         }
     }
+    async reportPost(req: Request, res: Response): Promise<void> {
+        try {
+            const { victimUser, postId } = req.body;
+            await this.mediaUseCase.reportPost(victimUser, postId);
+            res.status(200).json({ message: "Post reported successfully" });
+        } catch (error) {
+            console.error("Error reporting post:", error);
+            res.status(500).json({ message: "An error occurred while reporting the post" });
+        }
+    }
+    async fetchSavedPosts(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { username } = req.body;
+            const result = await this.mediaUseCase.fetchSavedPosts(username);
+            res.status(200).json(result);
+        } catch (error) {
+            console.error('Error fetching saved posts:', error);
+            res.status(500).json({ error: 'Server error' });
+        }
+
+
+    }
+    async updateReadStatus(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { sender, recipient } = req.body;
+            const result = await this.mediaUseCase.updateReadStatus(sender, recipient);
+            res.status(200).json(result);
+        } catch (error) {
+            console.error('Error updating read status:', error);
+            res.status(500).json({ error: 'Server error' });
+        }
+    }
+    async fetchHistoricalData(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { senderId, receiverId } = req.body;
+            const messages = await this.mediaUseCase.fetchHistoricalData(senderId, receiverId);
+            res.status(200).json({ messages });
+        } catch (error) {
+            console.error('Error fetching historical data:', error);
+            res.status(500).json({ error: 'Server error' });
+        }
+    }
+    async getPremiumStatus(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { userId } = req.body;
+            const role = await this.mediaUseCase.getPremiumStatus(userId);
+            if (!role) {
+                return res.status(404).json({ error: 'User not found' });
+            }
+            res.status(200).json({ role });
+        } catch (error) {
+            console.error('Error fetching premium status:', error);
+            res.status(500).json({ error: 'Server error' });
+        }
+    }
+    async getChatList(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { userId } = req.body;
+            if (!userId) {
+                return res.status(400).json({ error: 'User ID is required' });
+            }
+
+            const chatList = await this.mediaUseCase.getChatList(userId);
+            res.status(200).json(chatList);
+        } catch (error) {
+            console.error('Error fetching chat list:', error);
+            res.status(500).json({ error: 'Internal server error' });
+        }
+    }
+    async visitPost(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { postId } = req.body;
+            if (!postId) {
+                return res.status(400).json({ error: 'Post ID is required' });
+            }
+
+            const postDetails = await this.mediaUseCase.visitPost(postId);
+            res.status(200).json(postDetails);
+        } catch (error) {
+            console.error('Error visiting post:', error);
+            res.status(500).json({ error: 'Internal server error' });
+        }
+    }
+    async fetchStories(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { userId } = req.body;
+            if (!userId) {
+                return res.status(400).json({ error: 'User ID is required' });
+            }
+
+            const stories = await this.mediaUseCase.fetchStories(userId);
+            res.status(200).json({ stories });
+        } catch (error) {
+            console.error('Error fetching stories:', error);
+            res.status(500).json({ error: 'Internal server error' });
+        }
+    }
+    async handleAudioUpload(req: Request, res: Response): Promise<void> {
+        try {
+            const { sender, receiverId, audio_url } = req.body;
+            await this.mediaUseCase.processAudioUpload(sender, receiverId, audio_url.url);
+            res.json({ success: true });
+        } catch (error) {
+            console.error('Error uploading audio:', error);
+            res.status(500).json({ error: 'Server error' });
+        }
+    }
+    async handleFetchNotifications(req: Request, res: Response): Promise<void> {
+        try {
+            const { userId } = req.body;
+            console.log("fetch notifications", req.body);
+
+            const notifications = await this.mediaUseCase.execute(userId);
+            console.log(notifications, "notifications");
+
+            res.json({ notifications });
+        } catch (error) {
+            console.error('Error fetching notifications:', error);
+            res.status(500).json({ error: 'Server error' });
+        }
+    }
+    async handleSavePost(req: Request, res: Response): Promise<void> {
+        try {
+            const { userId, postId } = req.body;
+
+            const result = await this.mediaUseCase.executeSavePost(userId, postId);
+            res.json(result);
+        } catch (error) {
+            console.error('Error saving post:', error);
+            res.status(500).json({ message: "An error occurred" });
+        }
+    }
     
-
-
-
-
-
 
 }

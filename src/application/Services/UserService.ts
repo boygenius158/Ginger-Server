@@ -14,6 +14,10 @@ class UserService {
         
 
     }
+    async findUserDetailsWithEmail(email:string){
+        const user = await UserModel.findOne({email})
+        return user
+    }
     async findUserDetails(userId:Types.ObjectId){
         const user = await UserModel.findById(userId)
         return user

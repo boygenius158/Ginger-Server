@@ -1,9 +1,16 @@
 // authUseCase.ts
-import { User } from "../../domain/entities/User";
+import { User, UserRole } from "../../domain/entities/User";
 import { IAuthUserRepository } from "../interface/IAuthUserRepository";
 import { IAuthUseCase } from "../interface/IAuthUseCase";
 import Mailer from "../../utils/nodeMailer";
 import { TokenGenerator } from "../../utils/tokenGenerator";
+import ProfileSearchHistoryModel from "../../infrastructure/database/model/SearchHistoryModel";
+import { PremiumModel } from "../../infrastructure/database/model/PremiumModel";
+const Stripe = require('stripe');
+
+const stripeClient = Stripe('sk_test_51PirppRr9XEd7LoYrVRdZGs1hNtVrylVeCidygk60qvoe1h23IPqRE0vDD7Zltc4XuSBLA7jlHofNHyGlnwmzxKP00zS0tmxlX'); // Replace with your Stripe secret key
+
+const bcrypt = require('bcryptjs')
 
 export class AuthUseCase implements IAuthUseCase {
     private _repository: IAuthUserRepository;
@@ -84,14 +91,14 @@ export class AuthUseCase implements IAuthUseCase {
             if (user) {
                 const store = await this._repository.storeotp(otp, user.email);
                 console.log(store.otp, "this is store");
-    
+
                 if (store.otp) {
                     const number = store.otp;
                     await this.mailer.sendOtpMail(email, number);
                 } else {
                     throw new Error("OTP is undefined");
                 }
-    
+
                 return store;
             } else {
                 // Explicitly handle the case where the user does not exist
@@ -102,7 +109,7 @@ export class AuthUseCase implements IAuthUseCase {
             throw error; // Re-throw the error to be handled by the caller
         }
     }
-    
+
     async verifyotp(otp: string, email: string): Promise<User | null> {
         try {
             const verify = await this._repository.verifyotp(otp, email)
@@ -122,6 +129,128 @@ export class AuthUseCase implements IAuthUseCase {
         }
     }
 
+    async uploadProfilePicture(userId: string, url: string): Promise<any> {
+        return await this._repository.updateProfilePicture(userId, url);
+    }
+    async searchUsers(searchQuery: string): Promise<any[]> {
+        return this._repository.searchByUsername(searchQuery);
+    }
 
+    async getUserById(id: string): Promise<any> {
+        return this._repository.findById(id);
+    }
+
+    async hasPassword(id: string): Promise<{ hasPassword: boolean, message: string }> {
+        const user = await this._repository.findById(id);
+        if (!user) throw new Error('User not found');
+
+        if (user.password === null || user.password === undefined) {
+            return { hasPassword: false, message: 'Password is not set' };
+        }
+
+        return { hasPassword: true, message: 'Password is set' };
+    }
+
+    async updateUser(id: string, name: string, username: string): Promise<any> {
+        const user = await this._repository.findById(id);
+        if (!user) throw new Error('User not found');
+
+        if (username && username !== user.username) {
+            const existingUser = await this._repository.findOneByUsername(username);
+            if (existingUser) {
+                return { success: false };
+            }
+        }
+
+        user.name = name || user.name;
+        user.username = username || user.username;
+        return this._repository.save(user);
+    }
+
+    async updatePassword(id: string, currentPassword: string, newPassword: string): Promise<{ success: boolean, message: string }> {
+        const user = await this._repository.findById(id);
+        if (!user) throw new Error('User not found');
+
+        if (!user.password && !currentPassword) {
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash(newPassword, salt);
+            user.password = hashedPassword;
+            await this._repository.save(user);
+            return { success: true, message: 'Password set successfully' };
+        }
+
+        if (user.password && currentPassword) {
+            const isMatch = await bcrypt.compare(currentPassword, user.password);
+            if (!isMatch) {
+                return { success: false, message: 'Current password is incorrect' };
+            }
+
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash(newPassword, salt);
+            user.password = hashedPassword;
+            await this._repository.save(user);
+            return { success: true, message: 'Password updated successfully' };
+        }
+
+        throw new Error('Invalid request: Missing current or new password');
+    }
+    async getMiniProfile(id: string): Promise<any> {
+        return this._repository.findById(id);
+    }
+
+    async saveUserToSearchHistory(userId: string, key: any): Promise<{ message: string }> {
+        const existingEntry = await this._repository.findOne({
+            userId: userId,
+            searchedProfileId: key._id
+        });
+
+        if (existingEntry) {
+            return { message: "Entry already exists" };
+        }
+
+        const searchHistory = new ProfileSearchHistoryModel({
+            userId: userId,
+            searchedProfileId: key._id
+        });
+
+        await this._repository.save(searchHistory);
+        return { message: "Search history saved" };
+    }
+
+    async getRecentSearches(userId: string): Promise<any[]> {
+        // Perform the query and populate the results
+        return this._repository.find({ userId });
+
+    }
+
+    async handlePremiumPayment(userId: string): Promise<void> {
+        const premium = new PremiumModel({
+            userId,
+            amount: 350
+        });
+        await this._repository.save(premium);
+    }
+
+    async findUserByEmail(email: string): Promise<any> {
+        return this._repository.findOne({ email });
+    }
+
+    async createPaymentIntent(amount: number, currency: string = 'usd'): Promise<string> {
+        const paymentIntent = await stripeClient.paymentIntents.create({
+            amount,
+            currency,
+        });
+        return paymentIntent.client_secret;
+    }
+
+    async updateUserRole(userId: string, role: UserRole): Promise<void> {
+        const user = await this._repository.findById(userId);
+        if (!user) {
+            throw new Error('User not found');
+        }
+
+        user.roles = role; // role should be of type UserRole
+        await this._repository.save(user);
+    }
 
 }

@@ -11,6 +11,7 @@ export interface Premium extends Document {
 const PremiumSchema: Schema<Premium> = new Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     amount: { type: Number, required: true }
+    //expiry date
 }, {
     timestamps: true // Add timestamps option here
 });

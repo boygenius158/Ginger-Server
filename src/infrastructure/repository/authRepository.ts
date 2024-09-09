@@ -1,6 +1,8 @@
+import mongoose from "mongoose";
 import { IAuthUserRepository } from "../../application/interface/IAuthUserRepository";
-import { User } from "../../domain/entities/User";
+import { User, UserRole } from "../../domain/entities/User";
 import UserModel from "../database/model/authModel";
+import ProfileSearchHistoryModel from "../database/model/SearchHistoryModel";
 
 const bcrypt = require('bcryptjs'); // Import bcrypt for password hashing
 
@@ -122,7 +124,7 @@ export class AuthRepository implements IAuthUserRepository {
             if (user.isBlocked) {
                 // throw new Error('User is blocked');
                 console.log("yelp");
-                
+
                 return false
             }
 
@@ -154,6 +156,49 @@ export class AuthRepository implements IAuthUserRepository {
         } catch (error) {
             console.error("Error updating password:", error);
             throw error;
+        }
+    }
+    async findById(userId: string): Promise<any> {
+        return await UserModel.findById(new mongoose.Types.ObjectId(userId));
+    }
+    async updateProfilePicture(userId: string, url: string): Promise<any> {
+        const user = await this.findById(userId);
+        if (!user) {
+            throw new Error("User not found");
+        }
+        user.profilePicture = url;
+        return await user.save();
+    }
+    async searchByUsername(query: string): Promise<any[]> {
+        return UserModel.find({
+            username: { $regex: '^' + query, $options: 'i' }
+        });
+    }
+    
+    async findOneByUsername(username: string): Promise<any> {
+        return UserModel.findOne({ username }).exec();
+    }
+
+    async save(user: any): Promise<any> {
+        return user.save();
+    }
+    async findOne(query: any): Promise<any> {
+        return ProfileSearchHistoryModel.findOne(query).exec();
+    }
+
+    // async save(entry: any): Promise<any> {
+    //     return entry.save();
+    // }
+
+    async find(query: any): Promise<any[]> {
+        return ProfileSearchHistoryModel.find(query).populate('searchedProfileId').exec();
+
+    }
+    async updateUserRoles(userId: string, role: UserRole): Promise<void> {
+        const user = await UserModel.findById(userId);
+        if (user) {
+            user.roles = role;
+            await user.save();
         }
     }
 }

@@ -10,4 +10,17 @@ export interface IAuthUseCase {
     verifyotp(otp:string,email:string):Promise<User|null>
     verifyPassword(email:string,password:string):Promise<User|boolean>
     clearotp(email:string):Promise<User|null>
+    uploadProfilePicture(userId: string, url: string): Promise<any>;
+    searchUsers(searchQuery: string): Promise<any[]>;
+    getUserById(id: string): Promise<any>;
+    hasPassword(id: string): Promise<{ hasPassword: boolean, message: string }>;
+    updateUser(id: string, name: string, username: string): Promise<any>;
+    updatePassword(id: string, currentPassword: string, newPassword: string): Promise<{ success: boolean, message: string }>;
+    getMiniProfile(id: string): Promise<any>;
+    saveUserToSearchHistory(userId: string, key: any): Promise<{ message: string }>;
+    getRecentSearches(userId: string): Promise<any[]>;
+    handlePremiumPayment(userId: string): Promise<void>;
+    findUserByEmail(email: string): Promise<any>;
+    createPaymentIntent(amount: number, currency?: string): Promise<string>;
+    updateUserRole(userId: string, role: any): Promise<void>;
 }

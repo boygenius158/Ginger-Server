@@ -10,8 +10,24 @@ import CommentModel from "../database/model/CommentModel";
 import StoryModel from "../database/model/StoryModel";
 import { Notification } from "../database/model/NotificationModel";
 import { Socket } from "socket.io";
+import Report from "../database/model/ReportModel";
+import Message from "../database/model/MessageModel";
 
 export class MediaRepository implements IMediaRepository {
+    async findUserByUsername(username: string): Promise<any> {
+        return await UserModel.findOne({ username: username });
+    }
+
+    async findPostsByIds(postIds: string[]): Promise<any[]> {
+        return await PostModel.find({ _id: { $in: postIds } });
+    }
+    async reportPost(reporterId: string, postId: string): Promise<void> {
+        const report = new Report({
+            reporterId,
+            postId,
+        });
+        await report.save();
+    }
     async uploadPost(post: Post): Promise<Post | null> {
         try {
             const { imageUrl, caption, userId } = post;
@@ -150,7 +166,7 @@ export class MediaRepository implements IMediaRepository {
                 {
                     $match: {
                         userId: { $in: following },
-                        isBanned:false
+                        isBanned: false
                     },
                 },
                 {
@@ -183,7 +199,7 @@ export class MediaRepository implements IMediaRepository {
                         'userDetails.username': 1,
                         'userDetails.email': 1,
                         'userDetails.profilePicture': 1,
-                        isSaved:1
+                        isSaved: 1
 
                     },
                 },
@@ -261,25 +277,7 @@ export class MediaRepository implements IMediaRepository {
         const savedComment = await comment.save();
         return savedComment as Comment;
     }
-    async reportPost(postId: string, victimUser: string): Promise<boolean> {
-        const post = await PostModel.findById(postId)
-        const objectId = new mongoose.Types.ObjectId(victimUser)
-        console.log("objectid", objectId);
 
-        if (!post) {
-            console.log("found");
-            throw new Error('post not found')
-
-        }
-        if (!post.isReported) {
-            post.isReported = []
-        }
-        console.log(post, "post found");
-        post.isReported.push(objectId)
-        await post.save()
-
-        return true
-    }
     async uploadStory(url: string, userId: string): Promise<boolean> {
         console.log("reached");
 
@@ -304,5 +302,92 @@ export class MediaRepository implements IMediaRepository {
         user.name = name
         await user.save()
         return true
+    }
+    async updateMessageReadStatus(sender: string, recipient: string): Promise<any> {
+        return await Message.updateMany(
+            {
+                $or: [
+                    { sender: recipient, receiver: sender },
+                ],
+                isRead: false
+            },
+            {
+                $set: { isRead: true }
+            }
+        );
+    }
+    async getHistoricalMessages(senderId: string, receiverId: string): Promise<any> {
+        return await Message.find({
+            $or: [
+                { sender: senderId, receiver: receiverId },
+                { sender: receiverId, receiver: senderId },
+            ]
+        }).sort({ timestamp: 1 });
+    }
+    async getUserById(userId: string): Promise<any> {
+        return await UserModel.findById(userId);
+    }
+    async getUsersByIds(userIds: string[]): Promise<any[]> {
+        return await UserModel.find({ _id: { $in: userIds } });
+    }
+    async getPostById(postId: string): Promise<any> {
+        return await PostModel.findById(postId).populate('userId');
+    }
+
+    async getCommentsByPostId(postId: string): Promise<any[]> {
+        return await CommentModel.find({ postId }).populate('userId');
+    }
+    async getUserFollowing(userId: string): Promise<string[]> {
+        const user = await UserModel.findById(userId).select('following');
+        if (!user) {
+            throw new Error('User not found');
+        }
+
+        // Provide an empty array if following is undefined
+        const followingList = user.following ?? [];
+
+        // Convert ObjectId to string
+        return followingList.map(id => id.toString());
+    }
+
+    async getStoriesByFollowingList(followingList: string[]): Promise<any[]> {
+        return await StoryModel.aggregate([
+            { $match: { userId: { $in: followingList.map(id => new mongoose.Types.ObjectId(id)) } } },
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'userId',
+                    foreignField: '_id',
+                    as: 'userDetails'
+                }
+            },
+            { $unwind: '$userDetails' },
+            {
+                $project: {
+                    _id: 1,
+                    userId: 1,
+                    imageUrl: 1,
+                    createdAt: 1,
+                    'userDetails.username': 1,
+                    'userDetails.profilePicture': 1
+                }
+            }
+        ]);
+    }
+    async createMessage(messageData: any): Promise<any> {
+        const newMessage = new Message(messageData);
+        return newMessage.save();
+    }
+    async getNotificationsByUserId(userId: string): Promise<any[]> {
+        return Notification.find({ user: userId })
+            .populate('interactorId', 'username profilePicture')
+            .exec();
+    }
+    async findById(userId: string): Promise<any | null> {
+        return UserModel.findById(userId).exec();
+    }
+
+    async saveUser(user: any): Promise<void> {
+        await user.save();
     }
 }          

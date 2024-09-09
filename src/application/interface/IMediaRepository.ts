@@ -15,8 +15,23 @@ export interface IMediaRepository {
     fetchFeed(id:string,offset:number,limit:number):Promise<Post[]|null>
     likePost(postId:string,orginalUser:string):Promise<boolean|null>
     postComment(email:string,postId:string,postedComment:string):Promise<Comment>
-    reportPost(postId:string,victimUser:string):Promise<boolean>
     uploadStory(url:string,userId:string):Promise<boolean>
     updateProfile(name:string,bio:string,email:string):Promise<boolean>
+    reportPost(reporterId: string, postId: string): Promise<void>;
+    findUserByUsername(username: string): Promise<any>; // Adjust return type as needed
+    findPostsByIds(postIds: string[]): Promise<any[]>; // Adjust return type as needed
+    updateMessageReadStatus(sender: string, recipient: string): Promise<any>;
+    getHistoricalMessages(senderId: string, receiverId: string): Promise<any>;
+    getUserById(userId: string): Promise<any>;
+    getUsersByIds(userIds: string[]): Promise<any[]>;
+    getPostById(postId: string): Promise<any>;
+    getCommentsByPostId(postId: string): Promise<any[]>;
+    getUserFollowing(userId: string): Promise<string[]>;
+    getStoriesByFollowingList(followingList: string[]): Promise<any[]>;
+    createMessage(messageData: any): Promise<any>;
+    getNotificationsByUserId(userId: string): Promise<any[]>;
+    findById(userId: string): Promise<any | null>;
+    saveUser(user: any): Promise<void>;
+
 }
    

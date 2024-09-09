@@ -81,22 +81,107 @@ export class MediaUseCase implements IMediaUseCase {
         const comment = await this.repository.postComment(email, postedComment, postId);
         return comment;
     }
-    async reportPost(postId: string, victimUser: string): Promise<boolean> {
-        console.log("reportpost");
-        
-        const action = await this.repository.reportPost(postId, victimUser)
-        console.log("returned");
-        
-        return action
-    }
+
     async uploadStory(url: string, userId: string): Promise<boolean> {
-        const action = await this.repository.uploadStory(url,userId)
+        const action = await this.repository.uploadStory(url, userId)
         return true
     }
 
     async updateProfile(name: string, bio: string, email: string): Promise<boolean> {
-        const action = await this.repository.updateProfile(name,bio,email)
+        const action = await this.repository.updateProfile(name, bio, email)
         return true
+    }
+    async reportPost(reporterId: string, postId: string): Promise<void> {
+        await this.repository.reportPost(reporterId, postId);
+    }
+
+    async fetchSavedPosts(username: string): Promise<any> {
+        // Fetch user from repository
+        const user = await this.repository.findUserByUsername(username);
+        if (!user) {
+            throw new Error("User not found");
+        }
+
+        // Fetch saved posts
+        const savedPostIds = user.savedPosts;
+        const posts = await this.repository.findPostsByIds(savedPostIds);
+
+        return { savedPosts: posts };
+    }
+    async updateReadStatus(sender: string, recipient: string): Promise<any> {
+        // Update the read status of messages
+        const result = await this.repository.updateMessageReadStatus(sender, recipient);
+        return result;
+    }
+    async fetchHistoricalData(senderId: string, receiverId: string): Promise<any> {
+        // Fetch historical messages between sender and receiver
+        const messages = await this.repository.getHistoricalMessages(senderId, receiverId);
+        return messages;
+    }
+    async getPremiumStatus(userId: string): Promise<any> {
+        // Fetch the user and their roles to determine premium status
+        const user = await this.repository.getUserById(userId);
+        return user ? user.roles : null;
+    }
+    async getChatList(userId: string): Promise<any> {
+        const user = await this.repository.getUserById(userId);
+        if (!user) {
+            throw new Error("User not found");
+        }
+
+        const following = user.following || [];
+        const followingUsers = await this.repository.getUsersByIds(following);
+
+        return { followingUsers };
+    }
+    async visitPost(postId: string): Promise<any> {
+        const result = await this.repository.getPostById(postId);
+        const comments = await this.repository.getCommentsByPostId(postId);
+
+        return { result, comments };
+    }
+    async fetchStories(userId: string): Promise<any> {
+        const followingList = await this.repository.getUserFollowing(userId);
+        const stories = await this.repository.getStoriesByFollowingList(followingList);
+
+        return stories;
+    }
+    async processAudioUpload(senderId: string, receiverId: string, audioUrl: string): Promise<void> {
+        const audioMessageData = {
+            sender: senderId,
+            receiver: receiverId,
+            message: audioUrl,
+            type: "audio"
+        };
+
+        await this.repository.createMessage(audioMessageData);
+    }
+    async execute(userId: string): Promise<any[]> {
+        return this.repository.getNotificationsByUserId(userId);
+    }
+    async executeSavePost(userId: string, postId: string): Promise<{ message: string }> {
+        const objectId = new mongoose.Types.ObjectId(postId);
+        const user = await this.repository.findById(userId);
+
+        if (!user) {
+            throw new Error("User not found");
+        }
+
+        if (!user.savedPosts) {
+            user.savedPosts = [];
+        }
+
+        const postIndex = user.savedPosts.indexOf(objectId);
+
+        if (postIndex === -1) {
+            user.savedPosts.push(objectId);
+        } else {
+            user.savedPosts.splice(postIndex, 1);
+        }
+
+        await this.repository.saveUser(user);
+
+        return { message: "Post saved/unsaved successfully" };
     }
 
     

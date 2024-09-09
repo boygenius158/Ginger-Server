@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express'; // Import necessary t
 import { IAuthUseCase } from '../../application/interface/IAuthUseCase'; // Import the interface
 import { TokenGenerator } from '../../utils/tokenGenerator';
 import randomnumber from '../../utils/randomOTP';
+import { UserRole } from '../../domain/entities/User';
 // import { UserModel } from '../../infrastructure/database/model/authModel';
 export class authController {
     private authUsecase: IAuthUseCase;
@@ -40,7 +41,7 @@ export class authController {
             const user2 = await this.authUsecase.verifyPassword(req.body.email, req.body.password);
             // console.log("user",user2);
             console.log(user2, "popo");
-            
+
             return res.json(user2);
         } catch (error) {
             console.log(error);
@@ -151,6 +152,135 @@ export class authController {
         } catch (error) {
             console.log(error);
             res.status(500).json({ error: 'Internal Server Error' });
+        }
+    }
+
+    async uploadProfile(req: Request, res: Response): Promise<void> {
+        try {
+            const { url, userId } = req.body;
+            const updatedUser = await this.authUsecase.uploadProfilePicture(userId, url);
+            res.json({ url: updatedUser.profilePicture });
+        } catch (error) {
+            console.error("Error uploading profile picture:", error);
+            res.status(500).json({ error: "Internal Server Error" });
+        }
+    }
+    async searchUser(req: Request, res: Response): Promise<void> {
+        try {
+            const searchQuery = req.query.searchQuery as string;
+            if (!searchQuery) {
+                res.status(400).json({ error: "Search query is required" });
+            }
+            const users = await this.authUsecase.searchUsers(searchQuery);
+            res.json({ users });
+        } catch (error) {
+            console.error("Error searching users:", error);
+            res.status(500).json({ error: "Internal Server Error" });
+        }
+    }
+    async fetchNameUsername(req: Request, res: Response): Promise<void> {
+        try {
+            const user = await this.authUsecase.getUserById(req.body.id);
+            if (!user) {
+                res.status(404).json({ error: 'User not found' });
+            } else {
+                res.json({ user });
+            }
+        } catch (error) {
+            res.status(500).json({ error: 'Server error' });
+        }
+    }
+
+    async hasPassword(req: Request, res: Response): Promise<void> {
+        try {
+            const { id } = req.body;
+            const result = await this.authUsecase.hasPassword(id);
+            res.json(result);
+        } catch (error) {
+            res.status(500).json({ error: 'Server error' });
+        }
+    }
+
+    async updateUser(req: Request, res: Response): Promise<void> {
+        try {
+            const { id, name, username } = req.body;
+            const result = await this.authUsecase.updateUser(id, name, username);
+            if (result.success === false) {
+                res.json(result);
+            } else {
+                res.json({ success: true, user: result });
+            }
+        } catch (error) {
+            res.status(500).json({ error: 'Server error' });
+        }
+    }
+
+    async updatePassword(req: Request, res: Response): Promise<void> {
+        try {
+            const { id, currentPassword, newPassword } = req.body;
+            const result = await this.authUsecase.updatePassword(id, currentPassword, newPassword);
+            res.json(result);
+        } catch (error) {
+            res.status(500).json({ error: 'Server error' });
+        }
+    }
+    async miniProfile(req: Request, res: Response): Promise<void> {
+        try {
+            const user = await this.authUsecase.getMiniProfile(req.body.id);
+            res.json({ user });
+        } catch (error) {
+            res.status(500).json({ error: 'Server error' });
+        }
+    }
+
+    async saveUserToSearchHistory(req: Request, res: Response): Promise<void> {
+        try {
+            const result = await this.authUsecase.saveUserToSearchHistory(req.body.userId, req.body.key);
+            res.json(result);
+        } catch (error) {
+            res.status(500).json({ error: 'Server error' });
+        }
+    }
+
+    async getRecentSearches(req: Request, res: Response): Promise<void> {
+        try {
+            const searches = await this.authUsecase.getRecentSearches(req.body.userId);
+            res.json({ searches });
+        } catch (error) {
+            res.status(500).json({ error: 'Server error' });
+        }
+    }
+
+    async premiumPayment(req: Request, res: Response): Promise<void> {
+        try {
+            await this.authUsecase.handlePremiumPayment(req.body.userId);
+            res.json({ message: 'Premium payment recorded' });
+        } catch (error) {
+            res.status(500).json({ error: 'Server error' });
+        }
+    }
+
+    async customBackendSession(req: Request, res: Response): Promise<void> {
+        try {
+            const user = await this.authUsecase.findUserByEmail(req.body.email);
+            res.json({ user });
+        } catch (error) {
+            res.status(500).json({ error: 'Server error' });
+        }
+    }
+    async createPaymentIntent(req: Request, res: Response): Promise<void> {
+        const { amount, userId, currency = 'usd' } = req.body;
+
+        try {
+            const clientSecret = await this.authUsecase.createPaymentIntent(amount, currency);
+            
+            // Assume premium role for the user
+            await this.authUsecase.updateUserRole(userId, UserRole.Premium);
+            
+            res.send({ clientSecret });
+        } catch (error) {
+            console.error(error);
+            res.status(400).send({ error: 'Error creating payment intent' });
         }
     }
 }
