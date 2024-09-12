@@ -1,4 +1,4 @@
-import UserModel from "../database/model/authModel";
+import UserModel from "../database/model/UserModel";
 import { PostModel } from "../database/model/PostModel";
 import { PremiumModel } from "../database/model/PremiumModel";
 import Report from "../database/model/ReportModel";

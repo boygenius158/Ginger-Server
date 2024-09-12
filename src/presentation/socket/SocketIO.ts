@@ -1,11 +1,12 @@
 import { Server } from "socket.io";
-import UserModel from "../../infrastructure/database/model/authModel";
+import UserModel from "../../infrastructure/database/model/UserModel";
 import Message from "../../infrastructure/database/model/MessageModel";
 import mongoose from "mongoose";
 import { PostModel } from "../../infrastructure/database/model/PostModel";
 import { Notification } from "../../infrastructure/database/model/NotificationModel";
 import MatchService from "../../application/Services/MatchService";
 import UserService from "../../application/Services/UserService";
+import AudioMessageService from "../../application/Services/AudioMessageService";
 
 
 
@@ -155,7 +156,7 @@ export function setupSocketIO(server: any) {
       const callerSocketId = findSocketWithEmail(caller)
       // console.log(calleeSocketId,);
       const userdetails = await UserService.findUserDetailsWithEmail(caller)
-      console.log(userdetails,"lop",caller,);
+      console.log(userdetails, "lop", caller,);
 
 
       io.to(calleeSocketId).emit('user_calling', userdetails)
@@ -235,14 +236,32 @@ export function setupSocketIO(server: any) {
       }
     });
 
-    socket.on('audio-chat', ({ recipientEmail, senderEmail, message, type }) => {
-      console.log("audio chat90000", senderEmail);
+    // socket.on('audio-chat', ({ recipientEmail, senderEmail, message, type }) => {
+    //   console.log(message, "message", type, "type");
+
+    //   console.log("audio chat90000", senderEmail);
+    //   let targetSocketId = findSocketWithEmail(recipientEmail);
+    //   if (targetSocketId) console.log(true, "099");
+
+    //   io.to(targetSocketId).emit('audio-chat')
+
+    // })
+    socket.on('audio-chat', async ({ recipientEmail, senderEmail, message, type }) => {
+      const data = {
+        recipientEmail,
+        senderEmail,
+        message,
+        type
+      }
+      const audioMessage = await AudioMessageService.uploadAudio(data)
+      console.log(audioMessage, "tiff");
       let targetSocketId = findSocketWithEmail(recipientEmail);
-
-      io.to(targetSocketId).emit('audio-chat')
-
+      let ownerSocketId = findSocketWithEmail(senderEmail)
+      console.log(targetSocketId,"77777");
+      
+      io.to(targetSocketId).emit('audio-chat-return',audioMessage)
+      io.to(ownerSocketId).emit('audio-chat-return',audioMessage)
     })
-
     socket.on('disconnectUser', () => {
       console.log(`User disconnected: ${socket.id}`);
 
@@ -272,7 +291,7 @@ export function setupSocketIO(server: any) {
         }
         const user1SocketId = findSocketWithEmail(user1Email)
         const user2SocketId = findSocketWithEmail(user2Email)
-        io.to(user1SocketId).emit('match', "its a match") 
+        io.to(user1SocketId).emit('match', "its a match")
         io.to(user2SocketId).emit('match', "its a match")
       }
 

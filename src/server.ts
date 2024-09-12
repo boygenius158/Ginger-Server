@@ -7,8 +7,8 @@ import { Server } from 'socket.io';
 
 import { connectDatabase } from './config/database/connection'
 
-import authRouter from './presentation/routes/authRoutes'
-import mediaRouter from './presentation/routes/mediaRoutes'
+import authRouter from './presentation/routes/UserRoute'
+import mediaRouter from './presentation/routes/PostRoute'
 import adminRouter from './presentation/routes/AdminRoute'
 import datingRouter from './presentation/routes/DatingRoute'
 import { setupSocketIO } from './presentation/socket/SocketIO';
@@ -26,9 +26,9 @@ const server = http.createServer(app);
 connectDatabase();
 setupSocketIO(server)
 
-app.get('/', (req, res) => {
-    res.send("Hello World");
-});
+app.get('/hello',(req,res)=>{
+    res.send('hello world')
+})
 
 app.use('/', authRouter);
 app.use('/', mediaRouter);

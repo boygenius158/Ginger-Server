@@ -1,4 +1,4 @@
-import UserModel from "../../infrastructure/database/model/authModel";
+import UserModel from "../../infrastructure/database/model/UserModel";
 import { IAdminRepository } from "../../infrastructure/repository/AdminRepository"
 
 

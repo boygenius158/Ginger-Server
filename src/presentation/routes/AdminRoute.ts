@@ -1,12 +1,12 @@
 import mongoose from 'mongoose'
 import express from 'express'
 
-import UserModel from '../../infrastructure/database/model/authModel'
+import UserModel from '../../infrastructure/database/model/UserModel'
 import { PostModel } from '../../infrastructure/database/model/PostModel'
 import Report from '../../infrastructure/database/model/ReportModel'
 import { AdminRepository } from '../../infrastructure/repository/AdminRepository'
 import { AdminUseCase } from '../../application/usecase/AdminUseCase'
-import { AdminController } from '../controllers/adminController'
+import { AdminController } from '../controllers/AdminController'
 const bcrypt = require('bcryptjs')
 const router = express.Router()
 

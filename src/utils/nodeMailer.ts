@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const nodemailer = require('nodemailer');
 
 class Mailer {
@@ -10,15 +12,15 @@ class Mailer {
             secure: false,
             requireTLS: true,
             auth: {
-                user: "albindamn@gmail.com",
-                pass: "mpvv sxyg mvyp dbnp",
+                user: process.env.GMAIL,
+                pass: process.env.G_PASSWORD,
             },
         });
     }
 
     async sendMail(to: string, subject: string, htmlContent: string) {
         const mailOptions = {
-            from: "albindamn@gmail.com",
+            from: process.env.GMAIL,
             to: to,
             subject: subject,
             html: htmlContent,
@@ -33,8 +35,8 @@ class Mailer {
     }
 
     async sendOtpMail(to: string, otp: string) {
-        console.log(otp,"this is the otp");
-        
+        console.log(otp, "this is the otp");
+
         const subject = "OTP MESSAGE";
         const htmlContent = `<p>Hi,</p>
                              <p>Your OTP code is <strong>${otp}</strong>. It will expire in 5 minutes.</p>`;
@@ -42,7 +44,7 @@ class Mailer {
     }
 
     async sendVerificationMail(to: string, token: string) {
-        
+
         const subject = "Email Verification";
         const htmlContent = `<p>Hi,</p>
                              <p>Please click <a href="http://127.0.0.1:3000/verify?token=${token}">here</a> to verify your email.</p>`;
