@@ -26,8 +26,11 @@ const server = http.createServer(app);
 connectDatabase();
 setupSocketIO(server)
 
-app.get('/hello',(req,res)=>{
+app.get('/hello', (req, res) => {
     res.send('hello world')
+})
+app.get('/', (req, res) => {
+    res.send('hello ginger.com')
 })
 
 app.use('/', authRouter);
