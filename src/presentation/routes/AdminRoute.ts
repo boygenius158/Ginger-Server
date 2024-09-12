@@ -10,11 +10,6 @@ import { AdminController } from '../controllers/AdminController'
 const bcrypt = require('bcryptjs')
 const router = express.Router()
 
-
-
-// const repo = new AdminRepository()
-// const adminUseCase = new AdminUseCase(repo)
-// const controller = new AdminController(adminUseCase)
 const repo = new AdminRepository()
 const service = new AdminUseCase(repo)
 const adminController = new AdminController(service)
