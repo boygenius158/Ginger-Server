@@ -20,14 +20,5 @@ router.post('/api/user/dating-tab4', datingController.handleDatingTab4.bind(dati
 router.post('/api/user/settings', datingController.handleUserSettings.bind(datingController));
 router.post('/api/user/dating-tab1-getdetails', datingController.getDatingTab1Details.bind(datingController));
 
-// router.post('/api/user/dating-tab1',controller.)
-// router.post('/api/user/get-user-datingprofile', async (req, res) => {
-//     console.log("get profie", req.body);
-//     const user = await DatingProfile.findOne({ userId: req.body.userId })
-//     res.json({ user })
-
-
-
-// })
 
 export default router

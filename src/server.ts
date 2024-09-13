@@ -16,7 +16,7 @@ import scheduleCronJobs from './infrastructure/cron/cronScheduler';
 
 
 dotenv.config()
-const port = 3000;
+const port = 5000;
 const app = express();
 scheduleCronJobs()
 app.use(express.json());
