@@ -26,7 +26,7 @@ app.use(cors({
 const server = http.createServer(app);
 (0, connection_1.connectDatabase)();
 (0, SocketIO_1.setupSocketIO)(server);
-app.get('/hello', (req, res) => {
+app.get('/', (req, res) => {
     res.send('hello world');
 });
 app.get('/', (req, res) => {
