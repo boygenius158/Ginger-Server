@@ -70,6 +70,8 @@ export class DatingUseCase implements IDatingUseCase {
     }
     async getUserSettings(userId: string): Promise<any> {
         const user = await this._repository.findUserById(userId);
+        console.log(user);
+        
         if (!user) {
             return null;
         }

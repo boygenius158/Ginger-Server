@@ -5,6 +5,7 @@ import { Comment } from "../../domain/entities/Comment";
 
 import { IMediaRepository } from "../interface/IMediaRepository";
 import { IMediaUseCase } from "../interface/IMediaUseCase";
+import { ChartConfig, ChartData } from "../interface/ChartInterfaces";
 
 export class MediaUseCase implements IMediaUseCase {
     private repository: IMediaRepository;
@@ -22,6 +23,43 @@ export class MediaUseCase implements IMediaUseCase {
             throw new Error
         }
         return userId
+    }
+    async getExpiryDate(userId: string): Promise<number> {
+        const user = await this.repository.findUserById(userId);
+
+        if (!user) {
+            throw new Error('User not found');
+        }
+
+        if (user.roles !== 'premium' && user.roles !== 'admin') {
+            throw new Error('User does not have the required role');
+        }
+
+        const premium = await this.repository.findPremiumByUserId(userId);
+
+        if (!premium?.createdAt) {
+            throw new Error('Premium document or createdAt not found');
+        }
+
+        const createdAt = new Date(premium.createdAt);
+        const expiryDate = new Date(createdAt);
+        expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+
+        const today = new Date();
+        const timeDiff = expiryDate.getTime() - today.getTime();
+        const daysLeft = Math.ceil(timeDiff / (1000 * 3600 * 24));
+
+        return daysLeft;
+    }
+    async getUserDemographics(): Promise<{ label: string; value: number }[]> {
+        console.log("pop");
+
+        const demographics = await this.repository.getUserDemographics();
+
+        return demographics.map((demographic: any) => ({
+            label: demographic._id,
+            value: demographic.count
+        }));
     }
     async createPost(imageUrl: string[], caption: string, email: string): Promise<Post | null> {
         // Implement the actual logic here
@@ -121,6 +159,7 @@ export class MediaUseCase implements IMediaUseCase {
     async getPremiumStatus(userId: string): Promise<any> {
         // Fetch the user and their roles to determine premium status
         const user = await this.repository.getUserById(userId);
+
         return user ? user.roles : null;
     }
     async getChatList(userId: string): Promise<any> {
@@ -184,5 +223,37 @@ export class MediaUseCase implements IMediaUseCase {
         return { message: "Post saved/unsaved successfully" };
     }
 
-    
+    async getChartData(): Promise<{ chartData: ChartData[], chartConfig: ChartConfig }> {
+        interface UserType {
+            username: string;
+            followerCount: number;
+        }
+
+        const data = await this.repository.getTopUsersByFollowers(3);
+
+        // Map the aggregation result to the required chartData format
+        const chartData: ChartData[] = data.map((user: UserType) => ({
+            username: user.username,
+            followers: user.followerCount,
+            fill: "var(--color-other)" // Replace this with actual color logic if needed
+        }));
+
+        // Generate chartConfig dynamically based on chartData
+        const chartConfig: ChartConfig = chartData.reduce((config, user, index) => {
+            const colorVar = `--chart-${index + 2}`;
+            config[user.username] = {
+                label: user.username,
+                color: `hsl(var(${colorVar}))`
+            };
+            return config;
+        }, {} as ChartConfig);
+
+        // Add any additional static or predefined configurations
+        chartConfig.visitors = {
+            label: "Visitors",
+            color: 'hsl(var(--chart-visitors))' // Add a default color if needed
+        };
+
+        return { chartData, chartConfig };
+    }
 } 

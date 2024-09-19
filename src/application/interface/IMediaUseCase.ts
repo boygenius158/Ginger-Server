@@ -26,6 +26,9 @@ export interface IMediaUseCase {
     processAudioUpload(senderId: string, receiverId: string, audioUrl: string): Promise<void>;
     execute(userId: string): Promise<any[]>;
     executeSavePost(userId: string, postId: string): Promise<{ message: string }>;
+    getExpiryDate(userId: string): Promise<number>;
+    getUserDemographics(): Promise<{ label: string; value: number }[]>;
+    getChartData(): Promise<{ chartData: ChartData[], chartConfig: ChartConfig }>;
 
 
 }

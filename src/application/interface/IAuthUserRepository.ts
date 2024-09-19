@@ -22,5 +22,6 @@ export interface IAuthUserRepository {
     findById(id: string): Promise<any>;
     findOne(query: any): Promise<any>;
     updateUserRoles(userId: string, role: string): Promise<void>;
+    
 
 }

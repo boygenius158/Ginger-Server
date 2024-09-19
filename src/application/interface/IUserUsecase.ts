@@ -23,4 +23,5 @@ export interface IAuthUseCase {
     findUserByEmail(email: string): Promise<any>;
     createPaymentIntent(amount: number, currency?: string): Promise<string>;
     updateUserRole(userId: string, role: any): Promise<void>;
+    
 }

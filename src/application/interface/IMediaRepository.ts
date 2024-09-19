@@ -32,6 +32,12 @@ export interface IMediaRepository {
     getNotificationsByUserId(userId: string): Promise<any[]>;
     findById(userId: string): Promise<any | null>;
     saveUser(user: any): Promise<void>;
+    findUserById(userId: string): Promise<any>;
+    findPremiumByUserId(userId: string): Promise<any>;
+    getUserDemographics(): Promise<{ _id: string; count: number }[]>;
+    getTopUsersByFollowers(limit: number): Promise<any[]>;
+
+
 
 }
    

@@ -233,6 +233,8 @@ export class AuthUseCase implements IAuthUseCase {
     }
 
     async findUserByEmail(email: string): Promise<any> {
+        console.log("987777");
+        
         return this._repository.findOne({ email });
     }
 

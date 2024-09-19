@@ -12,21 +12,41 @@ import { Notification } from "../database/model/NotificationModel";
 import { Socket } from "socket.io";
 import Report from "../database/model/ReportModel";
 import Message from "../database/model/MessageModel";
+import { PremiumModel } from "../database/model/PremiumModel";
 
 export class MediaRepository implements IMediaRepository {
+    async getUserDemographics(): Promise<{ _id: string; count: number }[]> {
+        console.log("ys");
+
+        return await UserModel.aggregate([
+            {
+                $group: {
+                    _id: "$roles",
+                    count: { $sum: 1 }
+                }
+            }
+        ]);
+    }
     async findUserByUsername(username: string): Promise<any> {
         return await UserModel.findOne({ username: username });
     }
 
     async findPostsByIds(postIds: string[]): Promise<any[]> {
-        return await PostModel.find({ _id: { $in: postIds } });
+        return await PostModel.find({ _id: { $in: postIds } }).sort({ _id: -1 });
     }
+
     async reportPost(reporterId: string, postId: string): Promise<void> {
         const report = new Report({
             reporterId,
             postId,
         });
         await report.save();
+    }
+    async findUserById(userId: string): Promise<any> {
+        return UserModel.findById(userId).exec();
+    }
+    async findPremiumByUserId(userId: string): Promise<any> {
+        return PremiumModel.findOne({ userId }).exec();
     }
     async uploadPost(post: Post): Promise<Post | null> {
         try {
@@ -50,7 +70,7 @@ export class MediaRepository implements IMediaRepository {
 
     async findUserId(email: string): Promise<string | null> {
         try {
-            console.log();
+            console.log("iiiiiii");
 
             const user = await UserModel.findOne({ email });
             if (!user) {
@@ -78,7 +98,7 @@ export class MediaRepository implements IMediaRepository {
 
     async fetchPost(userId: Types.ObjectId): Promise<Post[]> {
         try {
-            const posts = await PostModel.find({ userId }).exec();
+            const posts = await PostModel.find({ userId }).sort({ _id: -1 })
 
             return posts.map(post => post.toObject());
         } catch (error) {
@@ -152,7 +172,6 @@ export class MediaRepository implements IMediaRepository {
         try {
 
             const objectId = new mongoose.Types.ObjectId(userId);
-            console.log('User ObjectId:', objectId);
 
             const user = await UserModel.findById(objectId);
             if (!user) {
@@ -393,5 +412,13 @@ export class MediaRepository implements IMediaRepository {
 
     async saveUser(user: any): Promise<void> {
         await user.save();
+    }
+    async getTopUsersByFollowers(limit: number): Promise<any[]> {
+        return UserModel.aggregate([
+            { $match: { roles: { $ne: 'admin' } } },
+            { $project: { _id: 0, username: 1, followerCount: { $size: { $ifNull: ['$followers', []] } } } },
+            { $sort: { followerCount: -1 } },
+            { $limit: limit }
+        ]).exec();
     }
 }          

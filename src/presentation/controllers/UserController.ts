@@ -137,8 +137,15 @@ export class authController {
 
     async verifyotp(req: Request, res: Response, next: NextFunction) {
         try {
-            await this.authUsecase.verifyotp(req.body.otp, req.body.email);
-            return res.json({ success: true });
+            const valid = await this.authUsecase.verifyotp(req.body.otp, req.body.email);
+
+            if (valid) {
+                return res.json({ success: true });
+
+            } else {
+                return res.json({ success: false });
+
+            }
         } catch (error) {
             console.log(error);
             res.status(500).json({ error: 'Internal Server Error' });
@@ -262,7 +269,11 @@ export class authController {
 
     async customBackendSession(req: Request, res: Response): Promise<void> {
         try {
+            console.log("req.body.emali", req.body.email);
+
             const user = await this.authUsecase.findUserByEmail(req.body.email);
+            console.log("userrT",user);
+            
             res.json({ user });
         } catch (error) {
             res.status(500).json({ error: 'Server error' });
@@ -273,15 +284,16 @@ export class authController {
 
         try {
             const clientSecret = await this.authUsecase.createPaymentIntent(amount, currency);
-            
+
             // Assume premium role for the user
             await this.authUsecase.updateUserRole(userId, UserRole.Premium);
-            
+
             res.send({ clientSecret });
         } catch (error) {
             console.error(error);
             res.status(400).send({ error: 'Error creating payment intent' });
         }
     }
+    
 }
 

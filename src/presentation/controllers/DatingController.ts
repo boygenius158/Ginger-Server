@@ -105,7 +105,8 @@ export class DatingController {
     async handleUserSettings(req: Request, res: Response, next: NextFunction) {
         try {
             const { userId } = req.body;
-
+            // console.log(userId);
+            
             if (!userId) {
                 return res.status(400).json({ error: 'User ID is required' });
             }

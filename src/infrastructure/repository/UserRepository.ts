@@ -38,8 +38,14 @@ export class AuthRepository implements IAuthUserRepository {
 
     async findUserByEmail(email: string): Promise<User | null> {
         try {
+            console.log("emai", email);
+
             // const user = await UserModel.findOne({ email }).select("_id email password roles");
-            const user = await UserModel.findOne({ email })
+            // const user = await UserModel.findOne({ email, isVerified: true });
+            const user = await UserModel.findOne({ email });
+
+            console.log(user, "8987");
+
             return user ? user.toObject() as User : null; // Cast to User interface
         } catch (error) {
             console.error("Error finding user by email:", error);
@@ -102,6 +108,8 @@ export class AuthRepository implements IAuthUserRepository {
     async verifyotp(otp: string, email: string): Promise<User | null> {
         try {
             const user = await UserModel.findOne({ email })
+            console.log("current otp", email);
+
             if (user && user.otp === otp) {
                 user.isVerified = true
                 await user.save()
@@ -174,7 +182,7 @@ export class AuthRepository implements IAuthUserRepository {
             username: { $regex: '^' + query, $options: 'i' }
         });
     }
-    
+
     async findOneByUsername(username: string): Promise<any> {
         return UserModel.findOne({ username }).exec();
     }
@@ -183,7 +191,7 @@ export class AuthRepository implements IAuthUserRepository {
         return user.save();
     }
     async findOne(query: any): Promise<any> {
-        return ProfileSearchHistoryModel.findOne(query).exec();
+        return UserModel.findOne(query).exec();
     }
 
     // async save(entry: any): Promise<any> {
@@ -201,4 +209,5 @@ export class AuthRepository implements IAuthUserRepository {
             await user.save();
         }
     }
+    
 }

@@ -49,7 +49,7 @@ export class DatingRepository implements IDatingRepository {
         return profile;
     }
     async findUserById(userId: string): Promise<any> {
-        return DatingProfile.findOne({ userId });
+        return await DatingProfile.findOne({ userId });
     }
 
     async updateProfile(userId: string, formData: { name: string, age: number, bio: string, gender: string }): Promise<any> {

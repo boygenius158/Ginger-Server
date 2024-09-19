@@ -11,33 +11,21 @@ export class MediaController {
         this.mediaUseCase = mediaUseCase;
     }
 
-    // async uploadImage(req: Request, res: Response, next: NextFunction) {
-    //     try {
-    //         const { file } = req;
-    //         const { caption, email } = req.body;
 
-    //         if (!file || !('location' in file)) {
-    //             return res.status(400).send('Invalid file format or no file uploaded');
-    //         }
+    async getExpiryDate(req: Request, res: Response) {
+        try {
+            const { userId } = req.body;
+            if (!userId) {
+                return res.status(400).json({ message: 'User ID is required' });
+            }
 
-    //         const imageUrl = file.location as string;
-
-    //         // Optionally, validate caption and email
-    //         if (!caption || !email) {
-    //             return res.status(400).json({ error: 'Caption and email are required' });
-    //         }
-
-    //         console.log(email);
-
-    //         const result = await this.mediaUseCase.createPost(imageUrl, caption, email);
-
-    //         res.json({ result });
-    //     } catch (error) {
-    //         console.error(error);
-    //         res.status(500).json({ error: 'Internal Server Error' });
-    //     }
-    // }
-
+            const daysLeft = await this.mediaUseCase.getExpiryDate(userId);
+            res.status(200).json({ daysLeft });
+        } catch (error) {
+            console.error('Error occurred while fetching expiry date:', error);
+            res.status(500).json({ message: error });
+        }
+    }
     async uploadImage(req: Request, res: Response, next: NextFunction) {
         // console.log("reached");
 
@@ -247,6 +235,7 @@ export class MediaController {
             if (!role) {
                 return res.status(404).json({ error: 'User not found' });
             }
+
             res.status(200).json({ role });
         } catch (error) {
             console.error('Error fetching premium status:', error);
@@ -330,6 +319,25 @@ export class MediaController {
             res.status(500).json({ message: "An error occurred" });
         }
     }
-    
+    async getUserDemographics(req: Request, res: Response): Promise<void> {
 
+        try {
+            console.log("90");
+
+            const demographics = await this.mediaUseCase.getUserDemographics();
+            res.status(200).json(demographics);
+        } catch (error) {
+            res.status(500).json({ message: "Error fetching demographics data", error });
+        }
+    }
+
+    async getChartData(req: Request, res: Response): Promise<void> {
+        try {
+            const { chartData, chartConfig } = await this.mediaUseCase.getChartData();
+            res.status(200).json({ success: true, chartData, chartConfig });
+        } catch (error) {
+            console.error("Error occurred:", error);
+            res.status(500).json({ success: false, message: "Internal Server Error" });
+        }
+    }
 }
