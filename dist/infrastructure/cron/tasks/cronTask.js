@@ -12,21 +12,21 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.connectDatabase = void 0;
-const mongoose_1 = __importDefault(require("mongoose"));
-require('dotenv').config();
-function connectDatabase() {
+const StoryModel_1 = __importDefault(require("../../database/model/StoryModel"));
+function deleteExpireStoriesTask() {
     return __awaiter(this, void 0, void 0, function* () {
-        // const uri = 'mongodb+srv://albindamn:albin381@gingercluster.tni02.mongodb.net/?retryWrites=true&w=majority&appName=gingercluster';
-        const uri = process.env.DB;
-        if (uri) {
-            yield mongoose_1.default.connect(uri).then(() => console.log("database connected")).catch(error => {
-                console.log("database error", error);
+        console.log("Running story cleaner");
+        try {
+            const now = new Date();
+            const cutoff = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+            const result = yield StoryModel_1.default.deleteMany({
+                createdAt: { $lt: cutoff }
             });
+            console.log(`${result.deletedCount} stories deleted.`);
         }
-        else {
-            console.log("not possible to connect");
+        catch (error) {
+            console.error("Error while deleting expired stories:", error);
         }
     });
 }
-exports.connectDatabase = connectDatabase;
+exports.default = deleteExpireStoriesTask;

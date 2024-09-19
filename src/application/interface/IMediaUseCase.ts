@@ -2,6 +2,7 @@ import mongoose, { ObjectId } from "mongoose";
 import { Post } from "../../domain/entities/Post";
 import { User } from "../../domain/entities/User";
 import { Comment } from "../../domain/entities/Comment";
+import { ChartConfig, ChartData } from "./ChartInterfaces";
 
 export interface IMediaUseCase {
     findUserId(email: string): Promise<string | null>

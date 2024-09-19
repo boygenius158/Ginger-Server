@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+require('dotenv').config();
 const nodemailer = require('nodemailer');
 class Mailer {
     constructor() {
@@ -18,15 +19,15 @@ class Mailer {
             secure: false,
             requireTLS: true,
             auth: {
-                user: "albindamn@gmail.com",
-                pass: "pnsw ibep tlms adga",
+                user: process.env.GMAIL,
+                pass: process.env.G_PASSWORD,
             },
         });
     }
     sendMail(to, subject, htmlContent) {
         return __awaiter(this, void 0, void 0, function* () {
             const mailOptions = {
-                from: "albindamn@gmail.com",
+                from: process.env.GMAIL,
                 to: to,
                 subject: subject,
                 html: htmlContent,
@@ -42,6 +43,7 @@ class Mailer {
     }
     sendOtpMail(to, otp) {
         return __awaiter(this, void 0, void 0, function* () {
+            console.log(otp, "this is the otp");
             const subject = "OTP MESSAGE";
             const htmlContent = `<p>Hi,</p>
                              <p>Your OTP code is <strong>${otp}</strong>. It will expire in 5 minutes.</p>`;

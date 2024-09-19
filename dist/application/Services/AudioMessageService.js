@@ -12,21 +12,25 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.connectDatabase = void 0;
-const mongoose_1 = __importDefault(require("mongoose"));
-require('dotenv').config();
-function connectDatabase() {
-    return __awaiter(this, void 0, void 0, function* () {
-        // const uri = 'mongodb+srv://albindamn:albin381@gingercluster.tni02.mongodb.net/?retryWrites=true&w=majority&appName=gingercluster';
-        const uri = process.env.DB;
-        if (uri) {
-            yield mongoose_1.default.connect(uri).then(() => console.log("database connected")).catch(error => {
-                console.log("database error", error);
+const MessageModel_1 = __importDefault(require("../../infrastructure/database/model/MessageModel"));
+const UserService_1 = __importDefault(require("./UserService"));
+class AudioMessageService {
+    uploadAudio(data) {
+        return __awaiter(this, void 0, void 0, function* () {
+            // console.log(data);
+            const { recipientEmail, senderEmail, message, type } = data;
+            const receiver = yield UserService_1.default.findUserIdWithEmail(recipientEmail);
+            const sender = yield UserService_1.default.findUserIdWithEmail(senderEmail);
+            // console.log(receiver, sender, "[][][");
+            const document = new MessageModel_1.default({
+                sender,
+                receiver,
+                message,
+                type
             });
-        }
-        else {
-            console.log("not possible to connect");
-        }
-    });
+            yield document.save();
+            return document;
+        });
+    }
 }
-exports.connectDatabase = connectDatabase;
+exports.default = new AudioMessageService();

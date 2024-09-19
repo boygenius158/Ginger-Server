@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = randomnumber;
 const generate = require('otp-generator');
 function randomnumber() {
     const otp = generate.generate(6, {
@@ -11,3 +10,4 @@ function randomnumber() {
     });
     return otp;
 }
+exports.default = randomnumber;

@@ -1,0 +1,24 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const DatingRepository_1 = require("../../infrastructure/repository/DatingRepository");
+const DatingUseCase_1 = require("../../application/usecase/DatingUseCase");
+const DatingController_1 = require("../controllers/DatingController");
+const verifyJWT_1 = __importDefault(require("../../utils/verifyJWT"));
+const router = express_1.default.Router();
+const repo = new DatingRepository_1.DatingRepository();
+const service = new DatingUseCase_1.DatingUseCase(repo);
+const datingController = new DatingController_1.DatingController(service);
+router.post('/api/user/swipe-profiles', datingController.swipeProfile.bind(datingController));
+router.post('/api/user/dating-tab2', verifyJWT_1.default, datingController.updateDatingProfileImages.bind(datingController));
+router.post('/api/user/fetch-matches', verifyJWT_1.default, datingController.fetchMatches.bind(datingController));
+router.post('/api/user/get-user-datingprofile', verifyJWT_1.default, datingController.getUserDatingProfile.bind(datingController));
+router.post('/api/user/dating-tab1', datingController.handleDatingTab1.bind(datingController));
+router.post('/api/user/dating-tab3', verifyJWT_1.default, datingController.handleDatingTab3.bind(datingController));
+router.post('/api/user/dating-tab4', verifyJWT_1.default, datingController.handleDatingTab4.bind(datingController));
+router.post('/api/user/settings', datingController.handleUserSettings.bind(datingController));
+router.post('/api/user/dating-tab1-getdetails', datingController.getDatingTab1Details.bind(datingController));
+exports.default = router;
