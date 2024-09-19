@@ -35,7 +35,7 @@ app.get('/hello', (req, res) => {
     res.send('hello world')
 })
 app.get('/', (req, res) => {
-    res.send('hello ginger.com')
+    res.send('hello ginger.com2')
 })
 
 app.use('/', authRouter);
