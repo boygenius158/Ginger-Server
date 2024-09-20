@@ -23,8 +23,10 @@ export function setupSocketIO(server: any) {
 
   const io = new Server(server, {
     cors: {
-      origin: '*',
-      methods: ["GET", "POST"]
+      origin: 'https://gingerfrontend.vercel.app/',
+      methods: ["GET", "POST"],
+      allowedHeaders: ["Authorization"],
+      credentials: true, // if you need to allow cookies or other credentials
     }
   });
 
