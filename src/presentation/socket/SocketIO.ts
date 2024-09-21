@@ -197,7 +197,7 @@ export function setupSocketIO(server: any) {
     // socket.on('call_notification', (email: string) => {
     //   let targetSocketId = findSocketWithEmail(email)
     //   console.log(email);
-    //   io.to(targetSocketId).emit('caller_notification', "hello world")
+    //   io.to(targetSocketId).emit('caller_notification', "hello world")s
 
     // })
 
