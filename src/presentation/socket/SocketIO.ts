@@ -27,7 +27,7 @@ export function setupSocketIO(server: any) {
       origin: 'https://ginger-drab.vercel.app/',
       methods: ["GET", "POST"],
       allowedHeaders: ["Authorization"],
-      credentials: true, // if you need to allow cookies or other credentialsdd
+      credentials: true, // if you need to allow cookies or other credentialsddd
     }
   });
 
