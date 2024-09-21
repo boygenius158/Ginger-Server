@@ -22,9 +22,9 @@ scheduleCronJobs()
 app.use(express.json());
 
 app.use(cors({
-          origin: 'https://ginger-drab.vercel.app', 
+        //   origin: 'https://ginger-drab.vercel.app', 
     // origin:['*'],
-    // origin: 'https://gingerfrontend.vercel.app', // Replace '*' with the specific domain if needed for security
+    origin: 'https://gingerfrontend.vercel.app', // Replace '*' with the specific domain if needed for security
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'], // Allow all common HTTP methods
     allowedHeaders: ['Authorization', 'Content-Type'], // Allow Authorization and Content-Type headers
     credentials: true // If you want to support credentials (cookies, etc.)
