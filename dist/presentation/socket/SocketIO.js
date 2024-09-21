@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.setupSocketIO = setupSocketIO;
+exports.setupSocketIO = void 0;
 const socket_io_1 = require("socket.io");
 const UserModel_1 = __importDefault(require("../../infrastructure/database/model/UserModel"));
 const MessageModel_1 = __importDefault(require("../../infrastructure/database/model/MessageModel"));
@@ -30,7 +30,8 @@ function setupSocketIO(server) {
     const users = {};
     const io = new socket_io_1.Server(server, {
         cors: {
-            origin: 'https://gingerfrontend.vercel.app/',
+            // origin: 'https://gingerfrontend.vercel.app/',
+            origin: 'https://ginger-drab.vercel.app/',
             methods: ["GET", "POST"],
             allowedHeaders: ["Authorization"],
             credentials: true, // if you need to allow cookies or other credentials
@@ -76,8 +77,8 @@ function setupSocketIO(server) {
                 console.error("Error handling message:", error);
             }
         }));
-        socket.on('notification', (_a) => __awaiter(this, [_a], void 0, function* ({ user, type, originalUser, postId }) {
-            var _b;
+        socket.on('notification', (_b) => __awaiter(this, [_b], void 0, function* ({ user, type, originalUser, postId }) {
+            var _c;
             console.log("1", user, "2", type, "3", originalUser, "4", postId);
             try {
                 // Ensure `postId` and `originalUser` are correctly converted to `ObjectId`
@@ -92,7 +93,7 @@ function setupSocketIO(server) {
                     return;
                 }
                 // Check if the user has liked the post
-                const hasLiked = (_b = post.likes) === null || _b === void 0 ? void 0 : _b.includes(OoriginalUser);
+                const hasLiked = (_c = post.likes) === null || _c === void 0 ? void 0 : _c.includes(OoriginalUser);
                 // Make sure the post exists and compare the `userId` with `originalUser`
                 if (post.userId.toString() !== OoriginalUser.toString()) {
                     // Determine the message based on the like status
@@ -201,7 +202,7 @@ function setupSocketIO(server) {
         //   if (targetSocketId) console.log(true, "099");
         //   io.to(targetSocketId).emit('audio-chat')
         // })
-        socket.on('audio-chat', (_a) => __awaiter(this, [_a], void 0, function* ({ recipientEmail, senderEmail, message, type }) {
+        socket.on('audio-chat', (_d) => __awaiter(this, [_d], void 0, function* ({ recipientEmail, senderEmail, message, type }) {
             const data = {
                 recipientEmail,
                 senderEmail,
@@ -227,7 +228,7 @@ function setupSocketIO(server) {
                 }
             }
         });
-        socket.on('swipe', (_a) => __awaiter(this, [_a], void 0, function* ({ profile, userId }) {
+        socket.on('swipe', (_e) => __awaiter(this, [_e], void 0, function* ({ profile, userId }) {
             console.log(profile.userId, "swiped by user", userId);
             const match = yield MatchService_1.default.handleSwipe(userId, profile.userId);
             console.log(match);
@@ -245,7 +246,7 @@ function setupSocketIO(server) {
                 io.to(user2SocketId).emit('match', "its a match");
             }
         }));
-        socket.on('match_owner', (_a) => __awaiter(this, [_a], void 0, function* ({ userId }) {
+        socket.on('match_owner', (_f) => __awaiter(this, [_f], void 0, function* ({ userId }) {
             console.log(userId, "yuu");
             const user = yield UserService_1.default.findDatingProfile(userId);
             const userEmail = yield UserService_1.default.findEmailWithUserId(userId);
@@ -255,7 +256,7 @@ function setupSocketIO(server) {
             console.log(user, "][=09987");
             io.to(findSocketWithEmail(userEmail)).emit('profile-image', user.images[0]);
         }));
-        socket.on('ImageMessage', (_a) => __awaiter(this, [_a], void 0, function* ({ recipientEmail, senderEmail, message, type }) {
+        socket.on('ImageMessage', (_g) => __awaiter(this, [_g], void 0, function* ({ recipientEmail, senderEmail, message, type }) {
             console.log(recipientEmail, message, senderEmail);
             try {
                 const senderUser = yield UserModel_1.default.findOne({ email: senderEmail });
@@ -290,4 +291,5 @@ function setupSocketIO(server) {
         }));
     });
 }
+exports.setupSocketIO = setupSocketIO;
 // console.log(users);

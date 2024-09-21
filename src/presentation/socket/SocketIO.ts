@@ -23,7 +23,8 @@ export function setupSocketIO(server: any) {
 
   const io = new Server(server, {
     cors: {
-      origin: 'https://gingerfrontend.vercel.app/',
+      // origin: 'https://gingerfrontend.vercel.app/',
+      origin: 'https://ginger-drab.vercel.app/',
       methods: ["GET", "POST"],
       allowedHeaders: ["Authorization"],
       credentials: true, // if you need to allow cookies or other credentials
@@ -259,10 +260,10 @@ export function setupSocketIO(server: any) {
       console.log(audioMessage, "tiff");
       let targetSocketId = findSocketWithEmail(recipientEmail);
       let ownerSocketId = findSocketWithEmail(senderEmail)
-      console.log(targetSocketId,"77777");
-      
-      io.to(targetSocketId).emit('audio-chat-return',audioMessage)
-      io.to(ownerSocketId).emit('audio-chat-return',audioMessage)
+      console.log(targetSocketId, "77777");
+
+      io.to(targetSocketId).emit('audio-chat-return', audioMessage)
+      io.to(ownerSocketId).emit('audio-chat-return', audioMessage)
     })
     socket.on('disconnectUser', () => {
       console.log(`User disconnected: ${socket.id}`);
