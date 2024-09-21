@@ -30,11 +30,11 @@ function setupSocketIO(server) {
     const users = {};
     const io = new socket_io_1.Server(server, {
         cors: {
-            // origin: 'https://gingerfrontend.vercel.app/',
+            // origin: 'https://gingerfrontend.vercel.app/', 
             origin: 'https://ginger-drab.vercel.app/',
             methods: ["GET", "POST"],
             allowedHeaders: ["Authorization"],
-            credentials: true, // if you need to allow cookies or other credentials
+            credentials: true, // if you need to allow cookies or other credentialsddd
         }
     });
     io.on('connection', (socket) => {
@@ -163,7 +163,7 @@ function setupSocketIO(server) {
         // socket.on('call_notification', (email: string) => {
         //   let targetSocketId = findSocketWithEmail(email)
         //   console.log(email);
-        //   io.to(targetSocketId).emit('caller_notification', "hello world")
+        //   io.to(targetSocketId).emit('caller_notification', "hello world")s
         // })
         socket.on('onlineStatus', (recipient, sender) => {
             console.log(recipient, "onlineStatus");

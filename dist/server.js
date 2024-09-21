@@ -20,6 +20,8 @@ const app = (0, express_1.default)();
 (0, cronScheduler_1.default)();
 app.use(express_1.default.json());
 app.use(cors({
+    //   origin: 'https://ginger-drab.vercel.app', 
+    // origin:['*'],
     origin: 'https://gingerfrontend.vercel.app', // Replace '*' with the specific domain if needed for security
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'], // Allow all common HTTP methods
     allowedHeaders: ['Authorization', 'Content-Type'], // Allow Authorization and Content-Type headers
