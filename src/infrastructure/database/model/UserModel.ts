@@ -25,7 +25,7 @@ const UserSchema: Schema<IUser> = new Schema({
     email: { type: String, required: true },
     password: { type: String, default: null },
     name: { type: String, default: "" },
-    profilePicture: { type: String, default: "" },
+    profilePicture: { type: String, default: null },
     username: { type: String, default: "" },
     roles: { type: String, enum: Object.values(UserRole), default: UserRole.User },
     bio: { type: String, default: "" },

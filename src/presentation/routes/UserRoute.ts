@@ -15,6 +15,25 @@ const controller = new authController(auth)
 
 
 
+router.post("/refresh-token", (req, res) => {
+    const { refreshToken } = req.body;
+
+    // Validate refresh token
+    jwt.verify(refreshToken, "helloworld", (err: any, user: any) => {
+        if (err) return res.status(403).json({ message: "Invalid refresh token" });
+
+        // Generate new access token
+        const newAccessToken = jwt.sign(
+            { id: user.id, roles: user.roles },
+            "helloworld",
+            { expiresIn: "30m" } // Extend token expiration as needed
+        );
+
+        res.json({ accessToken: newAccessToken });
+    });
+});
+
+
 router.post('/api/user/custom-signin', controller.loginUser.bind(controller));
 router.post('/api/registration', controller.signUpUser.bind(controller));
 router.post('/api/user/google-auth', controller.googleAuth.bind(controller));
@@ -40,7 +59,7 @@ router.post('/api/user/premium-payment', verifyJWT, controller.premiumPayment.bi
 router.post('/api/create-payment-intent', controller.createPaymentIntent.bind(controller));
 
 
- 
+
 
 
 
