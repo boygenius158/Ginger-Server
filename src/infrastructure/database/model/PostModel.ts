@@ -17,7 +17,7 @@ export interface Post extends Document {
 // Define schema for Post
 const PostSchema: Schema<Post> = new Schema({
   imageUrl:[{ type: String, required: true }],
-  caption: { type: String, required: true },
+  caption: { type: String, required: false , default : "" },
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   likeCount: { type: Number, default: 0 },
   isActive: { type: Boolean, default: true },

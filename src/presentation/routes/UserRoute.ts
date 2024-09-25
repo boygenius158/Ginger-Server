@@ -34,6 +34,7 @@ router.post("/refresh-token", (req, res) => {
 });
 
 
+
 router.post('/api/user/custom-signin', controller.loginUser.bind(controller));
 router.post('/api/registration', controller.signUpUser.bind(controller));
 router.post('/api/user/google-auth', controller.googleAuth.bind(controller));

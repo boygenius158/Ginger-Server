@@ -14,6 +14,7 @@ import datingRouter from './presentation/routes/DatingRoute'
 import { setupSocketIO } from './presentation/socket/SocketIO';
 import scheduleCronJobs from './infrastructure/cron/cronScheduler';
 
+import s3service from './application/Services/S3service'
 
 dotenv.config()
 const port = 5000;
@@ -47,6 +48,7 @@ app.use('/', authRouter);
 app.use('/', mediaRouter);
 app.use('/', adminRouter);
 app.use('/', datingRouter);
+app.use('/', s3service)
 
 
 // Start the server using 'server.listen' instead of 'app.listen'

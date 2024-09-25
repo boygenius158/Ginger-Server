@@ -6,6 +6,7 @@ const stripe = Stripe('sk_test_51PirppRr9XEd7LoYrVRdZGs1hNtVrylVeCidygk60qvoe1h2
 
 const router = express.Router();
 
+
 // Import media repository, use case, and controller
 import { MediaRepository } from '../../infrastructure/repository/PostRepository';
 import { MediaUseCase } from '../../application/usecase/PostUseCase';
@@ -27,7 +28,13 @@ const mediaController = new MediaController(mediaUseCase);
 // Configure multer for file handling (if needed)
 const storage = multer.memoryStorage();
 
-router.post('/api/storageMediaInCloud', verifyJWT, upload.array("files"), mediaController.uploadImage.bind(mediaController));
+
+
+
+
+
+
+// router.post('/api/storageMediaInCloud', verifyJWT, upload.array("files"), mediaController.uploadImage.bind(mediaController));
 router.post('/api/user/fetchprofile', verifyJWT, mediaController.visitProfile.bind(mediaController));
 router.post('/api/user/followprofile', verifyJWT, mediaController.followProfile.bind(mediaController));
 router.post('/api/user/checkFollowingStatus', verifyJWT, mediaController.checkFollowingStatus.bind(mediaController));
