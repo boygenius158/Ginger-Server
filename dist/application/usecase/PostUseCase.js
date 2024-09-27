@@ -185,13 +185,19 @@ class MediaUseCase {
     }
     getChatList(userId) {
         return __awaiter(this, void 0, void 0, function* () {
+            // Get the user by ID
             const user = yield this.repository.getUserById(userId);
             if (!user) {
                 throw new Error("User not found");
             }
+            // Get the following and followers lists
             const following = user.following || [];
-            const followingUsers = yield this.repository.getUsersByIds(following);
-            return { followingUsers };
+            const followers = user.followers || [];
+            // Combine both arrays and remove duplicates (in case any user is in both lists)
+            const combinedUsers = Array.from(new Set([...following, ...followers]));
+            // Fetch the user details of these combined users
+            const uniqueUsers = yield this.repository.getUsersByIds(combinedUsers);
+            return { uniqueUsers };
         });
     }
     visitPost(postId) {
@@ -204,7 +210,7 @@ class MediaUseCase {
     fetchStories(userId) {
         return __awaiter(this, void 0, void 0, function* () {
             const followingList = yield this.repository.getUserFollowing(userId);
-            const stories = yield this.repository.getStoriesByFollowingList(followingList);
+            const stories = yield this.repository.getStoriesByFollowingList(userId, followingList);
             return stories;
         });
     }

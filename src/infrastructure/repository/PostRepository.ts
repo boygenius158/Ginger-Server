@@ -113,7 +113,8 @@ export class MediaRepository implements IMediaRepository {
 
             // Find users
             const user = await UserModel.findOne({ email });
-            const user2 = await UserModel.findById(objectId); // Convert id to ObjectId
+            const user2 = await UserModel.findById(objectId);
+            console.log(user?.email, user2?.email);
 
             if (!user) {
                 throw new Error('User not found');
@@ -121,6 +122,7 @@ export class MediaRepository implements IMediaRepository {
             if (!user2) {
                 throw new Error('User not found');
             }
+            const objectId2 = user._id
 
             // Initialize the following and followers arrays if they are undefined
             if (!user.following) {
@@ -140,7 +142,7 @@ export class MediaRepository implements IMediaRepository {
             } else {
                 // Add to following and followers
                 user.following.push(objectId);
-                user2.followers.push(objectId);
+                user2.followers.push(objectId2);
             }
 
             // Save changes to both users
@@ -356,7 +358,11 @@ export class MediaRepository implements IMediaRepository {
     async getPostById(postId: string): Promise<any> {
         return await PostModel.findById(postId).populate('userId');
     }
+    async getFollowers(userId: string): Promise<any[]> {
+        console.log("yyy");
 
+        return await UserModel.find({ following: userId }); // Adjust according to your schema
+    }
     async getCommentsByPostId(postId: string): Promise<any[]> {
         return await CommentModel.find({ postId }).populate('userId');
     }
@@ -373,9 +379,18 @@ export class MediaRepository implements IMediaRepository {
         return followingList.map(id => id.toString());
     }
 
-    async getStoriesByFollowingList(followingList: string[]): Promise<any[]> {
+    async getStoriesByFollowingList(owner: string, followingList: string[]): Promise<any[]> {
         return await StoryModel.aggregate([
-            { $match: { userId: { $in: followingList.map(id => new mongoose.Types.ObjectId(id)) } } },
+            {
+                $match: {
+                    userId: {
+                        $in: [
+                            new mongoose.Types.ObjectId(owner), // Include the owner
+                            ...followingList.map(id => new mongoose.Types.ObjectId(id)) // Include following list
+                        ]
+                    }
+                }
+            },
             {
                 $lookup: {
                     from: 'users',
@@ -397,6 +412,7 @@ export class MediaRepository implements IMediaRepository {
             }
         ]);
     }
+
     async createMessage(messageData: any): Promise<any> {
         const newMessage = new Message(messageData);
         return newMessage.save();

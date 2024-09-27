@@ -133,13 +133,15 @@ class MediaRepository {
                 const objectId = new mongoose_1.default.Types.ObjectId(id);
                 // Find users
                 const user = yield UserModel_1.default.findOne({ email });
-                const user2 = yield UserModel_1.default.findById(objectId); // Convert id to ObjectId
+                const user2 = yield UserModel_1.default.findById(objectId);
+                console.log(user === null || user === void 0 ? void 0 : user.email, user2 === null || user2 === void 0 ? void 0 : user2.email);
                 if (!user) {
                     throw new Error('User not found');
                 }
                 if (!user2) {
                     throw new Error('User not found');
                 }
+                const objectId2 = user._id;
                 // Initialize the following and followers arrays if they are undefined
                 if (!user.following) {
                     user.following = [];
@@ -157,7 +159,7 @@ class MediaRepository {
                 else {
                     // Add to following and followers
                     user.following.push(objectId);
-                    user2.followers.push(objectId);
+                    user2.followers.push(objectId2);
                 }
                 // Save changes to both users
                 const updatedUser = yield user.save();
@@ -373,6 +375,12 @@ class MediaRepository {
             return yield PostModel_1.PostModel.findById(postId).populate('userId');
         });
     }
+    getFollowers(userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log("yyy");
+            return yield UserModel_1.default.find({ following: userId }); // Adjust according to your schema
+        });
+    }
     getCommentsByPostId(postId) {
         return __awaiter(this, void 0, void 0, function* () {
             return yield CommentModel_1.default.find({ postId }).populate('userId');
@@ -391,10 +399,19 @@ class MediaRepository {
             return followingList.map(id => id.toString());
         });
     }
-    getStoriesByFollowingList(followingList) {
+    getStoriesByFollowingList(owner, followingList) {
         return __awaiter(this, void 0, void 0, function* () {
             return yield StoryModel_1.default.aggregate([
-                { $match: { userId: { $in: followingList.map(id => new mongoose_1.default.Types.ObjectId(id)) } } },
+                {
+                    $match: {
+                        userId: {
+                            $in: [
+                                new mongoose_1.default.Types.ObjectId(owner), // Include the owner
+                                ...followingList.map(id => new mongoose_1.default.Types.ObjectId(id)) // Include following list
+                            ]
+                        }
+                    }
+                },
                 {
                     $lookup: {
                         from: 'users',

@@ -163,16 +163,26 @@ export class MediaUseCase implements IMediaUseCase {
         return user ? user.roles : null;
     }
     async getChatList(userId: string): Promise<any> {
+        // Get the user by ID
         const user = await this.repository.getUserById(userId);
         if (!user) {
             throw new Error("User not found");
         }
 
+        // Get the following and followers lists
         const following = user.following || [];
-        const followingUsers = await this.repository.getUsersByIds(following);
+        const followers = user.followers || [];
 
-        return { followingUsers };
+        // Combine both arrays and remove duplicates (in case any user is in both lists)
+        const combinedUsers = Array.from(new Set([...following, ...followers]));
+
+        // Fetch the user details of these combined users
+        const uniqueUsers = await this.repository.getUsersByIds(combinedUsers);
+
+        return { uniqueUsers };
     }
+
+
     async visitPost(postId: string): Promise<any> {
         const result = await this.repository.getPostById(postId);
         const comments = await this.repository.getCommentsByPostId(postId);
@@ -181,7 +191,7 @@ export class MediaUseCase implements IMediaUseCase {
     }
     async fetchStories(userId: string): Promise<any> {
         const followingList = await this.repository.getUserFollowing(userId);
-        const stories = await this.repository.getStoriesByFollowingList(followingList);
+        const stories = await this.repository.getStoriesByFollowingList(userId, followingList);
 
         return stories;
     }

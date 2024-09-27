@@ -50,7 +50,7 @@ router.post('/api/user/checkrole', verifyJWT, controller.checkRole.bind(controll
 router.post('/api/user/uploadProfile', verifyJWT, controller.uploadProfile.bind(controller));
 router.get('/api/user/searchUser', verifyJWT, controller.searchUser.bind(controller));
 router.post('/api/user/fetch-name-username', verifyJWT, controller.fetchNameUsername.bind(controller));
-router.post('/api/user/has-password', verifyJWT, controller.hasPassword.bind(controller));
+router.post('/api/user/has-password', controller.hasPassword.bind(controller));
 router.post('/api/user/update-user', verifyJWT, controller.updateUser.bind(controller));
 router.post('/api/user/update-password', verifyJWT, controller.updatePassword.bind(controller));
 router.post('/api/user/miniProfile', controller.miniProfile.bind(controller));

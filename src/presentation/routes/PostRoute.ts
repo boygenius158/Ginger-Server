@@ -17,6 +17,7 @@ import upload from '../../infrastructure/middleware/fileUpload';
 import { UserRole } from '../../domain/entities/User';
 import verifyJWT from '../../utils/verifyJWT';
 import { PremiumModel } from '../../infrastructure/database/model/PremiumModel';
+import Message from '../../infrastructure/database/model/MessageModel';
 
 
 
@@ -48,7 +49,6 @@ router.post('/api/user/fetch-saved-posts', verifyJWT, mediaController.fetchSaved
 router.post('/api/user/updateReadStatus', verifyJWT, mediaController.updateReadStatus.bind(mediaController));
 router.post('/api/user/fetchHistoricalData', verifyJWT, mediaController.fetchHistoricalData.bind(mediaController));
 router.post('/api/user/premiumStatus', verifyJWT, mediaController.getPremiumStatus.bind(mediaController));
-router.post('/api/user/fetchChatList', verifyJWT, mediaController.getChatList.bind(mediaController));
 router.post('/api/user/visitPost', verifyJWT, mediaController.visitPost.bind(mediaController));
 router.post('/api/user/fetchStories', mediaController.fetchStories.bind(mediaController));
 router.post('/api/user/upload-audio-cloud', verifyJWT, mediaController.handleAudioUpload.bind(mediaController));
@@ -58,28 +58,24 @@ router.post('/api/user/expiry-date', mediaController.getExpiryDate.bind(mediaCon
 router.get('/api/user/user-demographics', mediaController.getUserDemographics.bind(mediaController));
 router.get('/api/admin/chartData1', mediaController.getChartData.bind(mediaController));
 
+router.post('/api/user/fetchChatList',  mediaController.getChatList.bind(mediaController));
 
-// router.get('/api/user/user-demographics', async (req, res) => {
-//     try {
-//         const demographics = await UserModel.aggregate([
-//             {
-//                 $group: {
-//                     _id: "$roles",
-//                     count: { $sum: 1 }
-//                 }
-//             }
-//         ]);
+//find all
+// router.post('/api/user/fetchChatList', async (req, res) => {
+//     console.log("zzzzzzz", req.body);
+//     const { userId } = req.body
+//     const user = await UserModel.findById(userId)
+//     if (!user) return
+//     const following = user.following || []
+//     const followers = user.followers || []
+//     const both = [...new Set(followers.concat(following))];
+//     console.log(both, "yes the user exist");
+//     const users = await UserModel.find({
+//         _id: { $in: both }
+//     })
 
-//         const formattedDemographics = demographics.map((demographic) => ({
-//             label: demographic._id,
-//             value: demographic.count
-//         }));
-
-//         return res.status(200).json(formattedDemographics);
-//     } catch (error) {
-//         return res.status(500).json({ message: "Error fetching demographics data", error });
-//     }
-// });
+//     res.json({ userslist: users })
+// })
 
 export default router;
 

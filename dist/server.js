@@ -14,6 +14,7 @@ const AdminRoute_1 = __importDefault(require("./presentation/routes/AdminRoute")
 const DatingRoute_1 = __importDefault(require("./presentation/routes/DatingRoute"));
 const SocketIO_1 = require("./presentation/socket/SocketIO");
 const cronScheduler_1 = __importDefault(require("./infrastructure/cron/cronScheduler"));
+const S3service_1 = __importDefault(require("./application/Services/S3service"));
 dotenv_1.default.config();
 const port = 5000;
 const app = (0, express_1.default)();
@@ -22,7 +23,8 @@ app.use(express_1.default.json());
 app.use(cors({
     //   origin: 'https://ginger-drab.vercel.app', 
     // origin:['*'],
-    origin: 'https://gingerfrontend.vercel.app', // Replace '*' with the specific domain if needed for security
+    origin: 'http://localhost:3000',
+    // origin: 'https://gingerfrontend.vercel.app', // Replace '*' with the specific domain if needed for security
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'], // Allow all common HTTP methods
     allowedHeaders: ['Authorization', 'Content-Type'], // Allow Authorization and Content-Type headers
     credentials: true // If you want to support credentials (cookies, etc.)
@@ -40,6 +42,7 @@ app.use('/', UserRoute_1.default);
 app.use('/', PostRoute_1.default);
 app.use('/', AdminRoute_1.default);
 app.use('/', DatingRoute_1.default);
+app.use('/', S3service_1.default);
 // Start the server using 'server.listen' instead of 'app.listen'
 server.listen(port, () => {
     console.log(`Server started successfully on http://localhost:${port}`);

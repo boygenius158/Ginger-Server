@@ -13,6 +13,18 @@ const router = express_1.default.Router();
 const repo = new UserRepository_1.AuthRepository();
 const auth = new UserUseCase_1.AuthUseCase(repo);
 const controller = new UserController_1.authController(auth);
+router.post("/refresh-token", (req, res) => {
+    const { refreshToken } = req.body;
+    // Validate refresh token
+    jwt.verify(refreshToken, "helloworld", (err, user) => {
+        if (err)
+            return res.status(403).json({ message: "Invalid refresh token" });
+        // Generate new access token
+        const newAccessToken = jwt.sign({ id: user.id, roles: user.roles }, "helloworld", { expiresIn: "30m" } // Extend token expiration as needed
+        );
+        res.json({ accessToken: newAccessToken });
+    });
+});
 router.post('/api/user/custom-signin', controller.loginUser.bind(controller));
 router.post('/api/registration', controller.signUpUser.bind(controller));
 router.post('/api/user/google-auth', controller.googleAuth.bind(controller));
@@ -27,7 +39,7 @@ router.post('/api/user/checkrole', verifyJWT_1.default, controller.checkRole.bin
 router.post('/api/user/uploadProfile', verifyJWT_1.default, controller.uploadProfile.bind(controller));
 router.get('/api/user/searchUser', verifyJWT_1.default, controller.searchUser.bind(controller));
 router.post('/api/user/fetch-name-username', verifyJWT_1.default, controller.fetchNameUsername.bind(controller));
-router.post('/api/user/has-password', verifyJWT_1.default, controller.hasPassword.bind(controller));
+router.post('/api/user/has-password', controller.hasPassword.bind(controller));
 router.post('/api/user/update-user', verifyJWT_1.default, controller.updateUser.bind(controller));
 router.post('/api/user/update-password', verifyJWT_1.default, controller.updatePassword.bind(controller));
 router.post('/api/user/miniProfile', controller.miniProfile.bind(controller));

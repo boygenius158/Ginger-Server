@@ -17,7 +17,7 @@ const verifyJWT = (req: CustomRequest, res: Response, next: NextFunction) => {
   console.log(token, "token in header");
 
   try {
-    console.log("Token verification initiated");
+    // console.log("Token verification initiated");
 
     // Use process.env.JWT_SECRET for security instead of hardcoding
     const secret = "helloworld"; // Use env or fallback
@@ -25,7 +25,7 @@ const verifyJWT = (req: CustomRequest, res: Response, next: NextFunction) => {
 
     // Attach decoded user info to the request object
     req.user = decoded;
-    console.log("Token verified successfully", decoded);
+    // console.log("Token verified successfully", decoded);
 
     next(); // Proceed to next middleware or route
   } catch (err: any) {

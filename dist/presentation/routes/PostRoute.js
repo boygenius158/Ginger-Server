@@ -12,7 +12,6 @@ const router = express_1.default.Router();
 const PostRepository_1 = require("../../infrastructure/repository/PostRepository");
 const PostUseCase_1 = require("../../application/usecase/PostUseCase");
 const PostController_1 = require("../controllers/PostController");
-const fileUpload_1 = __importDefault(require("../../infrastructure/middleware/fileUpload"));
 const verifyJWT_1 = __importDefault(require("../../utils/verifyJWT"));
 // Instantiate the repository, use case, and controller
 const repo = new PostRepository_1.MediaRepository();
@@ -20,7 +19,7 @@ const mediaUseCase = new PostUseCase_1.MediaUseCase(repo);
 const mediaController = new PostController_1.MediaController(mediaUseCase);
 // Configure multer for file handling (if needed)
 const storage = multer_1.default.memoryStorage();
-router.post('/api/storageMediaInCloud', verifyJWT_1.default, fileUpload_1.default.array("files"), mediaController.uploadImage.bind(mediaController));
+// router.post('/api/storageMediaInCloud', verifyJWT, upload.array("files"), mediaController.uploadImage.bind(mediaController));
 router.post('/api/user/fetchprofile', verifyJWT_1.default, mediaController.visitProfile.bind(mediaController));
 router.post('/api/user/followprofile', verifyJWT_1.default, mediaController.followProfile.bind(mediaController));
 router.post('/api/user/checkFollowingStatus', verifyJWT_1.default, mediaController.checkFollowingStatus.bind(mediaController));
@@ -34,7 +33,6 @@ router.post('/api/user/fetch-saved-posts', verifyJWT_1.default, mediaController.
 router.post('/api/user/updateReadStatus', verifyJWT_1.default, mediaController.updateReadStatus.bind(mediaController));
 router.post('/api/user/fetchHistoricalData', verifyJWT_1.default, mediaController.fetchHistoricalData.bind(mediaController));
 router.post('/api/user/premiumStatus', verifyJWT_1.default, mediaController.getPremiumStatus.bind(mediaController));
-router.post('/api/user/fetchChatList', verifyJWT_1.default, mediaController.getChatList.bind(mediaController));
 router.post('/api/user/visitPost', verifyJWT_1.default, mediaController.visitPost.bind(mediaController));
 router.post('/api/user/fetchStories', mediaController.fetchStories.bind(mediaController));
 router.post('/api/user/upload-audio-cloud', verifyJWT_1.default, mediaController.handleAudioUpload.bind(mediaController));
@@ -43,23 +41,20 @@ router.post('/api/user/savePost', verifyJWT_1.default, mediaController.handleSav
 router.post('/api/user/expiry-date', mediaController.getExpiryDate.bind(mediaController));
 router.get('/api/user/user-demographics', mediaController.getUserDemographics.bind(mediaController));
 router.get('/api/admin/chartData1', mediaController.getChartData.bind(mediaController));
-// router.get('/api/user/user-demographics', async (req, res) => {
-//     try {
-//         const demographics = await UserModel.aggregate([
-//             {
-//                 $group: {
-//                     _id: "$roles",
-//                     count: { $sum: 1 }
-//                 }
-//             }
-//         ]);
-//         const formattedDemographics = demographics.map((demographic) => ({
-//             label: demographic._id,
-//             value: demographic.count
-//         }));
-//         return res.status(200).json(formattedDemographics);
-//     } catch (error) {
-//         return res.status(500).json({ message: "Error fetching demographics data", error });
-//     }
-// });
+router.post('/api/user/fetchChatList', mediaController.getChatList.bind(mediaController));
+//find all
+// router.post('/api/user/fetchChatList', async (req, res) => {
+//     console.log("zzzzzzz", req.body);
+//     const { userId } = req.body
+//     const user = await UserModel.findById(userId)
+//     if (!user) return
+//     const following = user.following || []
+//     const followers = user.followers || []
+//     const both = [...new Set(followers.concat(following))];
+//     console.log(both, "yes the user exist");
+//     const users = await UserModel.find({
+//         _id: { $in: both }
+//     })
+//     res.json({ userslist: users })
+// })
 exports.default = router;

@@ -7,6 +7,7 @@ import { Notification } from "../../infrastructure/database/model/NotificationMo
 import MatchService from "../../application/Services/MatchService";
 import UserService from "../../application/Services/UserService";
 import AudioMessageService from "../../application/Services/AudioMessageService";
+const { v4: uuidv4 } = require('uuid');
 
 
 
@@ -23,7 +24,9 @@ export function setupSocketIO(server: any) {
 
   const io = new Server(server, {
     cors: {
-      origin: 'https://gingerfrontend.vercel.app',
+      // origin: 'https://gingerfrontend.vercel.app',
+      origin: 'http://localhost:3000',
+
       methods: ["GET", "POST"],
       allowedHeaders: ["Authorization"],
       credentials: true, // if you need to allow cookies or other credentialsddd
@@ -193,12 +196,52 @@ export function setupSocketIO(server: any) {
 
     })
 
-    // socket.on('call_notification', (email: string) => {
-    //   let targetSocketId = findSocketWithEmail(email)
-    //   console.log(email);
-    //   io.to(targetSocketId).emit('caller_notification', "hello world")s
+    socket.on('call_button_clicked', async (data) => {
+      console.log("hello", data.recipientEmail);
 
-    // })
+      let targetSocketId = findSocketWithEmail(data.recipientEmail)
+      let caller = await UserService.findUserDetailsWithEmail(data.senderEmail)
+      console.log(caller);
+
+      console.log(targetSocketId, "socketid");
+
+      io.to(targetSocketId).emit('call_notification_sent', caller)
+
+      // console.log(email);
+      // const userdetails = await UserService.findUserDetailsWithEmail(email)
+      // // console.log(userdetails);
+
+
+      // // io.to(targetSocketId).emit('caller_notification', userdetails) 
+      // io.to(targetSocketId).emit('caller_notification', userdetails)
+
+
+    })
+    socket.on('rec_accepted_call', (data) => {
+      console.log(data);
+      let rec = findSocketWithEmail(data.rec);
+      let caller = findSocketWithEmail(data.caller);
+
+      // Generate a random UUID
+      let roomId = uuidv4();
+
+      io.to(rec).emit('join_room', roomId);
+      io.to(caller).emit('join_room', roomId);
+    });
+
+    socket.on('call_accepted', ({ caller, useremail }) => {
+      console.log(caller.email, "call accepted");
+      let targetSocketId = findSocketWithEmail(caller.email)
+      let user = findSocketWithEmail(useremail)
+      console.log(user, "09", targetSocketId);
+
+
+      io.to(targetSocketId).emit('proceed_with_call', "your target has been accepted")
+      // io.to(user).emit('proceed_with_call', "your user has been accepted")
+
+
+    })
+
 
     socket.on('onlineStatus', (recipient, sender) => {
       console.log(recipient, "onlineStatus");

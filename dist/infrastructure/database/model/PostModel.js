@@ -28,7 +28,7 @@ const mongoose_1 = __importStar(require("mongoose"));
 // Define schema for Post
 const PostSchema = new mongoose_1.Schema({
     imageUrl: [{ type: String, required: true }],
-    caption: { type: String, required: true },
+    caption: { type: String, required: false, default: "" },
     userId: { type: mongoose_1.default.Schema.Types.ObjectId, ref: 'User', required: true },
     likeCount: { type: Number, default: 0 },
     isActive: { type: Boolean, default: true },
