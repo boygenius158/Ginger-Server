@@ -15,6 +15,8 @@ import { setupSocketIO } from './presentation/socket/SocketIO';
 import scheduleCronJobs from './infrastructure/cron/cronScheduler';
 
 import s3service from './application/Services/S3service'
+import logger from './utils/logger';
+
 
 dotenv.config()
 const port = 5000;

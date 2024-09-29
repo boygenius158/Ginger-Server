@@ -3,6 +3,8 @@ import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import mongoose from "mongoose";
 import { PostModel } from "../../infrastructure/database/model/PostModel";
+import { HttpStatus } from "../../utils/HttpStatus";
+const jwt = require("jsonwebtoken");
 
 const router = express.Router();
 
@@ -65,9 +67,27 @@ router.post("/api/getPresignedUrls", async (req: Request, res: Response) => {
 
     } catch (error) {
         console.error("Error generating presigned URLs or saving post:", error);
-        return res.status(500).json({ message: "Error processing your request" });
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: "Error processing your request" });
     }
 });
+router.post("/refresh-token", (req, res) => {
+    const { refreshToken } = req.body;
+
+    // Validate refresh token
+    jwt.verify(refreshToken, "helloworld", (err: any, user: any) => {
+        if (err) return res.status(403).json({ message: "Invalid refresh token" });
+
+        // Generate new access token
+        const newAccessToken = jwt.sign(
+            { id: user.id, roles: user.roles },
+            "helloworld",
+            { expiresIn: "30m" } // Extend token expiration as needed
+        );
+
+        res.json({ accessToken: newAccessToken });
+    });
+});
+
 
 
 

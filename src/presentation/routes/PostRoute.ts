@@ -11,13 +11,8 @@ const router = express.Router();
 import { MediaRepository } from '../../infrastructure/repository/PostRepository';
 import { MediaUseCase } from '../../application/usecase/PostUseCase';
 import { MediaController } from '../controllers/PostController';
-import UserModel, { IUser } from '../../infrastructure/database/model/UserModel';
-import upload from '../../infrastructure/middleware/fileUpload';
 
-import { UserRole } from '../../domain/entities/User';
 import verifyJWT from '../../utils/verifyJWT';
-import { PremiumModel } from '../../infrastructure/database/model/PremiumModel';
-import Message from '../../infrastructure/database/model/MessageModel';
 
 
 
@@ -57,25 +52,8 @@ router.post('/api/user/savePost', verifyJWT, mediaController.handleSavePost.bind
 router.post('/api/user/expiry-date', mediaController.getExpiryDate.bind(mediaController));
 router.get('/api/user/user-demographics', mediaController.getUserDemographics.bind(mediaController));
 router.get('/api/admin/chartData1', mediaController.getChartData.bind(mediaController));
-
 router.post('/api/user/fetchChatList',  mediaController.getChatList.bind(mediaController));
 
-//find all
-// router.post('/api/user/fetchChatList', async (req, res) => {
-//     console.log("zzzzzzz", req.body);
-//     const { userId } = req.body
-//     const user = await UserModel.findById(userId)
-//     if (!user) return
-//     const following = user.following || []
-//     const followers = user.followers || []
-//     const both = [...new Set(followers.concat(following))];
-//     console.log(both, "yes the user exist");
-//     const users = await UserModel.find({
-//         _id: { $in: both }
-//     })
-
-//     res.json({ userslist: users })
-// })
 
 export default router;
 

@@ -5,7 +5,6 @@ import { AuthUseCase } from '../../application/usecase/UserUseCase'
 import UserModel from '../../infrastructure/database/model/UserModel'
 import verifyJWT from '../../utils/verifyJWT'
 import { ChartConfig, ChartData } from '../../application/interface/ChartInterfaces'
-const jwt = require("jsonwebtoken");
 
 const router = express.Router()
 
@@ -15,23 +14,6 @@ const controller = new authController(auth)
 
 
 
-router.post("/refresh-token", (req, res) => {
-    const { refreshToken } = req.body;
-
-    // Validate refresh token
-    jwt.verify(refreshToken, "helloworld", (err: any, user: any) => {
-        if (err) return res.status(403).json({ message: "Invalid refresh token" });
-
-        // Generate new access token
-        const newAccessToken = jwt.sign(
-            { id: user.id, roles: user.roles },
-            "helloworld",
-            { expiresIn: "30m" } // Extend token expiration as needed
-        );
-
-        res.json({ accessToken: newAccessToken });
-    });
-});
 
 
 

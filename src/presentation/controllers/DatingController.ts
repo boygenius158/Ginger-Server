@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { IDatingUseCase } from "../../application/usecase/DatingUseCase";
+import { HttpStatus } from "../../utils/HttpStatus";
 
 export class DatingController {
     private _datingUseCase: IDatingUseCase;
@@ -16,12 +17,12 @@ export class DatingController {
 
             const profiles = await this._datingUseCase.swipeProfiles(userId, maximumAge, interestedGender);
             if (!profiles) {
-                return res.status(500).json({ message: "An error occurred while fetching profiles" });
+                return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: "An error occurred while fetching profiles" });
             }
             res.json({ profiles });
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: "An error occurred while fetching profiles" });
+            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: "An error occurred while fetching profiles" });
         }
     }
     async updateDatingProfileImages(req: Request, res: Response, next: NextFunction) {
@@ -34,7 +35,7 @@ export class DatingController {
             res.json({});
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: "An error occurred while updating profile images" });
+            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: "An error occurred while updating profile images" });
         }
     }
     async fetchMatches(req: Request, res: Response, next: NextFunction) {
@@ -46,7 +47,7 @@ export class DatingController {
             res.json({ matches });
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: "An error occurred while fetching matches" });
+            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: "An error occurred while fetching matches" });
         }
     }
     async getUserDatingProfile(req: Request, res: Response, next: NextFunction) {
@@ -58,7 +59,7 @@ export class DatingController {
             res.json({ user });
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: "An error occurred while fetching the profile" });
+            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: "An error occurred while fetching the profile" });
         }
     }
     async handleDatingTab1(req: Request, res: Response, next: NextFunction) {
@@ -68,7 +69,7 @@ export class DatingController {
             res.json(result);
         } catch (error) {
             console.error("Error handling dating profile:", error);
-            res.status(500).json({ error: "An error occurred while processing your request." });
+            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: "An error occurred while processing your request." });
         }
     }
     async handleDatingTab3(req: Request, res: Response, next: NextFunction) {
@@ -77,13 +78,13 @@ export class DatingController {
             const images = await this._datingUseCase.getProfileImages(userId);
 
             if (!images) {
-                return res.status(404).json({ message: "User not found" });
+                return res.status(HttpStatus.NOT_FOUND).json({ message: "User not found" });
             }
 
             res.json({ images });
         } catch (error) {
             console.error("Error fetching user images:", error);
-            res.status(500).json({ error: "An error occurred while fetching user images." });
+            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: "An error occurred while fetching user images." });
         }
     }
     async handleDatingTab4(req: Request, res: Response, next: NextFunction) {
@@ -95,13 +96,13 @@ export class DatingController {
             const updatedUser = await this._datingUseCase.updateUserPreferences(userId, maximumAge, profileVisibility,interestedGender);
 
             if (!updatedUser) {
-                return res.status(404).json({ message: "User not found" });
+                return res.status(HttpStatus.NOT_FOUND).json({ message: "User not found" });
             }
 
             res.json(updatedUser);
         } catch (error) {
             console.error("Error updating user preferences:", error);
-            res.status(500).json({ error: "An error occurred while updating user preferences." });
+            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: "An error occurred while updating user preferences." });
         }
     }
     async handleUserSettings(req: Request, res: Response, next: NextFunction) {
@@ -116,13 +117,13 @@ export class DatingController {
             const userSettings = await this._datingUseCase.getUserSettings(userId);
 
             if (!userSettings) {
-                return res.status(404).json({ error: 'User not found' });
+                return res.status(HttpStatus.NOT_FOUND).json({ error: 'User not found' });
             }
 
             res.status(200).json({ data: userSettings });
         } catch (error) {
             console.error("Error fetching user settings:", error);
-            res.status(500).json({ error: "Internal Server Error" });
+            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: "Internal Server Error" });
         }
     }
     async getDatingTab1Details(req: Request, res: Response, next: NextFunction) {
@@ -136,13 +137,13 @@ export class DatingController {
             const formData = await this._datingUseCase.getDatingTab1Details(userId);
 
             if (!formData) {
-                return res.status(404).json({ error: "User not found" });
+                return res.status(HttpStatus.NOT_FOUND).json({ error: "User not found" });
             }
 
             return res.status(200).json({ formData });
         } catch (error) {
             console.error("Error fetching dating tab 1 details:", error);
-            return res.status(500).json({ error: "Internal Server Error" });
+            return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: "Internal Server Error" });
         }
     }
     
