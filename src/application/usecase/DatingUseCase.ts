@@ -1,13 +1,13 @@
 import { IDatingRepository } from "../../infrastructure/repository/DatingRepository";
 
 export interface IDatingUseCase {
-    swipeProfiles(userId: string, maximumAge: string, interestedGender: string): Promise<any>;
+    swipeProfiles(userId: string, maximumAge: number, interestedGender: string): Promise<any>;
     updateProfileImages(userId: string, url: string[]): Promise<any>;
     fetchMatches(userId: string): Promise<any>; // Add this method
     getUserDatingProfile(userId: string): Promise<any>;
     handleDatingTab1(userId: string, formData: { name: string, age: number, bio: string, gender: string }): Promise<any>;
     getProfileImages(userId: string): Promise<string[] | null>;
-    updateUserPreferences(userId: string, maximumAge: number, profileVisibility: boolean): Promise<any>;
+    updateUserPreferences(userId: string, maximumAge: number, profileVisibility: boolean,interestedGender:string): Promise<any>;
     getUserSettings(userId: string): Promise<any>;
     getDatingTab1Details(userId: string): Promise<any>;
 
@@ -23,8 +23,11 @@ export class DatingUseCase implements IDatingUseCase {
         this._repository = _repository;
     }
 
-    async swipeProfiles(userId: string, maximumAge: string, interestedGender: string): Promise<any> {
-        const profiles = await this._repository.swipeProfiles(userId, maximumAge, interestedGender);
+    async swipeProfiles(userId: string, maximumAge: number, interestedGender: string): Promise<any> {
+        const datingprofile = await this._repository.getUserDatingProfile(userId)
+        console.log(datingprofile.name);
+        
+        const profiles = await this._repository.swipeProfiles(userId, datingprofile.maximumAge, datingprofile.interestedGender);
         return profiles;
     }
 
@@ -55,7 +58,9 @@ export class DatingUseCase implements IDatingUseCase {
         const user = await this._repository.findUserById(userId);
         return user ? user.images : null;
     }
-    async updateUserPreferences(userId: string, maximumAge: number, profileVisibility: boolean): Promise<any> {
+    async updateUserPreferences(userId: string, maximumAge: number, profileVisibility: boolean,interestedGender:string): Promise<any> {
+        console.log("int",interestedGender);
+        
         const user = await this._repository.findUserById(userId);
         if (!user) {
             return null;
@@ -63,7 +68,7 @@ export class DatingUseCase implements IDatingUseCase {
         
         user.maximumAge = maximumAge;
         user.profileVisibility = profileVisibility;
-        
+        user.interestedGender = interestedGender
         await this._repository.saveUser(user);
 
         return user;
@@ -80,7 +85,7 @@ export class DatingUseCase implements IDatingUseCase {
         return {
             maximumAge: user.maximumAge || 18,
             profileVisibility: user.profileVisibility || false,
-            gender: user.gender || 'not specified'
+            gender: user.interestedGender || 'not specified'
         };
     }
     async getDatingTab1Details(userId: string): Promise<any> {

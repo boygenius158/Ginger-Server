@@ -94,7 +94,7 @@ export class MediaController {
             const followThatUser = await this.mediaUseCase.followProfile(orginalUser, followUserId)
 
             // const user = await this.mediaUseCase.followProfile()
-            console.log(followThatUser);
+            // console.log(followThatUser);
 
             res.json({ followThatUser })
         } catch (error) {

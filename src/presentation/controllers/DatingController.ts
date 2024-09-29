@@ -9,7 +9,7 @@ export class DatingController {
     }
 
     async swipeProfile(req: Request, res: Response, next: NextFunction) {
-        console.log("swipe profile");
+        console.log("swipe profile",req.body);
 
         try {
             const { userId, maximumAge, interestedGender } = req.body;
@@ -88,9 +88,11 @@ export class DatingController {
     }
     async handleDatingTab4(req: Request, res: Response, next: NextFunction) {
         try {
-            const { userId, maximumAge, profileVisibility } = req.body;
+            const { userId, maximumAge, profileVisibility , interestedGender } = req.body;
+            console.log(req.body,"ooo");
+            
 
-            const updatedUser = await this._datingUseCase.updateUserPreferences(userId, maximumAge, profileVisibility);
+            const updatedUser = await this._datingUseCase.updateUserPreferences(userId, maximumAge, profileVisibility,interestedGender);
 
             if (!updatedUser) {
                 return res.status(404).json({ message: "User not found" });

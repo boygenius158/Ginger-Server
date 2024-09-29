@@ -73,7 +73,6 @@ export class AdminRepository implements IAdminRepository {
         return UserModel.find({ isBlocked: true }).select('_id').exec();
     }
     async findReportsByActionTaken(actionTaken: boolean): Promise<any[]> {
-        console.log(actionTaken,"poiuu");
         
         return Report.find({ actionTaken }).populate({
             path: 'postId',

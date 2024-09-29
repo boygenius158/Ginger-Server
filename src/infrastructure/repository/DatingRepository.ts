@@ -1,7 +1,7 @@
 import DatingProfile from "../database/model/DatingProfileMode";
 
 export interface IDatingRepository {
-    swipeProfiles(userId: string, maximumAge: string, interestedGender: string): Promise<any>;
+    swipeProfiles(userId: string, maximumAge: number, interestedGender: string): Promise<any>;
     updateProfileImages(userId: string, url: string[]): Promise<any>;
     fetchMatches(userId: string): Promise<any>; // Add this method
     getUserDatingProfile(userId: string): Promise<any>;
@@ -15,14 +15,18 @@ export interface IDatingRepository {
 }
 
 export class DatingRepository implements IDatingRepository {
-    async swipeProfiles(userId: string, maximumAge: string, interestedGender: string): Promise<any> {
+    async swipeProfiles(userId: string, maximumAge: number, interestedGender: string): Promise<any> {
+        console.log(userId,maximumAge,interestedGender,"maximumage");
+        
         const profiles = await DatingProfile.find({
-            userId: { $ne: userId },  // Exclude the current user's profile
-            profileVisibility: true,  // Only fetch profiles that are visible
-            age: { $lte: maximumAge || Infinity },  // Apply maximum age filter if provided
-            interestedGender: interestedGender || { $exists: true },  // Apply interested gender filter if provided
-            likedByUsers: { $ne: userId }  // Exclude profiles that the user has already liked
+            userId: { $ne: userId },  
+            profileVisibility: true,  
+            age: { $lte: maximumAge  }, 
+            gender: interestedGender,  
+            likedByUsers: { $ne: userId }  
         });
+        console.log(profiles,"profiles");
+        
         return profiles;
     }
 
@@ -77,6 +81,8 @@ export class DatingRepository implements IDatingRepository {
         return profile.save();
     }
     async saveUser(user: any): Promise<any> {
+        console.log(user,"iii");
+        
         return await user.save();
     }
 }

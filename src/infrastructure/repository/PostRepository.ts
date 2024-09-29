@@ -70,7 +70,7 @@ export class MediaRepository implements IMediaRepository {
 
     async findUserId(email: string): Promise<string | null> {
         try {
-            console.log("iiiiiii");
+            // console.log("iiiiiii");
 
             const user = await UserModel.findOne({ email });
             if (!user) {
@@ -108,29 +108,30 @@ export class MediaRepository implements IMediaRepository {
     }
     async followProfile(email: string, id: string): Promise<User> {
         try {
-            // Convert the id string to ObjectId
+            // Validate the ObjectId format
+            if (!mongoose.Types.ObjectId.isValid(id)) {
+                throw new Error('Invalid user ID format');
+            }
             const objectId = new mongoose.Types.ObjectId(id);
 
             // Find users
             const user = await UserModel.findOne({ email });
             const user2 = await UserModel.findById(objectId);
+
+            // Log user emails for debugging
             console.log(user?.email, user2?.email);
 
+            // Check if user exists
             if (!user) {
-                throw new Error('User not found');
+                throw new Error('User not found'); // More specific messages could be helpful
             }
             if (!user2) {
-                throw new Error('User not found');
+                throw new Error('Profile to follow not found'); // Changed message for clarity
             }
-            const objectId2 = user._id
 
-            // Initialize the following and followers arrays if they are undefined
-            if (!user.following) {
-                user.following = [];
-            }
-            if (!user2.followers) {
-                user2.followers = [];
-            }
+            // Initialize following and followers arrays if they are undefined
+            user.following = user.following || [];
+            user2.followers = user2.followers || [];
 
             // Toggle follow/unfollow
             const alreadyFollowing = user.following.some(followedId => followedId.equals(objectId));
@@ -138,11 +139,11 @@ export class MediaRepository implements IMediaRepository {
             if (alreadyFollowing) {
                 // Remove from following and followers
                 user.following = user.following.filter(followedId => !followedId.equals(objectId));
-                user2.followers = user2.followers.filter(followerId => !followerId.equals(objectId));
+                user2.followers = user2.followers.filter(followerId => !followerId.equals(user._id)); // Corrected
             } else {
                 // Add to following and followers
                 user.following.push(objectId);
-                user2.followers.push(objectId2);
+                user2.followers.push(user._id); // Use user._id here
             }
 
             // Save changes to both users
@@ -152,9 +153,10 @@ export class MediaRepository implements IMediaRepository {
             return updatedUser;
         } catch (error) {
             console.error("Error following profile:", error);
-            throw new Error('Error following profile');
+            throw new Error('Error following profile'); // Consider rethrowing the error for more context
         }
     }
+
 
     async checkFollowingStatus(email: string, id: string): Promise<boolean> {
         try {

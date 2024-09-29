@@ -290,6 +290,27 @@ export function setupSocketIO(server: any) {
 
     //   io.to(targetSocketId).emit('audio-chat')
 
+    // }) 
+    // socket.on('person_follows', async({followUser,orginalUser}) => {
+    //   console.log(orginalUser,"person_follows");
+    //   const user1 = await UserService.findUserDetailsWithEmail(followUser)
+    //   const followUser_username = user1?.username
+    //   const user2 = await UserService.findUserDetailsWithEmail(orginalUser)
+    //   const followUser_username2 = user2?.username
+    //   console.log("followUser",followUser_username);
+    //   console.log("followUser",followUser_username2);
+    //   const message = `${user2?.username} started following you`
+    //   const user1Notification = new Notification({
+    //     user:user1?._id,
+    //     interactorId:user2?._id,
+    //     type:'follow',
+    //     message:message
+
+    //   })
+    //   await user1Notification.save()
+      
+      
+
     // })
     socket.on('audio-chat', async ({ recipientEmail, senderEmail, message, type }) => {
       const data = {

@@ -48,7 +48,7 @@ router.post('/api/user/reportPost', verifyJWT, mediaController.reportPost.bind(m
 router.post('/api/user/fetch-saved-posts', verifyJWT, mediaController.fetchSavedPosts.bind(mediaController));
 router.post('/api/user/updateReadStatus', verifyJWT, mediaController.updateReadStatus.bind(mediaController));
 router.post('/api/user/fetchHistoricalData', verifyJWT, mediaController.fetchHistoricalData.bind(mediaController));
-router.post('/api/user/premiumStatus', verifyJWT, mediaController.getPremiumStatus.bind(mediaController));
+router.post('/api/user/premiumStatus',  mediaController.getPremiumStatus.bind(mediaController));
 router.post('/api/user/visitPost', verifyJWT, mediaController.visitPost.bind(mediaController));
 router.post('/api/user/fetchStories', mediaController.fetchStories.bind(mediaController));
 router.post('/api/user/upload-audio-cloud', verifyJWT, mediaController.handleAudioUpload.bind(mediaController));
