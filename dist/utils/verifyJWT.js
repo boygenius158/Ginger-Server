@@ -4,11 +4,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const HttpStatus_1 = require("./HttpStatus");
 const verifyJWT = (req, res, next) => {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
         console.log(`Authorization token missing or malformed for path: ${req.originalUrl}`);
-        return res.status(401).json({ message: "Authorization token missing or malformed" });
+        return res.status(HttpStatus_1.HttpStatus.UNAUTHORIZED).json({ message: "Authorization token missing or malformed" });
     }
     const token = authHeader.split(" ")[1]; // Extract the token after "Bearer"
     console.log(token, "token in header");
@@ -26,12 +27,12 @@ const verifyJWT = (req, res, next) => {
         console.error(`Token verification failed for path: ${req.originalUrl}`, err);
         // Handle specific JWT errors (like token expiration)
         if (err.name === "TokenExpiredError") {
-            return res.status(401).json({ message: "Token has expired" });
+            return res.status(HttpStatus_1.HttpStatus.UNAUTHORIZED).json({ message: "Token has expired" });
         }
         else if (err.name === "JsonWebTokenError") {
-            return res.status(401).json({ message: "Invalid token" });
+            return res.status(HttpStatus_1.HttpStatus.UNAUTHORIZED).json({ message: "Invalid token" });
         }
-        return res.status(401).json({ message: "Token verification failed" });
+        return res.status(HttpStatus_1.HttpStatus.UNAUTHORIZED).json({ message: "Token verification failed" });
     }
 };
 exports.default = verifyJWT;

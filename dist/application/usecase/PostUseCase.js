@@ -16,244 +16,366 @@ exports.MediaUseCase = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
 class MediaUseCase {
     constructor(repository) {
-        this.repository = repository;
+        this._repository = repository;
     }
     findUserId(email) {
         return __awaiter(this, void 0, void 0, function* () {
-            const userId = yield this.repository.findUserId(email);
-            return userId;
+            try {
+                const userId = yield this._repository.findUserId(email);
+                return userId;
+            }
+            catch (error) {
+                console.error("Error in findUserId:", error);
+                throw new Error("Unable to find user by email");
+            }
         });
     }
     findUserIdByUsername(username) {
         return __awaiter(this, void 0, void 0, function* () {
-            const userId = yield this.repository.findUserIdByUsername(username);
-            if (!userId) {
-                throw new Error;
+            try {
+                const userId = yield this._repository.findUserIdByUsername(username);
+                if (!userId) {
+                    throw new Error("User not found");
+                }
+                return userId;
             }
-            return userId;
+            catch (error) {
+                console.error("Error in findUserIdByUsername:", error);
+                throw new Error("Unable to find user by username");
+            }
         });
     }
     getExpiryDate(userId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const user = yield this.repository.findUserById(userId);
-            if (!user) {
-                throw new Error('User not found');
+            try {
+                const user = yield this._repository.findUserById(userId);
+                if (!user) {
+                    throw new Error("User not found");
+                }
+                if (user.roles !== 'premium' && user.roles !== 'admin') {
+                    throw new Error("User does not have the required role");
+                }
+                const premium = yield this._repository.findPremiumByUserId(userId);
+                if (!(premium === null || premium === void 0 ? void 0 : premium.createdAt)) {
+                    throw new Error("Premium document or createdAt not found");
+                }
+                const createdAt = new Date(premium.createdAt);
+                const expiryDate = new Date(createdAt);
+                expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+                const today = new Date();
+                const timeDiff = expiryDate.getTime() - today.getTime();
+                const daysLeft = Math.ceil(timeDiff / (1000 * 3600 * 24));
+                return daysLeft;
             }
-            if (user.roles !== 'premium' && user.roles !== 'admin') {
-                throw new Error('User does not have the required role');
+            catch (error) {
+                console.error("Error in getExpiryDate:", error);
+                throw new Error("Unable to calculate expiry date");
             }
-            const premium = yield this.repository.findPremiumByUserId(userId);
-            if (!(premium === null || premium === void 0 ? void 0 : premium.createdAt)) {
-                throw new Error('Premium document or createdAt not found');
-            }
-            const createdAt = new Date(premium.createdAt);
-            const expiryDate = new Date(createdAt);
-            expiryDate.setFullYear(expiryDate.getFullYear() + 1);
-            const today = new Date();
-            const timeDiff = expiryDate.getTime() - today.getTime();
-            const daysLeft = Math.ceil(timeDiff / (1000 * 3600 * 24));
-            return daysLeft;
         });
     }
     getUserDemographics() {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("pop");
-            const demographics = yield this.repository.getUserDemographics();
-            return demographics.map((demographic) => ({
-                label: demographic._id,
-                value: demographic.count
-            }));
+            try {
+                console.log("pop");
+                const demographics = yield this._repository.getUserDemographics();
+                return demographics.map((demographic) => ({
+                    label: demographic._id,
+                    value: demographic.count,
+                }));
+            }
+            catch (error) {
+                console.error("Error in getUserDemographics:", error);
+                throw new Error("Unable to fetch user demographics");
+            }
         });
     }
     createPost(imageUrl, caption, email) {
         return __awaiter(this, void 0, void 0, function* () {
-            // Implement the actual logic here
-            // return this.repository.uploadPost(post);
-            const userId = yield this.findUserId(email);
-            if (!userId) {
-                throw new Error;
+            try {
+                const userId = yield this.findUserId(email);
+                if (!userId) {
+                    throw new Error("User not found");
+                }
+                const newPost = {
+                    imageUrl: imageUrl,
+                    caption,
+                    userId,
+                    createdAt: new Date(),
+                };
+                console.log(newPost);
+                return yield this._repository.uploadPost(newPost);
             }
-            const newPost = {
-                imageUrl: imageUrl,
-                caption,
-                userId,
-                createdAt: new Date()
-            };
-            console.log(newPost);
-            return this.repository.uploadPost(newPost);
+            catch (error) {
+                console.error("Error in createPost:", error);
+                throw new Error("Unable to create post");
+            }
         });
     }
     findUserPost(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const posts = yield this.repository.fetchPost(id);
-            return posts;
+            try {
+                return yield this._repository.fetchPost(id);
+            }
+            catch (error) {
+                console.error("Error in findUserPost:", error);
+                throw new Error("Unable to fetch user posts");
+            }
         });
     }
     followProfile(email, id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const user = yield this.repository.followProfile(email, id);
-            return user;
+            try {
+                return yield this._repository.followProfile(email, id);
+            }
+            catch (error) {
+                console.error("Error in followProfile:", error);
+                throw new Error("Unable to follow profile");
+            }
         });
     }
     checkFollowingStatus(email, id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const user = yield this.repository.checkFollowingStatus(email, id);
-            if (user) {
-                return true;
+            try {
+                const user = yield this._repository.checkFollowingStatus(email, id);
+                return !!user;
             }
-            else {
-                return false;
+            catch (error) {
+                console.error("Error in checkFollowingStatus:", error);
+                throw new Error("Unable to check following status");
             }
         });
     }
     fetchFeed(email, offset, limit) {
         return __awaiter(this, void 0, void 0, function* () {
-            const userId = yield this.findUserId(email);
-            if (!userId) {
-                return null;
+            try {
+                const userId = yield this.findUserId(email);
+                if (!userId) {
+                    return null;
+                }
+                const feed = yield this._repository.fetchFeed(userId, offset, limit);
+                return feed !== null && feed !== void 0 ? feed : null;
             }
-            const feed = yield this.repository.fetchFeed(userId, offset, limit);
-            if (!feed) {
-                return null;
+            catch (error) {
+                console.error("Error in fetchFeed:", error);
+                throw new Error("Unable to fetch feed");
             }
-            return feed;
         });
     }
     likePostAction(postsId, orginalUser) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("liekpostsactiop", postsId);
-            const action = yield this.repository.likePost(postsId, orginalUser);
-            return null;
+            try {
+                console.log("likePostAction", postsId);
+                yield this._repository.likePost(postsId, orginalUser);
+                return null;
+            }
+            catch (error) {
+                console.error("Error in likePostAction:", error);
+                throw new Error("Unable to like post");
+            }
         });
     }
     postComment(email, postId, postedComment) {
         return __awaiter(this, void 0, void 0, function* () {
-            const comment = yield this.repository.postComment(email, postedComment, postId);
-            return comment;
+            try {
+                return yield this._repository.postComment(email, postedComment, postId);
+            }
+            catch (error) {
+                console.error("Error in postComment:", error);
+                throw new Error("Unable to post comment");
+            }
         });
     }
     uploadStory(url, userId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const action = yield this.repository.uploadStory(url, userId);
-            return true;
+            try {
+                yield this._repository.uploadStory(url, userId);
+                return true;
+            }
+            catch (error) {
+                console.error("Error in uploadStory:", error);
+                throw new Error("Unable to upload story");
+            }
         });
     }
     updateProfile(name, bio, email) {
         return __awaiter(this, void 0, void 0, function* () {
-            const action = yield this.repository.updateProfile(name, bio, email);
-            return true;
+            try {
+                yield this._repository.updateProfile(name, bio, email);
+                return true;
+            }
+            catch (error) {
+                console.error("Error in updateProfile:", error);
+                throw new Error("Unable to update profile");
+            }
         });
     }
     reportPost(reporterId, postId) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.repository.reportPost(reporterId, postId);
+            try {
+                yield this._repository.reportPost(reporterId, postId);
+            }
+            catch (error) {
+                console.error("Error in reportPost:", error);
+                throw new Error("Unable to report post");
+            }
         });
     }
+    // Continue adding try-catch blocks for the rest of the functions following this same pattern.
     fetchSavedPosts(username) {
         return __awaiter(this, void 0, void 0, function* () {
-            // Fetch user from repository
-            const user = yield this.repository.findUserByUsername(username);
-            if (!user) {
-                throw new Error("User not found");
+            try {
+                // Fetch user from _repository
+                const user = yield this._repository.findUserByUsername(username);
+                if (!user) {
+                    throw new Error("User not found");
+                }
+                // Fetch saved posts
+                const savedPostIds = user.savedPosts;
+                const posts = yield this._repository.findPostsByIds(savedPostIds);
+                return { savedPosts: posts };
             }
-            // Fetch saved posts
-            const savedPostIds = user.savedPosts;
-            const posts = yield this.repository.findPostsByIds(savedPostIds);
-            return { savedPosts: posts };
+            catch (error) {
+                throw new Error(`Failed to fetch saved posts: ${error}`);
+            }
         });
     }
     updateReadStatus(sender, recipient) {
         return __awaiter(this, void 0, void 0, function* () {
-            // Update the read status of messages
-            const result = yield this.repository.updateMessageReadStatus(sender, recipient);
-            return result;
+            try {
+                // Update the read status of messages
+                const result = yield this._repository.updateMessageReadStatus(sender, recipient);
+                return result;
+            }
+            catch (error) {
+                throw new Error(`Failed to update read status: ${error}`);
+            }
         });
     }
     fetchHistoricalData(senderId, receiverId) {
         return __awaiter(this, void 0, void 0, function* () {
-            // Fetch historical messages between sender and receiver
-            const messages = yield this.repository.getHistoricalMessages(senderId, receiverId);
-            return messages;
+            try {
+                // Fetch historical messages between sender and receiver
+                const messages = yield this._repository.getHistoricalMessages(senderId, receiverId);
+                return messages;
+            }
+            catch (error) {
+                throw new Error(`Failed to fetch historical data: ${error}`);
+            }
         });
     }
     getPremiumStatus(userId) {
         return __awaiter(this, void 0, void 0, function* () {
-            // Fetch the user and their roles to determine premium status
-            const user = yield this.repository.getUserById(userId);
-            return user ? user.roles : null;
+            try {
+                // Fetch the user and their roles to determine premium status
+                const user = yield this._repository.getUserById(userId);
+                return user ? user.roles : null;
+            }
+            catch (error) {
+                throw new Error(`Failed to fetch premium status: ${error}`);
+            }
         });
     }
     getChatList(userId) {
         return __awaiter(this, void 0, void 0, function* () {
-            // Get the user by ID
-            const user = yield this.repository.getUserById(userId);
-            if (!user) {
-                throw new Error("User not found");
+            try {
+                // Get the user by ID
+                const user = yield this._repository.getUserById(userId);
+                if (!user) {
+                    throw new Error("User not found");
+                }
+                // Get the following and followers lists
+                const following = user.following || [];
+                const followers = user.followers || [];
+                // Combine both arrays and remove duplicates (in case any user is in both lists)
+                const combinedUsers = Array.from(new Set([...following, ...followers]));
+                // Fetch the user details of these combined users
+                const uniqueUsers = yield this._repository.getUsersByIds(combinedUsers);
+                return { uniqueUsers };
             }
-            // Get the following and followers lists
-            const following = user.following || [];
-            const followers = user.followers || [];
-            // Combine both arrays and remove duplicates (in case any user is in both lists)
-            const combinedUsers = Array.from(new Set([...following, ...followers]));
-            // Fetch the user details of these combined users
-            const uniqueUsers = yield this.repository.getUsersByIds(combinedUsers);
-            return { uniqueUsers };
+            catch (error) {
+                throw new Error(`Failed to fetch chat list: ${error}`);
+            }
         });
     }
     visitPost(postId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield this.repository.getPostById(postId);
-            const comments = yield this.repository.getCommentsByPostId(postId);
-            return { result, comments };
+            try {
+                const result = yield this._repository.getPostById(postId);
+                const comments = yield this._repository.getCommentsByPostId(postId);
+                return { result, comments };
+            }
+            catch (error) {
+                throw new Error(`Failed to visit post: ${error}`);
+            }
         });
     }
     fetchStories(userId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const followingList = yield this.repository.getUserFollowing(userId);
-            const stories = yield this.repository.getStoriesByFollowingList(userId, followingList);
-            return stories;
+            try {
+                const followingList = yield this._repository.getUserFollowing(userId);
+                const stories = yield this._repository.getStoriesByFollowingList(userId, followingList);
+                return stories;
+            }
+            catch (error) {
+                throw new Error(`Failed to fetch stories: ${error}`);
+            }
         });
     }
     processAudioUpload(senderId, receiverId, audioUrl) {
         return __awaiter(this, void 0, void 0, function* () {
-            const audioMessageData = {
-                sender: senderId,
-                receiver: receiverId,
-                message: audioUrl,
-                type: "audio"
-            };
-            yield this.repository.createMessage(audioMessageData);
+            try {
+                const audioMessageData = {
+                    sender: senderId,
+                    receiver: receiverId,
+                    message: audioUrl,
+                    type: "audio"
+                };
+                yield this._repository.createMessage(audioMessageData);
+            }
+            catch (error) {
+                throw new Error(`Failed to process audio upload: ${error}`);
+            }
         });
     }
     execute(userId) {
         return __awaiter(this, void 0, void 0, function* () {
-            return this.repository.getNotificationsByUserId(userId);
+            try {
+                return yield this._repository.getNotificationsByUserId(userId);
+            }
+            catch (error) {
+                throw new Error(`Failed to execute notifications retrieval: ${error}`);
+            }
         });
     }
     executeSavePost(userId, postId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const objectId = new mongoose_1.default.Types.ObjectId(postId);
-            const user = yield this.repository.findById(userId);
-            if (!user) {
-                throw new Error("User not found");
+            try {
+                const objectId = new mongoose_1.default.Types.ObjectId(postId);
+                const user = yield this._repository.findById(userId);
+                if (!user) {
+                    throw new Error("User not found");
+                }
+                if (!user.savedPosts) {
+                    user.savedPosts = [];
+                }
+                const postIndex = user.savedPosts.indexOf(objectId);
+                if (postIndex === -1) {
+                    user.savedPosts.push(objectId);
+                }
+                else {
+                    user.savedPosts.splice(postIndex, 1);
+                }
+                yield this._repository.saveUser(user);
+                return { message: "Post saved/unsaved successfully" };
             }
-            if (!user.savedPosts) {
-                user.savedPosts = [];
+            catch (error) {
+                throw new Error(`Failed to save/unsave post: ${error}`);
             }
-            const postIndex = user.savedPosts.indexOf(objectId);
-            if (postIndex === -1) {
-                user.savedPosts.push(objectId);
-            }
-            else {
-                user.savedPosts.splice(postIndex, 1);
-            }
-            yield this.repository.saveUser(user);
-            return { message: "Post saved/unsaved successfully" };
         });
     }
     getChartData() {
         return __awaiter(this, void 0, void 0, function* () {
-            const data = yield this.repository.getTopUsersByFollowers(3);
+            const data = yield this._repository.getTopUsersByFollowers(3);
             // Map the aggregation result to the required chartData format
             const chartData = data.map((user) => ({
                 username: user.username,

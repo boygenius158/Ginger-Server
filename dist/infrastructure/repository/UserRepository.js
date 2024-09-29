@@ -18,10 +18,6 @@ const UserModel_1 = __importDefault(require("../database/model/UserModel"));
 const SearchHistoryModel_1 = __importDefault(require("../database/model/SearchHistoryModel"));
 const bcrypt = require('bcryptjs'); // Import bcrypt for password hashing
 class AuthRepository {
-    // private readonly userModel: Model<UserModel>;
-    // constructor(userModel: Model<UserModel>) {
-    //     this.userModel = userModel;
-    // }
     addNewUser(user) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -40,23 +36,21 @@ class AuthRepository {
             }
             catch (error) {
                 console.error("Error adding new user:", error);
-                throw error;
+                throw new Error("Failed to add new user. Please try again later.");
             }
         });
     }
     findUserByEmail(email) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log("emai", email);
-                // const user = await UserModel.findOne({ email }).select("_id email password roles");
-                // const user = await UserModel.findOne({ email, isVerified: true });
+                console.log("email", email);
                 const user = yield UserModel_1.default.findOne({ email });
                 console.log(user, "8987");
                 return user ? user.toObject() : null; // Cast to User interface
             }
             catch (error) {
                 console.error("Error finding user by email:", error);
-                throw error;
+                throw new Error("Failed to find user by email. Please try again later.");
             }
         });
     }
@@ -68,7 +62,7 @@ class AuthRepository {
             }
             catch (error) {
                 console.error("Error storing token:", error);
-                throw error;
+                throw new Error("Failed to store token. Please try again later.");
             }
         });
     }
@@ -79,17 +73,14 @@ class AuthRepository {
                 if (!user) {
                     throw new Error('User not found');
                 }
-                // Hash the new password using the same method as in addNewUser
                 const hashedPassword = yield bcrypt.hash(newPassword, 10);
-                // Update the user's password with the hashed password
                 user.password = hashedPassword;
-                // Save the updated user
                 const updatedUser = yield user.save();
                 return updatedUser.toObject(); // Cast to User interface
             }
             catch (error) {
                 console.error("Error updating password:", error);
-                throw error;
+                throw new Error("Failed to update password. Please try again later.");
             }
         });
     }
@@ -105,8 +96,8 @@ class AuthRepository {
                 return user;
             }
             catch (error) {
-                console.error("Error updating password:", error);
-                throw error;
+                console.error("Error storing OTP:", error);
+                throw new Error("Failed to store OTP. Please try again later.");
             }
         });
     }
@@ -125,8 +116,8 @@ class AuthRepository {
                 }
             }
             catch (error) {
-                console.error("Error updating password:", error);
-                throw error;
+                console.error("Error verifying OTP:", error);
+                throw new Error("Failed to verify OTP. Please try again later.");
             }
         });
     }
@@ -138,20 +129,19 @@ class AuthRepository {
                     throw new Error(`User with email ${email} not found`);
                 }
                 if (user.isBlocked) {
-                    // throw new Error('User is blocked');
-                    console.log("yelp");
+                    console.log("User is blocked");
                     return false;
                 }
                 const isPasswordValid = yield bcrypt.compare(password, user.password);
-                console.log(isPasswordValid, "adf");
+                console.log(isPasswordValid, "Password validity check");
                 if (!isPasswordValid) {
-                    throw new Error('invalid password');
+                    throw new Error('Invalid password');
                 }
                 return user;
             }
             catch (error) {
-                console.error("Error updating password:", error);
-                throw error;
+                console.error("Error verifying password:", error);
+                throw new Error("Failed to verify password. Please try again later.");
             }
         });
     }
@@ -169,62 +159,107 @@ class AuthRepository {
                 }
             }
             catch (error) {
-                console.error("Error updating password:", error);
-                throw error;
+                console.error("Error clearing OTP:", error);
+                throw new Error("Failed to clear OTP. Please try again later.");
             }
         });
     }
     findById(userId) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield UserModel_1.default.findById(new mongoose_1.default.Types.ObjectId(userId));
+            try {
+                return yield UserModel_1.default.findById(new mongoose_1.default.Types.ObjectId(userId));
+            }
+            catch (error) {
+                console.error("Error finding user by ID:", error);
+                throw new Error("Failed to find user by ID. Please try again later.");
+            }
         });
     }
     updateProfilePicture(userId, url) {
         return __awaiter(this, void 0, void 0, function* () {
-            const user = yield this.findById(userId);
-            if (!user) {
-                throw new Error("User not found");
+            try {
+                const user = yield this.findById(userId);
+                if (!user) {
+                    throw new Error("User not found");
+                }
+                user.profilePicture = url;
+                return yield user.save();
             }
-            user.profilePicture = url;
-            return yield user.save();
+            catch (error) {
+                console.error("Error updating profile picture:", error);
+                throw new Error("Failed to update profile picture. Please try again later.");
+            }
         });
     }
     searchByUsername(query) {
         return __awaiter(this, void 0, void 0, function* () {
-            return UserModel_1.default.find({
-                username: { $regex: '^' + query, $options: 'i' }
-            });
+            try {
+                return yield UserModel_1.default.find({
+                    username: { $regex: '^' + query, $options: 'i' }
+                });
+            }
+            catch (error) {
+                console.error("Error searching by username:", error);
+                throw new Error("Failed to search by username. Please try again later.");
+            }
         });
     }
     findOneByUsername(username) {
         return __awaiter(this, void 0, void 0, function* () {
-            return UserModel_1.default.findOne({ username }).exec();
+            try {
+                return yield UserModel_1.default.findOne({ username }).exec();
+            }
+            catch (error) {
+                console.error("Error finding user by username:", error);
+                throw new Error("Failed to find user by username. Please try again later.");
+            }
         });
     }
     save(user) {
         return __awaiter(this, void 0, void 0, function* () {
-            return user.save();
+            try {
+                return yield user.save();
+            }
+            catch (error) {
+                console.error("Error saving user:", error);
+                throw new Error("Failed to save user. Please try again later.");
+            }
         });
     }
     findOne(query) {
         return __awaiter(this, void 0, void 0, function* () {
-            return UserModel_1.default.findOne(query).exec();
+            try {
+                return yield UserModel_1.default.findOne(query).exec();
+            }
+            catch (error) {
+                console.error("Error finding one user:", error);
+                throw new Error("Failed to find user. Please try again later.");
+            }
         });
     }
-    // async save(entry: any): Promise<any> {
-    //     return entry.save();
-    // }
     find(query) {
         return __awaiter(this, void 0, void 0, function* () {
-            return SearchHistoryModel_1.default.find(query).populate('searchedProfileId').exec();
+            try {
+                return yield SearchHistoryModel_1.default.find(query).populate('searchedProfileId').exec();
+            }
+            catch (error) {
+                console.error("Error finding search history:", error);
+                throw new Error("Failed to find search history. Please try again later.");
+            }
         });
     }
     updateUserRoles(userId, role) {
         return __awaiter(this, void 0, void 0, function* () {
-            const user = yield UserModel_1.default.findById(userId);
-            if (user) {
-                user.roles = role;
-                yield user.save();
+            try {
+                const user = yield UserModel_1.default.findById(userId);
+                if (user) {
+                    user.roles = role;
+                    yield user.save();
+                }
+            }
+            catch (error) {
+                console.error("Error updating user roles:", error);
+                throw new Error("Failed to update user roles. Please try again later.");
             }
         });
     }

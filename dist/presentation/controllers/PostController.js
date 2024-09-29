@@ -10,23 +10,24 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MediaController = void 0;
+const HttpStatus_1 = require("../../utils/HttpStatus");
 class MediaController {
     constructor(mediaUseCase) {
-        this.mediaUseCase = mediaUseCase;
+        this._mediaUseCase = mediaUseCase;
     }
     getExpiryDate(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { userId } = req.body;
                 if (!userId) {
-                    return res.status(400).json({ message: 'User ID is required' });
+                    return res.status(HttpStatus_1.HttpStatus.BAD_REQUEST).json({ message: 'User ID is required' });
                 }
-                const daysLeft = yield this.mediaUseCase.getExpiryDate(userId);
-                res.status(200).json({ daysLeft });
+                const daysLeft = yield this._mediaUseCase.getExpiryDate(userId);
+                res.status(HttpStatus_1.HttpStatus.OK).json({ daysLeft });
             }
             catch (error) {
                 console.error('Error occurred while fetching expiry date:', error);
-                res.status(500).json({ message: error });
+                res.status(HttpStatus_1.HttpStatus.INTERNAL_SERVER_ERROR).json({ message: error });
             }
         });
     }
@@ -37,7 +38,7 @@ class MediaController {
                 const files = req.files;
                 const { caption, email } = req.body;
                 if (!files || files.length === 0) {
-                    return res.status(400).send('No files uploaded');
+                    return res.status(HttpStatus_1.HttpStatus.BAD_REQUEST).send('No files uploaded');
                 }
                 const imageUrl = files.map(file => {
                     if (!file.location) {
@@ -48,16 +49,16 @@ class MediaController {
                 // console.log(imageUrl);
                 // Optionally, validate caption and email
                 if (!caption || !email) {
-                    return res.status(400).json({ error: 'Caption and email are required' });
+                    return res.status(HttpStatus_1.HttpStatus.BAD_REQUEST).json({ error: 'Caption and email are required' });
                 }
                 // console.log(email);
-                const result = yield this.mediaUseCase.createPost(imageUrl, caption, email);
+                const result = yield this._mediaUseCase.createPost(imageUrl, caption, email);
                 res.json({ result });
                 return;
             }
             catch (error) {
                 console.error(error);
-                res.status(500).json({ error: 'Internal Server Error' });
+                res.status(HttpStatus_1.HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Internal Server Error' });
             }
         });
     }
@@ -68,14 +69,14 @@ class MediaController {
                 if (!username) {
                     throw new Error;
                 }
-                const user = yield this.mediaUseCase.findUserIdByUsername(username);
-                const post = yield this.mediaUseCase.findUserPost(user._id);
+                const user = yield this._mediaUseCase.findUserIdByUsername(username);
+                const post = yield this._mediaUseCase.findUserPost(user._id);
                 console.log(user);
                 res.json({ user, post });
             }
             catch (error) {
                 console.log(error);
-                res.status(500).json({ error: 'Internal Server Error' });
+                res.status(HttpStatus_1.HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Internal Server Error' });
             }
         });
     }
@@ -83,18 +84,18 @@ class MediaController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { followUser, orginalUser } = req.body;
-                const followUserId = yield this.mediaUseCase.findUserId(followUser);
+                const followUserId = yield this._mediaUseCase.findUserId(followUser);
                 if (!followUserId) {
                     return;
                 }
-                const followThatUser = yield this.mediaUseCase.followProfile(orginalUser, followUserId);
-                // const user = await this.mediaUseCase.followProfile()
-                console.log(followThatUser);
+                const followThatUser = yield this._mediaUseCase.followProfile(orginalUser, followUserId);
+                // const user = await this._mediaUseCase.followProfile()
+                // console.log(followThatUser);
                 res.json({ followThatUser });
             }
             catch (error) {
                 console.log(error);
-                res.status(500).json({ error: 'Internal Server Error' });
+                res.status(HttpStatus_1.HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Internal Server Error' });
             }
         });
     }
@@ -102,17 +103,17 @@ class MediaController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { followUser, orginalUser } = req.body;
-                const followUserId = yield this.mediaUseCase.findUserId(followUser);
+                const followUserId = yield this._mediaUseCase.findUserId(followUser);
                 if (!followUserId) {
                     return;
                 }
-                const followThatUser = yield this.mediaUseCase.checkFollowingStatus(orginalUser, followUserId);
-                // const user = await this.mediaUseCase.followProfile()
+                const followThatUser = yield this._mediaUseCase.checkFollowingStatus(orginalUser, followUserId);
+                // const user = await this._mediaUseCase.followProfile()
                 res.json({ followThatUser });
             }
             catch (error) {
                 console.log(error);
-                res.status(500).json({ error: 'Internal Server Error' });
+                res.status(HttpStatus_1.HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Internal Server Error' });
             }
         });
     }
@@ -121,12 +122,12 @@ class MediaController {
             try {
                 // console.log(req.body,"helo9");
                 const { email, offset, limit } = req.body;
-                const feed = yield this.mediaUseCase.fetchFeed(email, offset, limit);
+                const feed = yield this._mediaUseCase.fetchFeed(email, offset, limit);
                 res.json({ feed });
             }
             catch (error) {
                 console.log(error);
-                res.status(500).json({ error: 'Internal Server Error' });
+                res.status(HttpStatus_1.HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Internal Server Error' });
             }
         });
     }
@@ -136,12 +137,12 @@ class MediaController {
                 // console.log(req.body);
                 const { postId, originalUser } = req.body;
                 console.log(originalUser, "original user");
-                const result = yield this.mediaUseCase.likePostAction(postId, originalUser);
+                const result = yield this._mediaUseCase.likePostAction(postId, originalUser);
                 res.json({ result });
             }
             catch (error) {
                 console.log(error);
-                res.status(500).json({ error: 'Internal Server Error' });
+                res.status(HttpStatus_1.HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Internal Server Error' });
             }
         });
     }
@@ -151,14 +152,14 @@ class MediaController {
                 console.log(req.body);
                 const { postedComment, userOfPost, postId } = req.body;
                 console.log(postId);
-                const comment = yield this.mediaUseCase.postComment(userOfPost, postedComment, postId);
+                const comment = yield this._mediaUseCase.postComment(userOfPost, postedComment, postId);
                 // console.log(comment);
-                // res.status(200).json(comment);
+                // res.status(HttpStatus.OK).json(comment);
                 res.json({ comment: comment });
             }
             catch (error) {
                 console.log(error);
-                res.status(500).json({ error: 'Internal Server Error' });
+                res.status(HttpStatus_1.HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Internal Server Error' });
             }
         });
     }
@@ -166,12 +167,12 @@ class MediaController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 console.log(req.body);
-                const usecase = yield this.mediaUseCase.uploadStory(req.body.url, req.body.userId);
+                const usecase = yield this._mediaUseCase.uploadStory(req.body.url, req.body.userId);
                 res.json({ usecase });
             }
             catch (error) {
                 console.log(error);
-                res.status(500).json({ error: 'Internal Server Error' });
+                res.status(HttpStatus_1.HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Internal Server Error' });
             }
         });
     }
@@ -179,12 +180,12 @@ class MediaController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 console.log(req.body);
-                const usecase = yield this.mediaUseCase.updateProfile(req.body.name, req.body.bio, req.body.email);
+                const usecase = yield this._mediaUseCase.updateProfile(req.body.name, req.body.bio, req.body.email);
                 res.json({ usecase });
             }
             catch (error) {
                 console.log(error);
-                res.status(500).json({ error: 'Internal Server Error' });
+                res.status(HttpStatus_1.HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Internal Server Error' });
             }
         });
     }
@@ -192,12 +193,12 @@ class MediaController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { victimUser, postId } = req.body;
-                yield this.mediaUseCase.reportPost(victimUser, postId);
-                res.status(200).json({ message: "Post reported successfully" });
+                yield this._mediaUseCase.reportPost(victimUser, postId);
+                res.status(HttpStatus_1.HttpStatus.OK).json({ message: "Post reported successfully" });
             }
             catch (error) {
                 console.error("Error reporting post:", error);
-                res.status(500).json({ message: "An error occurred while reporting the post" });
+                res.status(HttpStatus_1.HttpStatus.INTERNAL_SERVER_ERROR).json({ message: "An error occurred while reporting the post" });
             }
         });
     }
@@ -205,12 +206,12 @@ class MediaController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { username } = req.body;
-                const result = yield this.mediaUseCase.fetchSavedPosts(username);
-                res.status(200).json(result);
+                const result = yield this._mediaUseCase.fetchSavedPosts(username);
+                res.status(HttpStatus_1.HttpStatus.OK).json(result);
             }
             catch (error) {
                 console.error('Error fetching saved posts:', error);
-                res.status(500).json({ error: 'Server error' });
+                res.status(HttpStatus_1.HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Server error' });
             }
         });
     }
@@ -218,12 +219,12 @@ class MediaController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { sender, recipient } = req.body;
-                const result = yield this.mediaUseCase.updateReadStatus(sender, recipient);
-                res.status(200).json(result);
+                const result = yield this._mediaUseCase.updateReadStatus(sender, recipient);
+                res.status(HttpStatus_1.HttpStatus.OK).json(result);
             }
             catch (error) {
                 console.error('Error updating read status:', error);
-                res.status(500).json({ error: 'Server error' });
+                res.status(HttpStatus_1.HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Server error' });
             }
         });
     }
@@ -231,12 +232,12 @@ class MediaController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { senderId, receiverId } = req.body;
-                const messages = yield this.mediaUseCase.fetchHistoricalData(senderId, receiverId);
-                res.status(200).json({ messages });
+                const messages = yield this._mediaUseCase.fetchHistoricalData(senderId, receiverId);
+                res.status(HttpStatus_1.HttpStatus.OK).json({ messages });
             }
             catch (error) {
                 console.error('Error fetching historical data:', error);
-                res.status(500).json({ error: 'Server error' });
+                res.status(HttpStatus_1.HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Server error' });
             }
         });
     }
@@ -244,15 +245,15 @@ class MediaController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { userId } = req.body;
-                const role = yield this.mediaUseCase.getPremiumStatus(userId);
+                const role = yield this._mediaUseCase.getPremiumStatus(userId);
                 if (!role) {
                     return res.status(404).json({ error: 'User not found' });
                 }
-                res.status(200).json({ role });
+                res.status(HttpStatus_1.HttpStatus.OK).json({ role });
             }
             catch (error) {
                 console.error('Error fetching premium status:', error);
-                res.status(500).json({ error: 'Server error' });
+                res.status(HttpStatus_1.HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Server error' });
             }
         });
     }
@@ -261,14 +262,14 @@ class MediaController {
             try {
                 const { userId } = req.body;
                 if (!userId) {
-                    return res.status(400).json({ error: 'User ID is required' });
+                    return res.status(HttpStatus_1.HttpStatus.BAD_REQUEST).json({ error: 'User ID is required' });
                 }
-                const chatList = yield this.mediaUseCase.getChatList(userId);
-                res.status(200).json(chatList);
+                const chatList = yield this._mediaUseCase.getChatList(userId);
+                res.status(HttpStatus_1.HttpStatus.OK).json(chatList);
             }
             catch (error) {
                 console.error('Error fetching chat list:', error);
-                res.status(500).json({ error: 'Internal server error' });
+                res.status(HttpStatus_1.HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Internal server error' });
             }
         });
     }
@@ -277,14 +278,14 @@ class MediaController {
             try {
                 const { postId } = req.body;
                 if (!postId) {
-                    return res.status(400).json({ error: 'Post ID is required' });
+                    return res.status(HttpStatus_1.HttpStatus.BAD_REQUEST).json({ error: 'Post ID is required' });
                 }
-                const postDetails = yield this.mediaUseCase.visitPost(postId);
-                res.status(200).json(postDetails);
+                const postDetails = yield this._mediaUseCase.visitPost(postId);
+                res.status(HttpStatus_1.HttpStatus.OK).json(postDetails);
             }
             catch (error) {
                 console.error('Error visiting post:', error);
-                res.status(500).json({ error: 'Internal server error' });
+                res.status(HttpStatus_1.HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Internal server error' });
             }
         });
     }
@@ -293,14 +294,14 @@ class MediaController {
             try {
                 const { userId } = req.body;
                 if (!userId) {
-                    return res.status(400).json({ error: 'User ID is required' });
+                    return res.status(HttpStatus_1.HttpStatus.BAD_REQUEST).json({ error: 'User ID is required' });
                 }
-                const stories = yield this.mediaUseCase.fetchStories(userId);
-                res.status(200).json({ stories });
+                const stories = yield this._mediaUseCase.fetchStories(userId);
+                res.status(HttpStatus_1.HttpStatus.OK).json({ stories });
             }
             catch (error) {
                 console.error('Error fetching stories:', error);
-                res.status(500).json({ error: 'Internal server error' });
+                res.status(HttpStatus_1.HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Internal server error' });
             }
         });
     }
@@ -308,12 +309,12 @@ class MediaController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { sender, receiverId, audio_url } = req.body;
-                yield this.mediaUseCase.processAudioUpload(sender, receiverId, audio_url.url);
+                yield this._mediaUseCase.processAudioUpload(sender, receiverId, audio_url.url);
                 res.json({ success: true });
             }
             catch (error) {
                 console.error('Error uploading audio:', error);
-                res.status(500).json({ error: 'Server error' });
+                res.status(HttpStatus_1.HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Server error' });
             }
         });
     }
@@ -322,13 +323,13 @@ class MediaController {
             try {
                 const { userId } = req.body;
                 console.log("fetch notifications", req.body);
-                const notifications = yield this.mediaUseCase.execute(userId);
+                const notifications = yield this._mediaUseCase.execute(userId);
                 console.log(notifications, "notifications");
                 res.json({ notifications });
             }
             catch (error) {
                 console.error('Error fetching notifications:', error);
-                res.status(500).json({ error: 'Server error' });
+                res.status(HttpStatus_1.HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Server error' });
             }
         });
     }
@@ -336,12 +337,12 @@ class MediaController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { userId, postId } = req.body;
-                const result = yield this.mediaUseCase.executeSavePost(userId, postId);
+                const result = yield this._mediaUseCase.executeSavePost(userId, postId);
                 res.json(result);
             }
             catch (error) {
                 console.error('Error saving post:', error);
-                res.status(500).json({ message: "An error occurred" });
+                res.status(HttpStatus_1.HttpStatus.INTERNAL_SERVER_ERROR).json({ message: "An error occurred" });
             }
         });
     }
@@ -349,23 +350,23 @@ class MediaController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 console.log("90");
-                const demographics = yield this.mediaUseCase.getUserDemographics();
-                res.status(200).json(demographics);
+                const demographics = yield this._mediaUseCase.getUserDemographics();
+                res.status(HttpStatus_1.HttpStatus.OK).json(demographics);
             }
             catch (error) {
-                res.status(500).json({ message: "Error fetching demographics data", error });
+                res.status(HttpStatus_1.HttpStatus.INTERNAL_SERVER_ERROR).json({ message: "Error fetching demographics data", error });
             }
         });
     }
     getChartData(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const { chartData, chartConfig } = yield this.mediaUseCase.getChartData();
-                res.status(200).json({ success: true, chartData, chartConfig });
+                const { chartData, chartConfig } = yield this._mediaUseCase.getChartData();
+                res.status(HttpStatus_1.HttpStatus.OK).json({ success: true, chartData, chartConfig });
             }
             catch (error) {
                 console.error("Error occurred:", error);
-                res.status(500).json({ success: false, message: "Internal Server Error" });
+                res.status(HttpStatus_1.HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: "Internal Server Error" });
             }
         });
     }

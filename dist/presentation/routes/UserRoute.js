@@ -8,23 +8,10 @@ const UserController_1 = require("../controllers/UserController");
 const UserRepository_1 = require("../../infrastructure/repository/UserRepository");
 const UserUseCase_1 = require("../../application/usecase/UserUseCase");
 const verifyJWT_1 = __importDefault(require("../../utils/verifyJWT"));
-const jwt = require("jsonwebtoken");
 const router = express_1.default.Router();
 const repo = new UserRepository_1.AuthRepository();
 const auth = new UserUseCase_1.AuthUseCase(repo);
 const controller = new UserController_1.authController(auth);
-router.post("/refresh-token", (req, res) => {
-    const { refreshToken } = req.body;
-    // Validate refresh token
-    jwt.verify(refreshToken, "helloworld", (err, user) => {
-        if (err)
-            return res.status(403).json({ message: "Invalid refresh token" });
-        // Generate new access token
-        const newAccessToken = jwt.sign({ id: user.id, roles: user.roles }, "helloworld", { expiresIn: "30m" } // Extend token expiration as needed
-        );
-        res.json({ accessToken: newAccessToken });
-    });
-});
 router.post('/api/user/custom-signin', controller.loginUser.bind(controller));
 router.post('/api/registration', controller.signUpUser.bind(controller));
 router.post('/api/user/google-auth', controller.googleAuth.bind(controller));

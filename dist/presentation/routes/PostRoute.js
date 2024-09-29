@@ -32,7 +32,7 @@ router.post('/api/user/reportPost', verifyJWT_1.default, mediaController.reportP
 router.post('/api/user/fetch-saved-posts', verifyJWT_1.default, mediaController.fetchSavedPosts.bind(mediaController));
 router.post('/api/user/updateReadStatus', verifyJWT_1.default, mediaController.updateReadStatus.bind(mediaController));
 router.post('/api/user/fetchHistoricalData', verifyJWT_1.default, mediaController.fetchHistoricalData.bind(mediaController));
-router.post('/api/user/premiumStatus', verifyJWT_1.default, mediaController.getPremiumStatus.bind(mediaController));
+router.post('/api/user/premiumStatus', mediaController.getPremiumStatus.bind(mediaController));
 router.post('/api/user/visitPost', verifyJWT_1.default, mediaController.visitPost.bind(mediaController));
 router.post('/api/user/fetchStories', mediaController.fetchStories.bind(mediaController));
 router.post('/api/user/upload-audio-cloud', verifyJWT_1.default, mediaController.handleAudioUpload.bind(mediaController));
@@ -42,19 +42,4 @@ router.post('/api/user/expiry-date', mediaController.getExpiryDate.bind(mediaCon
 router.get('/api/user/user-demographics', mediaController.getUserDemographics.bind(mediaController));
 router.get('/api/admin/chartData1', mediaController.getChartData.bind(mediaController));
 router.post('/api/user/fetchChatList', mediaController.getChatList.bind(mediaController));
-//find all
-// router.post('/api/user/fetchChatList', async (req, res) => {
-//     console.log("zzzzzzz", req.body);
-//     const { userId } = req.body
-//     const user = await UserModel.findById(userId)
-//     if (!user) return
-//     const following = user.following || []
-//     const followers = user.followers || []
-//     const both = [...new Set(followers.concat(following))];
-//     console.log(both, "yes the user exist");
-//     const users = await UserModel.find({
-//         _id: { $in: both }
-//     })
-//     res.json({ userslist: users })
-// })
 exports.default = router;

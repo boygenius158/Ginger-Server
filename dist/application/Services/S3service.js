@@ -16,6 +16,8 @@ const express_1 = __importDefault(require("express"));
 const client_s3_1 = require("@aws-sdk/client-s3");
 const s3_request_presigner_1 = require("@aws-sdk/s3-request-presigner");
 const PostModel_1 = require("../../infrastructure/database/model/PostModel");
+const HttpStatus_1 = require("../../utils/HttpStatus");
+const jwt = require("jsonwebtoken");
 const router = express_1.default.Router();
 // Initialize S3 Client with credentials from environment variables
 const s3 = new client_s3_1.S3Client({
@@ -60,7 +62,19 @@ router.post("/api/getPresignedUrls", (req, res) => __awaiter(void 0, void 0, voi
     }
     catch (error) {
         console.error("Error generating presigned URLs or saving post:", error);
-        return res.status(500).json({ message: "Error processing your request" });
+        return res.status(HttpStatus_1.HttpStatus.INTERNAL_SERVER_ERROR).json({ message: "Error processing your request" });
     }
 }));
+router.post("/refresh-token", (req, res) => {
+    const { refreshToken } = req.body;
+    // Validate refresh token
+    jwt.verify(refreshToken, "helloworld", (err, user) => {
+        if (err)
+            return res.status(403).json({ message: "Invalid refresh token" });
+        // Generate new access token
+        const newAccessToken = jwt.sign({ id: user.id, roles: user.roles }, "helloworld", { expiresIn: "30m" } // Extend token expiration as needed
+        );
+        res.json({ accessToken: newAccessToken });
+    });
+});
 exports.default = router;

@@ -10,24 +10,25 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DatingController = void 0;
+const HttpStatus_1 = require("../../utils/HttpStatus");
 class DatingController {
     constructor(_datingUseCase) {
         this._datingUseCase = _datingUseCase;
     }
     swipeProfile(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("swipe profile");
+            console.log("swipe profile", req.body);
             try {
                 const { userId, maximumAge, interestedGender } = req.body;
                 const profiles = yield this._datingUseCase.swipeProfiles(userId, maximumAge, interestedGender);
                 if (!profiles) {
-                    return res.status(500).json({ message: "An error occurred while fetching profiles" });
+                    return res.status(HttpStatus_1.HttpStatus.INTERNAL_SERVER_ERROR).json({ message: "An error occurred while fetching profiles" });
                 }
                 res.json({ profiles });
             }
             catch (error) {
                 console.error(error);
-                res.status(500).json({ message: "An error occurred while fetching profiles" });
+                res.status(HttpStatus_1.HttpStatus.INTERNAL_SERVER_ERROR).json({ message: "An error occurred while fetching profiles" });
             }
         });
     }
@@ -41,7 +42,7 @@ class DatingController {
             }
             catch (error) {
                 console.error(error);
-                res.status(500).json({ message: "An error occurred while updating profile images" });
+                res.status(HttpStatus_1.HttpStatus.INTERNAL_SERVER_ERROR).json({ message: "An error occurred while updating profile images" });
             }
         });
     }
@@ -55,7 +56,7 @@ class DatingController {
             }
             catch (error) {
                 console.error(error);
-                res.status(500).json({ message: "An error occurred while fetching matches" });
+                res.status(HttpStatus_1.HttpStatus.INTERNAL_SERVER_ERROR).json({ message: "An error occurred while fetching matches" });
             }
         });
     }
@@ -69,7 +70,7 @@ class DatingController {
             }
             catch (error) {
                 console.error(error);
-                res.status(500).json({ message: "An error occurred while fetching the profile" });
+                res.status(HttpStatus_1.HttpStatus.INTERNAL_SERVER_ERROR).json({ message: "An error occurred while fetching the profile" });
             }
         });
     }
@@ -82,7 +83,7 @@ class DatingController {
             }
             catch (error) {
                 console.error("Error handling dating profile:", error);
-                res.status(500).json({ error: "An error occurred while processing your request." });
+                res.status(HttpStatus_1.HttpStatus.INTERNAL_SERVER_ERROR).json({ error: "An error occurred while processing your request." });
             }
         });
     }
@@ -92,29 +93,30 @@ class DatingController {
                 const { userId } = req.body;
                 const images = yield this._datingUseCase.getProfileImages(userId);
                 if (!images) {
-                    return res.status(404).json({ message: "User not found" });
+                    return res.status(HttpStatus_1.HttpStatus.NOT_FOUND).json({ message: "User not found" });
                 }
                 res.json({ images });
             }
             catch (error) {
                 console.error("Error fetching user images:", error);
-                res.status(500).json({ error: "An error occurred while fetching user images." });
+                res.status(HttpStatus_1.HttpStatus.INTERNAL_SERVER_ERROR).json({ error: "An error occurred while fetching user images." });
             }
         });
     }
     handleDatingTab4(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const { userId, maximumAge, profileVisibility } = req.body;
-                const updatedUser = yield this._datingUseCase.updateUserPreferences(userId, maximumAge, profileVisibility);
+                const { userId, maximumAge, profileVisibility, interestedGender } = req.body;
+                console.log(req.body, "ooo");
+                const updatedUser = yield this._datingUseCase.updateUserPreferences(userId, maximumAge, profileVisibility, interestedGender);
                 if (!updatedUser) {
-                    return res.status(404).json({ message: "User not found" });
+                    return res.status(HttpStatus_1.HttpStatus.NOT_FOUND).json({ message: "User not found" });
                 }
                 res.json(updatedUser);
             }
             catch (error) {
                 console.error("Error updating user preferences:", error);
-                res.status(500).json({ error: "An error occurred while updating user preferences." });
+                res.status(HttpStatus_1.HttpStatus.INTERNAL_SERVER_ERROR).json({ error: "An error occurred while updating user preferences." });
             }
         });
     }
@@ -128,13 +130,13 @@ class DatingController {
                 }
                 const userSettings = yield this._datingUseCase.getUserSettings(userId);
                 if (!userSettings) {
-                    return res.status(404).json({ error: 'User not found' });
+                    return res.status(HttpStatus_1.HttpStatus.NOT_FOUND).json({ error: 'User not found' });
                 }
                 res.status(200).json({ data: userSettings });
             }
             catch (error) {
                 console.error("Error fetching user settings:", error);
-                res.status(500).json({ error: "Internal Server Error" });
+                res.status(HttpStatus_1.HttpStatus.INTERNAL_SERVER_ERROR).json({ error: "Internal Server Error" });
             }
         });
     }
@@ -147,13 +149,13 @@ class DatingController {
                 }
                 const formData = yield this._datingUseCase.getDatingTab1Details(userId);
                 if (!formData) {
-                    return res.status(404).json({ error: "User not found" });
+                    return res.status(HttpStatus_1.HttpStatus.NOT_FOUND).json({ error: "User not found" });
                 }
                 return res.status(200).json({ formData });
             }
             catch (error) {
                 console.error("Error fetching dating tab 1 details:", error);
-                return res.status(500).json({ error: "Internal Server Error" });
+                return res.status(HttpStatus_1.HttpStatus.INTERNAL_SERVER_ERROR).json({ error: "Internal Server Error" });
             }
         });
     }

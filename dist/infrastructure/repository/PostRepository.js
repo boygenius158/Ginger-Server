@@ -25,44 +25,79 @@ const PremiumModel_1 = require("../database/model/PremiumModel");
 class MediaRepository {
     getUserDemographics() {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("ys");
-            return yield UserModel_1.default.aggregate([
-                {
-                    $group: {
-                        _id: "$roles",
-                        count: { $sum: 1 }
+            try {
+                console.log("ys");
+                return yield UserModel_1.default.aggregate([
+                    {
+                        $group: {
+                            _id: "$roles",
+                            count: { $sum: 1 }
+                        }
                     }
-                }
-            ]);
+                ]);
+            }
+            catch (error) {
+                console.error("Error fetching user demographics:", error);
+                return [];
+            }
         });
     }
     findUserByUsername(username) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield UserModel_1.default.findOne({ username: username });
+            try {
+                return yield UserModel_1.default.findOne({ username });
+            }
+            catch (error) {
+                console.error("Error finding user by username:", error);
+                return null;
+            }
         });
     }
     findPostsByIds(postIds) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield PostModel_1.PostModel.find({ _id: { $in: postIds } }).sort({ _id: -1 });
+            try {
+                return yield PostModel_1.PostModel.find({ _id: { $in: postIds } }).sort({ _id: -1 });
+            }
+            catch (error) {
+                console.error("Error finding posts by IDs:", error);
+                return [];
+            }
         });
     }
     reportPost(reporterId, postId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const report = new ReportModel_1.default({
-                reporterId,
-                postId,
-            });
-            yield report.save();
+            try {
+                const report = new ReportModel_1.default({
+                    reporterId,
+                    postId,
+                });
+                yield report.save();
+            }
+            catch (error) {
+                console.error("Error reporting post:", error);
+            }
         });
     }
     findUserById(userId) {
         return __awaiter(this, void 0, void 0, function* () {
-            return UserModel_1.default.findById(userId).exec();
+            try {
+                return yield UserModel_1.default.findById(userId).exec();
+            }
+            catch (error) {
+                console.error("Error finding user by ID:", error);
+                return null;
+            }
         });
     }
     findPremiumByUserId(userId) {
         return __awaiter(this, void 0, void 0, function* () {
-            return PremiumModel_1.PremiumModel.findOne({ userId }).exec();
+            try {
+                return yield PremiumModel_1.PremiumModel.findOne({ userId }).exec();
+            }
+            catch (error) {
+                console.error("Error finding premium user by ID:", error);
+                return null;
+            }
         });
     }
     uploadPost(post) {
@@ -86,10 +121,9 @@ class MediaRepository {
     findUserId(email) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log("iiiiiii");
                 const user = yield UserModel_1.default.findOne({ email });
                 if (!user) {
-                    throw new Error("User not2 found");
+                    throw new Error("User not found");
                 }
                 return user.id;
             }
@@ -121,7 +155,7 @@ class MediaRepository {
                 return posts.map(post => post.toObject());
             }
             catch (error) {
-                console.error("Error finding posts by user ID:", error);
+                console.error("Error fetching posts by user ID:", error);
                 return [];
             }
         });
@@ -129,41 +163,31 @@ class MediaRepository {
     followProfile(email, id) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                // Convert the id string to ObjectId
+                if (!mongoose_1.default.Types.ObjectId.isValid(id)) {
+                    throw new Error('Invalid user ID format');
+                }
                 const objectId = new mongoose_1.default.Types.ObjectId(id);
-                // Find users
                 const user = yield UserModel_1.default.findOne({ email });
                 const user2 = yield UserModel_1.default.findById(objectId);
-                console.log(user === null || user === void 0 ? void 0 : user.email, user2 === null || user2 === void 0 ? void 0 : user2.email);
                 if (!user) {
                     throw new Error('User not found');
                 }
                 if (!user2) {
-                    throw new Error('User not found');
+                    throw new Error('Profile to follow not found');
                 }
-                const objectId2 = user._id;
-                // Initialize the following and followers arrays if they are undefined
-                if (!user.following) {
-                    user.following = [];
-                }
-                if (!user2.followers) {
-                    user2.followers = [];
-                }
-                // Toggle follow/unfollow
+                user.following = user.following || [];
+                user2.followers = user2.followers || [];
                 const alreadyFollowing = user.following.some(followedId => followedId.equals(objectId));
                 if (alreadyFollowing) {
-                    // Remove from following and followers
                     user.following = user.following.filter(followedId => !followedId.equals(objectId));
-                    user2.followers = user2.followers.filter(followerId => !followerId.equals(objectId));
+                    user2.followers = user2.followers.filter(followerId => !followerId.equals(user._id));
                 }
                 else {
-                    // Add to following and followers
                     user.following.push(objectId);
-                    user2.followers.push(objectId2);
+                    user2.followers.push(user._id);
                 }
-                // Save changes to both users
                 const updatedUser = yield user.save();
-                yield user2.save(); // Save changes for user2
+                yield user2.save();
                 return updatedUser;
             }
             catch (error) {
@@ -178,14 +202,14 @@ class MediaRepository {
             try {
                 const user = yield UserModel_1.default.findOne({ email });
                 if (!user) {
-                    throw new Error;
+                    throw new Error('User not found');
                 }
                 const objectId = new mongoose_1.default.Types.ObjectId(id);
                 return (_b = (_a = user.following) === null || _a === void 0 ? void 0 : _a.includes(objectId)) !== null && _b !== void 0 ? _b : false;
             }
             catch (error) {
-                console.error("Error following profile:", error);
-                throw new Error;
+                console.error("Error checking following status:", error);
+                throw new Error('Error checking following status');
             }
         });
     }
@@ -201,57 +225,14 @@ class MediaRepository {
                 const following = user.following;
                 const savedPosts = user.savedPosts;
                 const posts = yield PostModel_1.PostModel.aggregate([
-                    {
-                        $match: {
-                            $or: [
-                                { userId: objectId },
-                                { userId: { $in: following } }
-                            ],
-                            isBanned: false
-                        },
-                    },
-                    {
-                        $lookup: {
-                            from: 'users',
-                            localField: 'userId',
-                            foreignField: '_id',
-                            as: 'userDetails',
-                        },
-                    },
-                    {
-                        $unwind: '$userDetails',
-                    },
-                    {
-                        $addFields: {
-                            isSaved: {
-                                $in: ['$_id', savedPosts]
-                            }
-                        }
-                    },
-                    {
-                        $project: {
-                            _id: 1,
-                            imageUrl: 1,
-                            caption: 1,
-                            userId: 1,
-                            likeCount: 1,
-                            likes: 1,
-                            createdAt: 1,
-                            'userDetails.username': 1,
-                            'userDetails.email': 1,
-                            'userDetails.profilePicture': 1,
-                            isSaved: 1
-                        },
-                    },
-                    {
-                        $sort: { createdAt: -1 },
-                    },
-                    {
-                        $skip: offset,
-                    },
-                    {
-                        $limit: limit,
-                    }
+                    { $match: { $or: [{ userId: objectId }, { userId: { $in: following } }], isBanned: false } },
+                    { $lookup: { from: 'users', localField: 'userId', foreignField: '_id', as: 'userDetails' } },
+                    { $unwind: '$userDetails' },
+                    { $addFields: { isSaved: { $in: ['$_id', savedPosts] } } },
+                    { $project: { _id: 1, imageUrl: 1, caption: 1, userId: 1, likeCount: 1, likes: 1, createdAt: 1, 'userDetails.username': 1, 'userDetails.email': 1, 'userDetails.profilePicture': 1, isSaved: 1 } },
+                    { $sort: { createdAt: -1 } },
+                    { $skip: offset },
+                    { $limit: limit }
                 ]);
                 return posts;
             }
@@ -294,177 +275,267 @@ class MediaRepository {
     }
     postComment(email, postId, postedComment) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log(postId);
-            const user = yield UserModel_1.default.findOne({ email });
-            if (!user) {
-                throw new Error('User not found');
+            try {
+                const user = yield UserModel_1.default.findOne({ email });
+                if (!user) {
+                    throw new Error('User not found');
+                }
+                if (!mongoose_1.default.Types.ObjectId.isValid(postId)) {
+                    throw new Error('Invalid postId');
+                }
+                const objectId = new mongoose_1.default.Types.ObjectId(postId);
+                const comment = new CommentModel_1.default({
+                    userId: user._id,
+                    postId: objectId,
+                    content: postedComment,
+                });
+                const savedComment = yield comment.save();
+                return savedComment;
             }
-            if (!mongoose_1.default.Types.ObjectId.isValid(postId)) {
-                throw new Error('Invalid postId');
+            catch (error) {
+                console.error('Failed to post comment:', error);
+                throw new Error('Failed to post comment');
             }
-            const objectId = new mongoose_1.default.Types.ObjectId(postId);
-            const comment = new CommentModel_1.default({
-                userId: user._id,
-                postId: objectId,
-                content: postedComment,
-            });
-            const savedComment = yield comment.save();
-            return savedComment;
         });
     }
     uploadStory(url, userId) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("reached");
-            const objectId = new mongoose_1.default.Types.ObjectId(userId);
-            const story = new StoryModel_1.default({
-                imageUrl: url,
-                userId: objectId
-            });
-            yield story.save();
-            return true;
+            try {
+                const objectId = new mongoose_1.default.Types.ObjectId(userId);
+                const story = new StoryModel_1.default({
+                    imageUrl: url,
+                    userId: objectId
+                });
+                yield story.save();
+                return true;
+            }
+            catch (error) {
+                console.error('Failed to upload story:', error);
+                return false;
+            }
         });
     }
     updateProfile(name, bio, email) {
         return __awaiter(this, void 0, void 0, function* () {
-            const user = yield UserModel_1.default.findOne({ email });
-            if (!user) {
-                console.log("user not found");
-                throw new Error('user not found');
+            try {
+                const user = yield UserModel_1.default.findOne({ email });
+                if (!user) {
+                    throw new Error('User not found');
+                }
+                user.bio = bio;
+                user.name = name;
+                yield user.save();
+                return true;
             }
-            console.log(user);
-            user.bio = bio;
-            user.name = name;
-            yield user.save();
-            return true;
+            catch (error) {
+                console.error('Failed to update profile:', error);
+                return false;
+            }
         });
     }
     updateMessageReadStatus(sender, recipient) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield MessageModel_1.default.updateMany({
-                $or: [
-                    { sender: recipient, receiver: sender },
-                ],
-                isRead: false
-            }, {
-                $set: { isRead: true }
-            });
+            try {
+                return yield MessageModel_1.default.updateMany({ $or: [{ sender: recipient, receiver: sender }], isRead: false }, { $set: { isRead: true } });
+            }
+            catch (error) {
+                console.error('Failed to update message read status:', error);
+                throw new Error('Failed to update message read status');
+            }
         });
     }
     getHistoricalMessages(senderId, receiverId) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield MessageModel_1.default.find({
-                $or: [
-                    { sender: senderId, receiver: receiverId },
-                    { sender: receiverId, receiver: senderId },
-                ]
-            }).sort({ timestamp: 1 });
+            try {
+                return yield MessageModel_1.default.find({
+                    $or: [
+                        { sender: senderId, receiver: receiverId },
+                        { sender: receiverId, receiver: senderId }
+                    ]
+                }).sort({ timestamp: 1 });
+            }
+            catch (error) {
+                console.error('Failed to fetch historical messages:', error);
+                throw new Error('Failed to fetch historical messages');
+            }
         });
     }
     getUserById(userId) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield UserModel_1.default.findById(userId);
+            try {
+                return yield UserModel_1.default.findById(userId);
+            }
+            catch (error) {
+                console.error('Failed to get user by ID:', error);
+                throw new Error('Failed to get user by ID');
+            }
         });
     }
     getUsersByIds(userIds) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield UserModel_1.default.find({ _id: { $in: userIds } });
+            try {
+                return yield UserModel_1.default.find({ _id: { $in: userIds } });
+            }
+            catch (error) {
+                console.error('Failed to get users by IDs:', error);
+                throw new Error('Failed to get users by IDs');
+            }
         });
     }
     getPostById(postId) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield PostModel_1.PostModel.findById(postId).populate('userId');
+            try {
+                return yield PostModel_1.PostModel.findById(postId).populate('userId');
+            }
+            catch (error) {
+                console.error('Failed to get post by ID:', error);
+                throw new Error('Failed to get post by ID');
+            }
         });
     }
     getFollowers(userId) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("yyy");
-            return yield UserModel_1.default.find({ following: userId }); // Adjust according to your schema
+            try {
+                return yield UserModel_1.default.find({ following: userId });
+            }
+            catch (error) {
+                console.error('Failed to get followers:', error);
+                throw new Error('Failed to get followers');
+            }
         });
     }
     getCommentsByPostId(postId) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield CommentModel_1.default.find({ postId }).populate('userId');
+            try {
+                return yield CommentModel_1.default.find({ postId }).populate('userId');
+            }
+            catch (error) {
+                console.error('Failed to get comments by post ID:', error);
+                throw new Error('Failed to get comments by post ID');
+            }
         });
     }
     getUserFollowing(userId) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
-            const user = yield UserModel_1.default.findById(userId).select('following');
-            if (!user) {
-                throw new Error('User not found');
+            try {
+                const user = yield UserModel_1.default.findById(userId).select('following');
+                if (!user) {
+                    throw new Error('User not found');
+                }
+                // Provide an empty array if following is undefined
+                const followingList = (_a = user.following) !== null && _a !== void 0 ? _a : [];
+                // Convert ObjectId to string
+                return followingList.map(id => id.toString());
             }
-            // Provide an empty array if following is undefined
-            const followingList = (_a = user.following) !== null && _a !== void 0 ? _a : [];
-            // Convert ObjectId to string
-            return followingList.map(id => id.toString());
+            catch (error) {
+                console.error(`Error fetching following list for userId ${userId}:`, error);
+                throw new Error('Failed to get user following list');
+            }
         });
     }
     getStoriesByFollowingList(owner, followingList) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield StoryModel_1.default.aggregate([
-                {
-                    $match: {
-                        userId: {
-                            $in: [
-                                new mongoose_1.default.Types.ObjectId(owner), // Include the owner
-                                ...followingList.map(id => new mongoose_1.default.Types.ObjectId(id)) // Include following list
-                            ]
+            try {
+                return yield StoryModel_1.default.aggregate([
+                    {
+                        $match: {
+                            userId: {
+                                $in: [
+                                    new mongoose_1.default.Types.ObjectId(owner), // Include the owner
+                                    ...followingList.map(id => new mongoose_1.default.Types.ObjectId(id)) // Include following list
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: 'users',
+                            localField: 'userId',
+                            foreignField: '_id',
+                            as: 'userDetails'
+                        }
+                    },
+                    { $unwind: '$userDetails' },
+                    {
+                        $project: {
+                            _id: 1,
+                            userId: 1,
+                            imageUrl: 1,
+                            createdAt: 1,
+                            'userDetails.username': 1,
+                            'userDetails.profilePicture': 1
                         }
                     }
-                },
-                {
-                    $lookup: {
-                        from: 'users',
-                        localField: 'userId',
-                        foreignField: '_id',
-                        as: 'userDetails'
-                    }
-                },
-                { $unwind: '$userDetails' },
-                {
-                    $project: {
-                        _id: 1,
-                        userId: 1,
-                        imageUrl: 1,
-                        createdAt: 1,
-                        'userDetails.username': 1,
-                        'userDetails.profilePicture': 1
-                    }
-                }
-            ]);
+                ]);
+            }
+            catch (error) {
+                console.error(`Error fetching stories for owner ${owner} and following list:`, error);
+                throw new Error('Failed to get stories');
+            }
         });
     }
     createMessage(messageData) {
         return __awaiter(this, void 0, void 0, function* () {
-            const newMessage = new MessageModel_1.default(messageData);
-            return newMessage.save();
+            try {
+                const newMessage = new MessageModel_1.default(messageData);
+                return yield newMessage.save();
+            }
+            catch (error) {
+                console.error('Error creating message:', error);
+                throw new Error('Failed to create message');
+            }
         });
     }
     getNotificationsByUserId(userId) {
         return __awaiter(this, void 0, void 0, function* () {
-            return NotificationModel_1.Notification.find({ user: userId })
-                .populate('interactorId', 'username profilePicture')
-                .exec();
+            try {
+                return yield NotificationModel_1.Notification.find({ user: userId })
+                    .populate('interactorId', 'username profilePicture')
+                    .exec();
+            }
+            catch (error) {
+                console.error(`Error fetching notifications for userId ${userId}:`, error);
+                throw new Error('Failed to get notifications');
+            }
         });
     }
     findById(userId) {
         return __awaiter(this, void 0, void 0, function* () {
-            return UserModel_1.default.findById(userId).exec();
+            try {
+                return yield UserModel_1.default.findById(userId).exec();
+            }
+            catch (error) {
+                console.error(`Error fetching user by ID ${userId}:`, error);
+                throw new Error('Failed to find user');
+            }
         });
     }
     saveUser(user) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield user.save();
+            try {
+                yield user.save();
+            }
+            catch (error) {
+                console.error('Error saving user:', error);
+                throw new Error('Failed to save user');
+            }
         });
     }
     getTopUsersByFollowers(limit) {
         return __awaiter(this, void 0, void 0, function* () {
-            return UserModel_1.default.aggregate([
-                { $match: { roles: { $ne: 'admin' } } },
-                { $project: { _id: 0, username: 1, followerCount: { $size: { $ifNull: ['$followers', []] } } } },
-                { $sort: { followerCount: -1 } },
-                { $limit: limit }
-            ]).exec();
+            try {
+                return yield UserModel_1.default.aggregate([
+                    { $match: { roles: { $ne: 'admin' } } },
+                    { $project: { _id: 0, username: 1, followerCount: { $size: { $ifNull: ['$followers', []] } } } },
+                    { $sort: { followerCount: -1 } },
+                    { $limit: limit }
+                ]).exec();
+            }
+            catch (error) {
+                console.error(`Error fetching top users by followers with limit ${limit}:`, error);
+                throw new Error('Failed to get top users');
+            }
         });
     }
 }
