@@ -23,8 +23,8 @@ app.use(express_1.default.json());
 app.use(cors({
     //   origin: 'https://ginger-drab.vercel.app', 
     // origin:['*'],
-    origin: 'http://localhost:3000',
-    // origin: 'https://gingerfrontend.vercel.app', // Replace '*' with the specific domain if needed for security
+    // origin: 'http://localhost:3000',
+    origin: 'https://gingerfrontend.vercel.app',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'], // Allow all common HTTP methods
     allowedHeaders: ['Authorization', 'Content-Type'], // Allow Authorization and Content-Type headers
     credentials: true // If you want to support credentials (cookies, etc.)
