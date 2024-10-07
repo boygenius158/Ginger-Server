@@ -8,8 +8,8 @@ import ProfileSearchHistoryModel from "../../infrastructure/database/model/Searc
 import { PremiumModel } from "../../infrastructure/database/model/PremiumModel";
 const Stripe = require('stripe');
 
-// const stripeClient = Stripe('sk_test_51PirppRr9XEd7LoYrVRdZGs1hNtVrylVeCidygk60qvoe1h23IPqRE0vDD7Zltc4XuSBLA7jlHofNHyGlnwmzxKP00zS0tmxlX'); // Replace with your Stripe secret key
-const stripeClient = Stripe(process.env.STRIPE_SECRET_KEY)
+const stripeClient = Stripe('sk_test_51PirppRr9XEd7LoYrVRdZGs1hNtVrylVeCidygk60qvoe1h23IPqRE0vDD7Zltc4XuSBLA7jlHofNHyGlnwmzxKP00zS0tmxlX'); // Replace with your Stripe secret key
+// const stripeClient = Stripe(process.env.STRIPE_SECRET_KEY)
 
 const bcrypt = require('bcryptjs')
 
