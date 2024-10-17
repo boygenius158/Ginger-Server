@@ -190,12 +190,14 @@ class AuthRepository {
     updateProfilePicture(userId, url) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const user = yield this.findById(userId);
-                if (!user) {
+                const updateUser = yield UserModel_1.default.findById(userId);
+                if (!updateUser) {
                     throw new Error("User not found");
                 }
-                user.profilePicture = url;
-                return yield user.save();
+                updateUser.profilePicture = url;
+                console.log(updateUser);
+                yield updateUser.save();
+                return;
             }
             catch (error) {
                 console.error("Error updating profile picture:", error);

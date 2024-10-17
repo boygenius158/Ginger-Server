@@ -188,7 +188,7 @@ class authController {
             try {
                 const { url, userId } = req.body;
                 const updatedUser = yield this._authUsecase.uploadProfilePicture(userId, url);
-                res.json({ url: updatedUser.profilePicture });
+                res.status(200).json({ success: true });
             }
             catch (error) {
                 console.error("Error uploading profile picture:", error);

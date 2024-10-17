@@ -20,7 +20,6 @@ const app = (0, express_1.default)();
 // scheduleCronJobs()
 app.use(express_1.default.json());
 app.use(cors({
-    //   origin: 'https://ginger-drab.vercel.app', 
     // origin:['*'],
     // origin: 'http://localhost:3000',
     origin: 'https://gingerfrontend.vercel.app',
