@@ -6,7 +6,7 @@ export interface Post {
   caption: string;
   userId: string;
   likes?: string[];
-  likeCount?: number;
+  // likeCount?: number;
   createdAt?: Date;
   isReported?: string[]
   isActive?: boolean

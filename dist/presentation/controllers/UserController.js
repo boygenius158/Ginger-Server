@@ -242,8 +242,8 @@ class authController {
     updateUser(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const { id, name, username } = req.body;
-                const result = yield this._authUsecase.updateUser(id, name, username);
+                const { id, name, username, bio } = req.body;
+                const result = yield this._authUsecase.updateUser(id, name, username, bio);
                 if (result.success === false) {
                     res.json(result);
                 }

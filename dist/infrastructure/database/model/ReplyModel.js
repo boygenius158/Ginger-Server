@@ -30,36 +30,24 @@ const ReplySchema = new mongoose_1.Schema({
         ref: 'User',
         required: true
     },
-    content: {
-        type: String,
-        required: true
-    },
-    createdAt: {
-        type: Date,
-        default: Date.now
-    }
-});
-const CommentSchema = new mongoose_1.Schema({
-    userId: {
-        type: mongoose_1.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
-    },
     postId: {
         type: mongoose_1.Schema.Types.ObjectId,
         ref: 'Post',
         required: true
     },
+    parentId: {
+        type: mongoose_1.Schema.Types.ObjectId,
+        ref: 'Comment',
+        required: true
+    },
     content: {
         type: String,
         required: true
     },
-    replies: [ReplySchema],
     createdAt: {
         type: Date,
         default: Date.now
     }
 });
-// Comment model
-const CommentModel = mongoose_1.default.model('Comment', CommentSchema);
-exports.default = CommentModel;
+const ReplyModel = mongoose_1.default.model('Reply', ReplySchema);
+exports.default = ReplyModel;

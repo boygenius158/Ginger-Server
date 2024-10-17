@@ -86,7 +86,8 @@ export class authController {
         try {
             const { token, password } = req.body;
             const secretKey = "nibla158";
-
+            console.log(req.body);
+            
             const decodedToken = this._tokenGenerator.verifyToken(token, secretKey);
             if (!decodedToken) {
                 return res.status(HttpStatus.UNAUTHORIZED).json({ error: "Invalid or expired token" });
@@ -211,8 +212,10 @@ export class authController {
 
     async updateUser(req: Request, res: Response): Promise<void> {
         try {
-            const { id, name, username } = req.body;
-            const result = await this._authUsecase.updateUser(id, name, username);
+            const { id, name, username, bio } = req.body;
+            // console.log(req.body);
+            
+            const result = await this._authUsecase.updateUser(id, name, username, bio);
             if (result.success === false) {
                 res.json(result);
             } else {
@@ -273,8 +276,8 @@ export class authController {
             console.log("req.body.emali", req.body.email);
 
             const user = await this._authUsecase.findUserByEmail(req.body.email);
-            console.log("userrT",user);
-            
+            console.log("userrT", user);
+
             res.json({ user });
         } catch (error) {
             res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Server error' });
@@ -295,6 +298,6 @@ export class authController {
             res.status(HttpStatus.BAD_REQUEST).send({ error: 'Error creating payment intent' });
         }
     }
-    
+
 }
 

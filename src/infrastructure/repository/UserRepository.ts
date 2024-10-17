@@ -3,11 +3,12 @@ import { IAuthUserRepository } from "../../application/interface/IAuthUserReposi
 import { User, UserRole } from "../../domain/entities/User";
 import UserModel from "../database/model/UserModel";
 import ProfileSearchHistoryModel from "../database/model/SearchHistoryModel";
+import { PostModel } from "../database/model/PostModel";
 
 const bcrypt = require('bcryptjs'); // Import bcrypt for password hashing
 
 export class AuthRepository implements IAuthUserRepository {
-    
+
     async addNewUser(user: User): Promise<User> {
         try {
             const { email, password } = user;
@@ -153,7 +154,22 @@ export class AuthRepository implements IAuthUserRepository {
 
     async findById(userId: string): Promise<any> {
         try {
-            return await UserModel.findById(new mongoose.Types.ObjectId(userId));
+            // return await UserModel.findById(new mongoose.Types.ObjectId(userId));
+            const userIdObject = new mongoose.Types.ObjectId(userId)
+            const [userDetails, postCount] = await Promise.all([
+                UserModel.findById(userIdObject),
+                PostModel.countDocuments({ userId: userIdObject })
+            ]);
+
+            if (!userDetails) {
+                throw new Error
+            }
+
+            // Return both in a single object
+            return {
+                ...userDetails.toObject(), // Spread user details into the object
+                postCount
+            };
         } catch (error) {
             console.error("Error finding user by ID:", error);
             throw new Error("Failed to find user by ID. Please try again later.");
@@ -196,7 +212,32 @@ export class AuthRepository implements IAuthUserRepository {
 
     async save(user: any): Promise<any> {
         try {
-            return await user.save();
+            console.log(user);
+            let exist = await UserModel.findById(user._id || user.id)
+            if (!exist) {
+                throw new Error
+            }
+            exist.name = user.name,
+                exist.username = user.username
+            exist.bio = user.bio
+            return await exist.save();
+
+        } catch (error) {
+            console.error("Error saving user:", error);
+            throw new Error("Failed to save user. Please try again later.");
+        }
+    }
+    async savePassword(user: any, password: any): Promise<any> {
+        try {
+            console.log(user);
+            let exist = await UserModel.findById(user._id)
+            if (!exist) {
+                throw new Error
+            }
+
+            exist.password = password
+            return await exist.save();
+
         } catch (error) {
             console.error("Error saving user:", error);
             throw new Error("Failed to save user. Please try again later.");
@@ -228,6 +269,19 @@ export class AuthRepository implements IAuthUserRepository {
                 user.roles = role;
                 await user.save();
             }
+        } catch (error) {
+            console.error("Error updating user roles:", error);
+            throw new Error("Failed to update user roles. Please try again later.");
+        }
+    }
+    async saveRole(userId: any, role: UserRole): Promise<void> {
+        try {
+            const user = await UserModel.findById(userId);
+            if (!user) {
+                throw new Error('User not found');
+            }
+            user.roles = role
+            await user.save()
         } catch (error) {
             console.error("Error updating user roles:", error);
             throw new Error("Failed to update user roles. Please try again later.");

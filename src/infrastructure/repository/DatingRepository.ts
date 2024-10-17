@@ -77,7 +77,8 @@ export class DatingRepository implements IDatingRepository {
         try {
             const profile = await DatingProfile.findOne({ userId });
             if (!profile) {
-                throw new Error("User not found");
+                // throw new Error("User not found");
+                return
             }
             return profile;
         } catch (error) {

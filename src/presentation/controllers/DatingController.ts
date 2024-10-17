@@ -10,7 +10,7 @@ export class DatingController {
     }
 
     async swipeProfile(req: Request, res: Response, next: NextFunction) {
-        console.log("swipe profile",req.body);
+        console.log("swipe profile", req.body);
 
         try {
             const { userId, maximumAge, interestedGender } = req.body;
@@ -65,6 +65,8 @@ export class DatingController {
     async handleDatingTab1(req: Request, res: Response, next: NextFunction) {
         try {
             const { userId, formData } = req.body;
+            console.log(req.body);
+            
             const result = await this._datingUseCase.handleDatingTab1(userId, formData);
             res.json(result);
         } catch (error) {
@@ -89,11 +91,11 @@ export class DatingController {
     }
     async handleDatingTab4(req: Request, res: Response, next: NextFunction) {
         try {
-            const { userId, maximumAge, profileVisibility , interestedGender } = req.body;
-            console.log(req.body,"ooo");
-            
+            const { userId, maximumAge, profileVisibility, interestedGender } = req.body;
+            console.log(req.body, "ooo");
 
-            const updatedUser = await this._datingUseCase.updateUserPreferences(userId, maximumAge, profileVisibility,interestedGender);
+
+            const updatedUser = await this._datingUseCase.updateUserPreferences(userId, maximumAge, profileVisibility, interestedGender);
 
             if (!updatedUser) {
                 return res.status(HttpStatus.NOT_FOUND).json({ message: "User not found" });
@@ -109,7 +111,7 @@ export class DatingController {
         try {
             const { userId } = req.body;
             // console.log(userId);
-            
+
             if (!userId) {
                 return res.status(400).json({ error: 'User ID is required' });
             }
@@ -129,7 +131,8 @@ export class DatingController {
     async getDatingTab1Details(req: Request, res: Response, next: NextFunction) {
         try {
             const { userId } = req.body;
-            
+            console.log(userId, "lop");
+
             if (!userId) {
                 return res.status(400).json({ error: "User ID is required" });
             }
@@ -137,7 +140,8 @@ export class DatingController {
             const formData = await this._datingUseCase.getDatingTab1Details(userId);
 
             if (!formData) {
-                return res.status(HttpStatus.NOT_FOUND).json({ error: "User not found" });
+                return res.status(200).json({ formData })
+                // return res.status(HttpStatus.NOT_FOUND).json({ error: "User not found" });
             }
 
             return res.status(200).json({ formData });
@@ -146,5 +150,5 @@ export class DatingController {
             return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: "Internal Server Error" });
         }
     }
-    
+
 }

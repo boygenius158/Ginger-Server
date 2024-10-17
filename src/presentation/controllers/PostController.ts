@@ -68,13 +68,17 @@ export class MediaController {
     }
     async visitProfile(req: Request, res: Response, next: NextFunction) {
         try {
+            // console.log("uiuiuiui");
+            
             const username = req.body.username
             if (!username) {
                 throw new Error
             }
             const user = await this._mediaUseCase.findUserIdByUsername(username)
+            // console.log(user._id,"pooo");
+            
             const post = await this._mediaUseCase.findUserPost(user._id)
-            console.log(user);
+            // console.log(post);
 
 
             res.json({ user, post })
@@ -83,12 +87,16 @@ export class MediaController {
         } catch (error) {
             console.log(error);
             res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Internal Server Error' });
-        }
+        } 
     }
     async followProfile(req: Request, res: Response, next: NextFunction) {
         try {
             const { followUser, orginalUser } = req.body
+            console.log(followUser,orginalUser,"i909");
+            
             const followUserId = await this._mediaUseCase.findUserId(followUser)
+            console.log(followUserId);
+            
             if (!followUserId) {
                 return
             }
@@ -105,6 +113,8 @@ export class MediaController {
     }
     async checkFollowingStatus(req: Request, res: Response, next: NextFunction) {
         try {
+            console.log("checkFollowingStatus",req.body);
+            
             const { followUser, orginalUser } = req.body
             const followUserId = await this._mediaUseCase.findUserId(followUser)
             if (!followUserId) {
@@ -341,4 +351,15 @@ export class MediaController {
             res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: "Internal Server Error" });
         }
     }
+
+    async userPostedReply(req: Request, res: Response): Promise<void> {
+        try {
+            const { chartData, chartConfig } = await this._mediaUseCase.getChartData();
+            res.status(HttpStatus.OK).json({ success: true, chartData, chartConfig });
+        } catch (error) {
+            console.error("Error occurred:", error);
+            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: "Internal Server Error" });
+        }
+    }
+
 }

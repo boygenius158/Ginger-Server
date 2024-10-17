@@ -152,7 +152,7 @@ export class AuthUseCase implements IAuthUseCase {
         return { hasPassword: true, message: 'Password is set' };
     }
 
-    async updateUser(id: string, name: string, username: string): Promise<any> {
+    async updateUser(id: string, name: string, username: string, bio: string): Promise<any> {
         const user = await this._repository.findById(id);
         if (!user) throw new Error('User not found');
 
@@ -162,10 +162,14 @@ export class AuthUseCase implements IAuthUseCase {
                 return { success: false };
             }
         }
+        let saveuser = {
+            id,
+            name,
+            username,
+            bio
+        }
 
-        user.name = name || user.name;
-        user.username = username || user.username;
-        return this._repository.save(user);
+        return this._repository.save(saveuser);
     }
 
     async updatePassword(id: string, currentPassword: string, newPassword: string): Promise<{ success: boolean, message: string }> {
@@ -176,7 +180,7 @@ export class AuthUseCase implements IAuthUseCase {
             const salt = await bcrypt.genSalt(10);
             const hashedPassword = await bcrypt.hash(newPassword, salt);
             user.password = hashedPassword;
-            await this._repository.save(user);
+            await this._repository.savePassword(user,hashedPassword);
             return { success: true, message: 'Password set successfully' };
         }
 
@@ -189,7 +193,7 @@ export class AuthUseCase implements IAuthUseCase {
             const salt = await bcrypt.genSalt(10);
             const hashedPassword = await bcrypt.hash(newPassword, salt);
             user.password = hashedPassword;
-            await this._repository.save(user);
+            await this._repository.savePassword(user,hashedPassword);
             return { success: true, message: 'Password updated successfully' };
         }
 
@@ -229,12 +233,13 @@ export class AuthUseCase implements IAuthUseCase {
             userId,
             amount: 350
         });
-        await this._repository.save(premium);
+        // await this._repository.save(premium);
+        await this.updateUserRole(userId,UserRole.Premium)
     }
 
     async findUserByEmail(email: string): Promise<any> {
         console.log("987777");
-        
+
         return this._repository.findOne({ email });
     }
 
@@ -253,7 +258,7 @@ export class AuthUseCase implements IAuthUseCase {
         }
 
         user.roles = role; // role should be of type UserRole
-        await this._repository.save(user);
+        await this._repository.saveRole(user._id,UserRole.Premium);
     }
 
 }

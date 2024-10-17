@@ -18,8 +18,8 @@ const tokenGenerator_1 = require("../../utils/tokenGenerator");
 const SearchHistoryModel_1 = __importDefault(require("../../infrastructure/database/model/SearchHistoryModel"));
 const PremiumModel_1 = require("../../infrastructure/database/model/PremiumModel");
 const Stripe = require('stripe');
-// const stripeClient = Stripe('sk_test_51PirppRr9XEd7LoYrVRdZGs1hNtVrylVeCidygk60qvoe1h23IPqRE0vDD7Zltc4XuSBLA7jlHofNHyGlnwmzxKP00zS0tmxlX'); // Replace with your Stripe secret key
-const stripeClient = Stripe(process.env.STRIPE_SECRET_KEY);
+const stripeClient = Stripe('sk_test_51PirppRr9XEd7LoYrVRdZGs1hNtVrylVeCidygk60qvoe1h23IPqRE0vDD7Zltc4XuSBLA7jlHofNHyGlnwmzxKP00zS0tmxlX'); // Replace with your Stripe secret key
+// const stripeClient = Stripe(process.env.STRIPE_SECRET_KEY)
 const bcrypt = require('bcryptjs');
 class AuthUseCase {
     constructor(_repository) {
@@ -174,7 +174,7 @@ class AuthUseCase {
             return { hasPassword: true, message: 'Password is set' };
         });
     }
-    updateUser(id, name, username) {
+    updateUser(id, name, username, bio) {
         return __awaiter(this, void 0, void 0, function* () {
             const user = yield this._repository.findById(id);
             if (!user)
@@ -187,6 +187,7 @@ class AuthUseCase {
             }
             user.name = name || user.name;
             user.username = username || user.username;
+            user.bio = bio || user.bio;
             return this._repository.save(user);
         });
     }
