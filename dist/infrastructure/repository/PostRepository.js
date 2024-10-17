@@ -136,11 +136,47 @@ class MediaRepository {
     findUserIdByUsername(username) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const user = yield UserModel_1.default.findOne({ username });
+                // const user = await UserModel.findOne({ username });
+                const user = yield UserModel_1.default.aggregate([
+                    {
+                        $match: { username } // Match the user document by username
+                    },
+                    {
+                        $lookup: {
+                            from: "users", // Assuming your users are stored in the "users" collection
+                            localField: "followers",
+                            foreignField: "_id",
+                            as: "followerDetails"
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: "users", // Assuming your users are stored in the "users" collection
+                            localField: "following",
+                            foreignField: "_id",
+                            as: "followingDetails"
+                        }
+                    },
+                    {
+                        $project: {
+                            username: 1,
+                            email: 1,
+                            name: 1,
+                            bio: 1,
+                            roles: 1,
+                            followers: 1,
+                            following: 1,
+                            profilePicture: 1,
+                            followerDetails: { username: 1, profilePicture: 1, followers: 1 },
+                            followingDetails: { username: 1, profilePicture: 1, following: 1 }
+                        }
+                    }
+                ]);
                 if (!user) {
                     throw new Error("User not found");
                 }
-                return user;
+                console.log(user);
+                return user[0];
             }
             catch (error) {
                 console.error("Error finding user by username:", error);
@@ -148,6 +184,40 @@ class MediaRepository {
             }
         });
     }
+    // async fetchPost(userId: Types.ObjectId): Promise<Post[]> {
+    //     try {
+    //         // const posts = await PostModel.find({ userId }).sort({ _id: -1 });
+    //         const posts = await PostModel.aggregate([
+    //             {
+    //                 $match: {
+    //                     userId
+    //                 }
+    //             },
+    //             {
+    //                 $lookup: {
+    //                     from: 'users',
+    //                     localField: "userId",
+    //                     foreignField: "_id",
+    //                     as: "userDetails"
+    //                 }
+    //             },
+    //             {
+    //                 $unwind: '$userDetails'
+    //             },
+    //             {
+    //                 $project: {
+    //                     ...PostModel.schema.obj,
+    //                     "userDetails.username": 1,
+    //                     "userDetails.profilePicture": 1
+    //                 }
+    //             }
+    //         ])
+    //         return posts.map(post => post.toObject());
+    //     } catch (error) {
+    //         console.error("Error fetching posts by user ID:", error);
+    //         return [];
+    //     }
+    // }
     fetchPost(userId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -169,6 +239,7 @@ class MediaRepository {
                 const objectId = new mongoose_1.default.Types.ObjectId(id);
                 const user = yield UserModel_1.default.findOne({ email });
                 const user2 = yield UserModel_1.default.findById(objectId);
+                console.log(user, user2);
                 if (!user) {
                     throw new Error('User not found');
                 }
@@ -177,14 +248,22 @@ class MediaRepository {
                 }
                 user.following = user.following || [];
                 user2.followers = user2.followers || [];
-                const alreadyFollowing = user.following.some(followedId => followedId.equals(objectId));
+                const alreadyFollowing = user.following.some(followedId => followedId.equals(user2._id));
                 if (alreadyFollowing) {
-                    user.following = user.following.filter(followedId => !followedId.equals(objectId));
+                    user.following = user.following.filter(followedId => !followedId.equals(user2._id));
                     user2.followers = user2.followers.filter(followerId => !followerId.equals(user._id));
                 }
                 else {
                     user.following.push(objectId);
                     user2.followers.push(user._id);
+                    const message = `${user.username} started following you`;
+                    const notification = new NotificationModel_1.Notification({
+                        user: user2._id,
+                        interactorId: user._id,
+                        type: 'follow',
+                        message: message
+                    });
+                    yield notification.save();
                 }
                 const updatedUser = yield user.save();
                 yield user2.save();
@@ -229,7 +308,8 @@ class MediaRepository {
                     { $lookup: { from: 'users', localField: 'userId', foreignField: '_id', as: 'userDetails' } },
                     { $unwind: '$userDetails' },
                     { $addFields: { isSaved: { $in: ['$_id', savedPosts] } } },
-                    { $project: { _id: 1, imageUrl: 1, caption: 1, userId: 1, likeCount: 1, likes: 1, createdAt: 1, 'userDetails.username': 1, 'userDetails.email': 1, 'userDetails.profilePicture': 1, isSaved: 1 } },
+                    // { $project: { _id: 1, imageUrl: 1, caption: 1, userId: 1, likeCount: 1, likes: 1, createdAt: 1, 'userDetails.username': 1, 'userDetails.email': 1, 'userDetails.profilePicture': 1, 'userDetails.followers': 1, 'userDetails.following': 1, 'userDetails.createdAt': 1, isSaved: 1 } },
+                    { $project: { _id: 1, imageUrl: 1, caption: 1, userId: 1, likes: 1, createdAt: 1, 'userDetails.username': 1, 'userDetails.email': 1, 'userDetails.profilePicture': 1, 'userDetails.followers': 1, 'userDetails.following': 1, 'userDetails.createdAt': 1, isSaved: 1 } },
                     { $sort: { createdAt: -1 } },
                     { $skip: offset },
                     { $limit: limit }
@@ -258,11 +338,11 @@ class MediaRepository {
                 const hasLiked = post.likes.includes(OoriginalUser);
                 if (hasLiked) {
                     post.likes = post.likes.filter(like => !like.equals(OoriginalUser));
-                    post.likeCount = Math.max((post.likeCount || 0) - 1, 0);
+                    // post.likeCount = Math.max((post.likeCount || 0) - 1, 0);
                 }
                 else {
                     post.likes.push(OoriginalUser);
-                    post.likeCount = (post.likeCount || 0) + 1;
+                    // post.likeCount = (post.likeCount || 0) + 1;
                 }
                 yield post.save();
                 return true;
@@ -407,7 +487,12 @@ class MediaRepository {
     getCommentsByPostId(postId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield CommentModel_1.default.find({ postId }).populate('userId');
+                return yield CommentModel_1.default.find({ postId })
+                    .populate('userId')
+                    .populate({
+                    path: 'replies.userId',
+                    select: 'username profilePicture'
+                });
             }
             catch (error) {
                 console.error('Failed to get comments by post ID:', error);
@@ -492,6 +577,8 @@ class MediaRepository {
             try {
                 return yield NotificationModel_1.Notification.find({ user: userId })
                     .populate('interactorId', 'username profilePicture')
+                    .sort({ createdAt: -1 })
+                    .limit(20)
                     .exec();
             }
             catch (error) {

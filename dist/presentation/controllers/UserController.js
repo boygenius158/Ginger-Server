@@ -102,6 +102,7 @@ class authController {
             try {
                 const { token, password } = req.body;
                 const secretKey = "nibla158";
+                console.log(req.body);
                 const decodedToken = this._tokenGenerator.verifyToken(token, secretKey);
                 if (!decodedToken) {
                     return res.status(HttpStatus_1.HttpStatus.UNAUTHORIZED).json({ error: "Invalid or expired token" });
@@ -243,6 +244,7 @@ class authController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { id, name, username, bio } = req.body;
+                // console.log(req.body);
                 const result = yield this._authUsecase.updateUser(id, name, username, bio);
                 if (result.success === false) {
                     res.json(result);

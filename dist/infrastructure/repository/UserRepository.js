@@ -16,6 +16,7 @@ exports.AuthRepository = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
 const UserModel_1 = __importDefault(require("../database/model/UserModel"));
 const SearchHistoryModel_1 = __importDefault(require("../database/model/SearchHistoryModel"));
+const PostModel_1 = require("../database/model/PostModel");
 const bcrypt = require('bcryptjs'); // Import bcrypt for password hashing
 class AuthRepository {
     addNewUser(user) {
@@ -167,7 +168,18 @@ class AuthRepository {
     findById(userId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield UserModel_1.default.findById(new mongoose_1.default.Types.ObjectId(userId));
+                // return await UserModel.findById(new mongoose.Types.ObjectId(userId));
+                const userIdObject = new mongoose_1.default.Types.ObjectId(userId);
+                const [userDetails, postCount] = yield Promise.all([
+                    UserModel_1.default.findById(userIdObject),
+                    PostModel_1.PostModel.countDocuments({ userId: userIdObject })
+                ]);
+                if (!userDetails) {
+                    throw new Error;
+                }
+                // Return both in a single object
+                return Object.assign(Object.assign({}, userDetails.toObject()), { // Spread user details into the object
+                    postCount });
             }
             catch (error) {
                 console.error("Error finding user by ID:", error);
@@ -218,7 +230,32 @@ class AuthRepository {
     save(user) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield user.save();
+                console.log(user);
+                let exist = yield UserModel_1.default.findById(user._id || user.id);
+                if (!exist) {
+                    throw new Error;
+                }
+                exist.name = user.name,
+                    exist.username = user.username;
+                exist.bio = user.bio;
+                return yield exist.save();
+            }
+            catch (error) {
+                console.error("Error saving user:", error);
+                throw new Error("Failed to save user. Please try again later.");
+            }
+        });
+    }
+    savePassword(user, password) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                console.log(user);
+                let exist = yield UserModel_1.default.findById(user._id);
+                if (!exist) {
+                    throw new Error;
+                }
+                exist.password = password;
+                return yield exist.save();
             }
             catch (error) {
                 console.error("Error saving user:", error);
@@ -256,6 +293,22 @@ class AuthRepository {
                     user.roles = role;
                     yield user.save();
                 }
+            }
+            catch (error) {
+                console.error("Error updating user roles:", error);
+                throw new Error("Failed to update user roles. Please try again later.");
+            }
+        });
+    }
+    saveRole(userId, role) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const user = yield UserModel_1.default.findById(userId);
+                if (!user) {
+                    throw new Error('User not found');
+                }
+                user.roles = role;
+                yield user.save();
             }
             catch (error) {
                 console.error("Error updating user roles:", error);

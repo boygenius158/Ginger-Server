@@ -23,19 +23,34 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PostModel = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
-// Define schema for Post
-const PostSchema = new mongoose_1.Schema({
-    imageUrl: [{ type: String, required: true }],
-    caption: { type: String, required: false, default: "" },
-    userId: { type: mongoose_1.default.Schema.Types.ObjectId, ref: 'User', required: true },
-    // likeCount: { type: Number, default: 0 },
-    isActive: { type: Boolean, default: true },
-    likes: [{ type: mongoose_1.default.Schema.Types.ObjectId, ref: 'User' }],
-    isReported: [{ type: mongoose_1.default.Schema.Types.ObjectId, ref: 'User' }],
-    createdAt: { type: Date, default: Date.now },
-    isBanned: { type: Boolean, default: false }
+// Create the admin schema
+const AdminSchema = new mongoose_1.Schema({
+    // username: {
+    //   type: String,
+    //   required: true,
+    //   unique: true,
+    //   trim: true,
+    // },
+    email: {
+        type: String,
+        required: true,
+        unique: true,
+        trim: true,
+        lowercase: true,
+    },
+    password: {
+        type: String,
+        required: true,
+    },
+    roles: {
+        type: String,
+        enum: ['superadmin', 'admin'], // You can customize the roles as needed
+        default: 'admin',
+    },
+}, {
+    timestamps: true, // Automatically add createdAt and updatedAt fields
 });
-// Define and export Mongoose model
-exports.PostModel = mongoose_1.default.model('Post', PostSchema);
+// Create the model
+const AdminModel = mongoose_1.default.model('Admin', AdminSchema);
+exports.default = AdminModel;

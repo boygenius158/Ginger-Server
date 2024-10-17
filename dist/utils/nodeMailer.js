@@ -54,7 +54,7 @@ class Mailer {
         return __awaiter(this, void 0, void 0, function* () {
             const subject = "Email Verification";
             const htmlContent = `<p>Hi,</p>
-                             <p>Please click <a href="http://127.0.0.1:3000/verify?token=${token}">here</a> to verify your email.</p>`;
+                             <p>Please click <a href="https://gingerfrontend.vercel.app/verify?token=${token}">here</a> to verify your email.</p>`;
             yield this.sendMail(to, subject, htmlContent);
         });
     }

@@ -78,6 +78,7 @@ class DatingController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { userId, formData } = req.body;
+                console.log(req.body);
                 const result = yield this._datingUseCase.handleDatingTab1(userId, formData);
                 res.json(result);
             }
@@ -144,12 +145,14 @@ class DatingController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { userId } = req.body;
+                console.log(userId, "lop");
                 if (!userId) {
                     return res.status(400).json({ error: "User ID is required" });
                 }
                 const formData = yield this._datingUseCase.getDatingTab1Details(userId);
                 if (!formData) {
-                    return res.status(HttpStatus_1.HttpStatus.NOT_FOUND).json({ error: "User not found" });
+                    return res.status(200).json({ formData });
+                    // return res.status(HttpStatus.NOT_FOUND).json({ error: "User not found" });
                 }
                 return res.status(200).json({ formData });
             }

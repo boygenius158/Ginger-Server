@@ -65,13 +65,15 @@ class MediaController {
     visitProfile(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                // console.log("uiuiuiui");
                 const username = req.body.username;
                 if (!username) {
                     throw new Error;
                 }
                 const user = yield this._mediaUseCase.findUserIdByUsername(username);
+                // console.log(user._id,"pooo");
                 const post = yield this._mediaUseCase.findUserPost(user._id);
-                console.log(user);
+                // console.log(post);
                 res.json({ user, post });
             }
             catch (error) {
@@ -84,7 +86,9 @@ class MediaController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { followUser, orginalUser } = req.body;
+                console.log(followUser, orginalUser, "i909");
                 const followUserId = yield this._mediaUseCase.findUserId(followUser);
+                console.log(followUserId);
                 if (!followUserId) {
                     return;
                 }
@@ -102,6 +106,7 @@ class MediaController {
     checkFollowingStatus(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                console.log("checkFollowingStatus", req.body);
                 const { followUser, orginalUser } = req.body;
                 const followUserId = yield this._mediaUseCase.findUserId(followUser);
                 if (!followUserId) {
@@ -359,6 +364,18 @@ class MediaController {
         });
     }
     getChartData(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { chartData, chartConfig } = yield this._mediaUseCase.getChartData();
+                res.status(HttpStatus_1.HttpStatus.OK).json({ success: true, chartData, chartConfig });
+            }
+            catch (error) {
+                console.error("Error occurred:", error);
+                res.status(HttpStatus_1.HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: "Internal Server Error" });
+            }
+        });
+    }
+    userPostedReply(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { chartData, chartConfig } = yield this._mediaUseCase.getChartData();

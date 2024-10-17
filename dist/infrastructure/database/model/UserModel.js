@@ -30,7 +30,7 @@ const UserSchema = new mongoose_1.Schema({
     email: { type: String, required: true },
     password: { type: String, default: null },
     name: { type: String, default: "" },
-    profilePicture: { type: String, default: "https://i.pinimg.com/564x/c9/3c/07/c93c07197a6b5e995b4da0de2f2de90a.jpg" },
+    profilePicture: { type: String, default: "https://i.pinimg.com/564x/47/09/80/470980b112a44064cd88290ac0edf6a6.jpg" },
     username: { type: String, default: "" },
     roles: { type: String, enum: Object.values(User_1.UserRole), default: User_1.UserRole.User },
     bio: { type: String, default: "" },
@@ -39,7 +39,8 @@ const UserSchema = new mongoose_1.Schema({
     following: [{ type: mongoose_1.default.Schema.Types.ObjectId, ref: 'User', default: [] }],
     followers: [{ type: mongoose_1.default.Schema.Types.ObjectId, ref: 'User', default: [] }],
     savedPosts: [{ type: mongoose_1.default.Schema.Types.ObjectId, ref: 'User', default: [] }],
-    isBlocked: { type: Boolean, default: false }
+    isBlocked: { type: Boolean, default: false },
+    createdAt: { type: Date, default: Date.now() }
 });
 // Create the User model
 const UserModel = mongoose_1.default.model('User', UserSchema);

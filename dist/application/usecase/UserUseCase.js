@@ -13,6 +13,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthUseCase = void 0;
+// authUseCase.ts
+const User_1 = require("../../domain/entities/User");
 const nodeMailer_1 = __importDefault(require("../../utils/nodeMailer"));
 const tokenGenerator_1 = require("../../utils/tokenGenerator");
 const SearchHistoryModel_1 = __importDefault(require("../../infrastructure/database/model/SearchHistoryModel"));
@@ -185,10 +187,13 @@ class AuthUseCase {
                     return { success: false };
                 }
             }
-            user.name = name || user.name;
-            user.username = username || user.username;
-            user.bio = bio || user.bio;
-            return this._repository.save(user);
+            let saveuser = {
+                id,
+                name,
+                username,
+                bio
+            };
+            return this._repository.save(saveuser);
         });
     }
     updatePassword(id, currentPassword, newPassword) {
@@ -200,7 +205,7 @@ class AuthUseCase {
                 const salt = yield bcrypt.genSalt(10);
                 const hashedPassword = yield bcrypt.hash(newPassword, salt);
                 user.password = hashedPassword;
-                yield this._repository.save(user);
+                yield this._repository.savePassword(user, hashedPassword);
                 return { success: true, message: 'Password set successfully' };
             }
             if (user.password && currentPassword) {
@@ -211,7 +216,7 @@ class AuthUseCase {
                 const salt = yield bcrypt.genSalt(10);
                 const hashedPassword = yield bcrypt.hash(newPassword, salt);
                 user.password = hashedPassword;
-                yield this._repository.save(user);
+                yield this._repository.savePassword(user, hashedPassword);
                 return { success: true, message: 'Password updated successfully' };
             }
             throw new Error('Invalid request: Missing current or new password');
@@ -251,7 +256,8 @@ class AuthUseCase {
                 userId,
                 amount: 350
             });
-            yield this._repository.save(premium);
+            // await this._repository.save(premium);
+            yield this.updateUserRole(userId, User_1.UserRole.Premium);
         });
     }
     findUserByEmail(email) {
@@ -276,7 +282,7 @@ class AuthUseCase {
                 throw new Error('User not found');
             }
             user.roles = role; // role should be of type UserRole
-            yield this._repository.save(user);
+            yield this._repository.saveRole(user._id, User_1.UserRole.Premium);
         });
     }
 }

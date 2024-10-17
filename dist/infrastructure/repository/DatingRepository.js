@@ -98,7 +98,8 @@ class DatingRepository {
             try {
                 const profile = yield DatingProfileMode_1.default.findOne({ userId });
                 if (!profile) {
-                    throw new Error("User not found");
+                    // throw new Error("User not found");
+                    return;
                 }
                 return profile;
             }
