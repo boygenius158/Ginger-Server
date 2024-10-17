@@ -168,7 +168,7 @@ export class authController {
         try {
             const { url, userId } = req.body;
             const updatedUser = await this._authUsecase.uploadProfilePicture(userId, url);
-            res.json({ url: updatedUser.profilePicture });
+            res.status(200).json({ success:true });
         } catch (error) {
             console.error("Error uploading profile picture:", error);
             res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: "Internal Server Error" });

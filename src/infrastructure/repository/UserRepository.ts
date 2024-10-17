@@ -178,12 +178,15 @@ export class AuthRepository implements IAuthUserRepository {
 
     async updateProfilePicture(userId: string, url: string): Promise<any> {
         try {
-            const user = await this.findById(userId);
-            if (!user) {
+            const updateUser = await UserModel.findById(userId)
+            if (!updateUser) {
                 throw new Error("User not found");
             }
-            user.profilePicture = url;
-            return await user.save();
+             updateUser.profilePicture = url;
+            console.log(updateUser);
+
+            await updateUser.save();
+            return
         } catch (error) {
             console.error("Error updating profile picture:", error);
             throw new Error("Failed to update profile picture. Please try again later.");
