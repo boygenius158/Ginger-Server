@@ -39,7 +39,7 @@ connectDatabase();
 setupSocketIO(server)
 
 app.get('/', (req, res) => {
-    res.send('backend is running .....')
+    res.send('backend is running on aws .....')
 })
 
 app.use('/', authRouter);

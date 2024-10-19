@@ -375,6 +375,7 @@ router.post('/api/user/fetch-post-comment', (req, res) => __awaiter(void 0, void
 }));
 router.post('/api/user/delete-post', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { postId } = req.body;
+    console.log(req.body);
     const post = yield PostModel_1.PostModel.findByIdAndDelete(postId);
     if (post) {
         return res.status(200).json({ success: true });
@@ -389,5 +390,12 @@ router.post('/api/user/delete-comment', (req, res) => __awaiter(void 0, void 0, 
         throw new Error;
     }
     res.status(200).json({ success: true });
+}));
+router.post('/api/admin/delete-record', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log(req.body);
+    const { id } = req.body;
+    const record = yield ReportModel_1.default.findByIdAndDelete(id);
+    console.log(record);
+    res.status(200).json({});
 }));
 exports.default = router;

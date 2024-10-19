@@ -127,7 +127,9 @@ class AdminRepository {
                     populate: {
                         path: 'userId'
                     }
-                }).exec();
+                })
+                    .sort({ createdAt: -1 })
+                    .exec();
             }
             catch (error) {
                 console.error('Error fetching reports by action taken:', error);
