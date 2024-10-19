@@ -432,6 +432,8 @@ router.post('/api/user/fetch-post-comment', async (req, res) => {
 
 router.post('/api/user/delete-post', async (req, res) => {
     const { postId } = req.body
+    console.log(req.body);
+
     const post = await PostModel.findByIdAndDelete(postId)
     if (post) {
         return res.status(200).json({ success: true })
@@ -449,6 +451,16 @@ router.post('/api/user/delete-comment', async (req, res) => {
     }
     res.status(200).json({ success: true })
 
+
+})
+
+router.post('/api/admin/delete-record', async (req, res) => {
+    console.log(req.body);
+    const { id } = req.body
+    const record = await Report.findByIdAndDelete(id)
+    console.log(record);
+
+    res.status(200).json({})
 
 })
 

@@ -53,7 +53,7 @@ router.post('/api/user/expiry-date', mediaController.getExpiryDate.bind(mediaCon
 router.get('/api/user/user-demographics', mediaController.getUserDemographics.bind(mediaController));
 router.get('/api/admin/chartData1', mediaController.getChartData.bind(mediaController));
 router.post('/api/user/fetchChatList',  mediaController.getChatList.bind(mediaController));
-router.post('/api/user/user-posted-reply',mediaController.userPostedReply.bind(mediaController))
+// router.post('/api/user/user-posted-reply',mediaController.userPostedReply.bind(mediaController))
 
 
 
