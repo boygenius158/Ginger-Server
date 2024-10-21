@@ -26,9 +26,9 @@ app.use(express.json());
 
 app.use(cors({
     // origin:['*'],
-    // origin: 'http://localhost:3000',
+    origin: 'http://localhost:3000',
 
-    origin: 'https://gingerfrontend.vercel.app',
+    // origin: 'https://gingerfrontend.vercel.app',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'], // Allow all common HTTP methods
     allowedHeaders: ['Authorization', 'Content-Type'], // Allow Authorization and Content-Type headers
     credentials: true // If you want to support credentials (cookies, etc.)
@@ -37,7 +37,7 @@ app.use(cors({
 const server = http.createServer(app);
 connectDatabase();
 setupSocketIO(server)
-
+logger
 app.get('/', (req, res) => {
     res.send('backend is running on aws .....')
 })

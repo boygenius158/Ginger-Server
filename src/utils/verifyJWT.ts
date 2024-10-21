@@ -18,17 +18,15 @@ const verifyJWT = (req: CustomRequest, res: Response, next: NextFunction) => {
   console.log(token, "token in header");
 
   try {
-    // console.log("Token verification initiated");
+    console.log("Token verification initiated");
 
-    // Use process.env.JWT_SECRET for security instead of hardcoding
-    const secret = "helloworld"; // Use env or fallback
-    const decoded = jwt.verify(token, secret) as JwtPayload; // Decode and verify token
+    const secret = "helloworld"; 
+    const decoded = jwt.verify(token, secret) as JwtPayload; 
 
-    // Attach decoded user info to the request object
     req.user = decoded;
-    // console.log("Token verified successfully", decoded);
+    console.log("Token verified successfully", decoded);
 
-    next(); // Proceed to next middleware or route
+    next();   
   } catch (err: any) {
     console.error(`Token verification failed for path: ${req.originalUrl}`, err);
 

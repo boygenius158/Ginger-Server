@@ -24,8 +24,8 @@ export function setupSocketIO(server: any) {
 
   const io = new Server(server, {
     cors: {
-      origin: 'https://gingerfrontend.vercel.app',
-      // origin: 'http://localhost:3000',
+      // origin: 'https://gingerfrontend.vercel.app',
+      origin: 'http://localhost:3000',
 
       methods: ["GET", "POST"],
       allowedHeaders: ["Authorization"],
