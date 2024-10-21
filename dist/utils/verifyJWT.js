@@ -14,14 +14,12 @@ const verifyJWT = (req, res, next) => {
     const token = authHeader.split(" ")[1]; // Extract the token after "Bearer"
     console.log(token, "token in header");
     try {
-        // console.log("Token verification initiated");
-        // Use process.env.JWT_SECRET for security instead of hardcoding
-        const secret = "helloworld"; // Use env or fallback
-        const decoded = jsonwebtoken_1.default.verify(token, secret); // Decode and verify token
-        // Attach decoded user info to the request object
+        console.log("Token verification initiated");
+        const secret = "helloworld";
+        const decoded = jsonwebtoken_1.default.verify(token, secret);
         req.user = decoded;
-        // console.log("Token verified successfully", decoded);
-        next(); // Proceed to next middleware or route
+        console.log("Token verified successfully", decoded);
+        next();
     }
     catch (err) {
         console.error(`Token verification failed for path: ${req.originalUrl}`, err);
