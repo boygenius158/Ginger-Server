@@ -1113,3 +1113,4 @@
 2024-10-22T10:25:26.718Z info: ::1 - - [22/Oct/2024:10:25:26 +0000] "POST /api/user/miniProfile HTTP/1.1" 200 777 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"
 2024-10-22T10:25:27.137Z info: ::1 - - [22/Oct/2024:10:25:27 +0000] "POST /api/user/miniProfile HTTP/1.1" 200 777 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"
 2024-10-22T10:25:27.623Z info: ::1 - - [22/Oct/2024:10:25:27 +0000] "POST /api/user/miniProfile HTTP/1.1" 200 777 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"
+2024-10-22T10:30:17.643Z info: ::1 - - [22/Oct/2024:10:30:17 +0000] "POST /api/user/google-auth HTTP/1.1" 200 753 "-" "axios/1.7.2"
