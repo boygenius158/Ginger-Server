@@ -17,8 +17,8 @@ const mongoose_1 = __importDefault(require("mongoose"));
 require('dotenv').config();
 function connectDatabase() {
     return __awaiter(this, void 0, void 0, function* () {
-        // const uri = 'mongodb+srv://albindamn:albin381@gingercluster.tni02.mongodb.net/?retryWrites=true&w=majority&appName=gingercluster';
-        const uri = process.env.DB;
+        const uri = 'mongodb+srv://albindamn:albin381@gingercluster.tni02.mongodb.net/?retryWrites=true&w=majority&appName=gingercluster';
+        // const uri = process.env.DB
         if (uri) {
             yield mongoose_1.default.connect(uri).then(() => console.log("database connected")).catch(error => {
                 console.log("database error", error);
