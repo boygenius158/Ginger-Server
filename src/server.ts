@@ -40,10 +40,10 @@ connectDatabase();
 setupSocketIO(server) 
 
 logger
-app.get('/helloworld', (req, res) => {
-    console.log("hi");
+app.get('/', (req, res) => {
+    // console.log("hi");
     
-    // res.send('backend is running on aws .....')
+    res.send('backend is running on aws .....')
 })
 app.use(
     morgan('combined', {
