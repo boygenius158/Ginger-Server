@@ -15,6 +15,7 @@ const DatingRoute_1 = __importDefault(require("./presentation/routes/DatingRoute
 const SocketIO_1 = require("./presentation/socket/SocketIO");
 const S3service_1 = __importDefault(require("./application/Services/S3service"));
 const logger_1 = __importDefault(require("./utils/logger"));
+const morgan_1 = __importDefault(require("morgan"));
 dotenv_1.default.config();
 const port = 5000;
 const app = (0, express_1.default)();
@@ -22,8 +23,8 @@ const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.use(cors({
     // origin:['*'],
-    // origin: 'http://localhost:3000',
-    origin: 'https://gingerfrontend.vercel.app',
+    origin: 'http://localhost:3000',
+    // origin: 'https://gingerfrontend.vercel.app',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'], // Allow all common HTTP methods
     allowedHeaders: ['Authorization', 'Content-Type'], // Allow Authorization and Content-Type headers
     credentials: true // If you want to support credentials (cookies, etc.)
@@ -32,9 +33,15 @@ const server = http.createServer(app);
 (0, connection_1.connectDatabase)();
 (0, SocketIO_1.setupSocketIO)(server);
 logger_1.default;
-app.get('/', (req, res) => {
-    res.send('backend is running on aws .....');
+app.get('/helloworld', (req, res) => {
+    console.log("hi");
+    // res.send('backend is running on aws .....')
 });
+app.use((0, morgan_1.default)('combined', {
+    stream: {
+        write: (message) => logger_1.default.info(message.trim()), // Use Winston's info level
+    },
+}));
 app.use('/', UserRoute_1.default);
 app.use('/', PostRoute_1.default);
 app.use('/', AdminRoute_1.default);
