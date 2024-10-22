@@ -31,8 +31,8 @@ function setupSocketIO(server) {
     const users = {};
     const io = new socket_io_1.Server(server, {
         cors: {
-            // origin: 'https://gingerfrontend.vercel.app',
-            origin: 'http://localhost:3000',
+            origin: 'https://gingerfrontend.vercel.app',
+            // origin: 'http://localhost:3000', 
             methods: ["GET", "POST"],
             allowedHeaders: ["Authorization"],
             credentials: true, // if you need to allow cookies or other credentialsddd
