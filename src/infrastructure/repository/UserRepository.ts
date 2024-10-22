@@ -166,7 +166,7 @@ export class AuthRepository implements IAuthUserRepository {
             }
 
             // Return both in a single object
-            return {
+            return { 
                 ...userDetails.toObject(), // Spread user details into the object
                 postCount
             };
