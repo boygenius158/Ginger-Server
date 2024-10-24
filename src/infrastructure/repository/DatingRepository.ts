@@ -176,7 +176,7 @@ export class DatingRepository implements IDatingRepository {
     }
 
     async fetchPostComment(postId: string): Promise<any> {
-        
+
 
         try {
             const comments = await CommentModel.aggregate([
@@ -319,6 +319,49 @@ export class DatingRepository implements IDatingRepository {
             }
         ]);
     }
-    
+
+    async deleteCommentReply(parentCommentId: string, comment: any) {
+        try {
+
+
+            // Update the document and remove the reply
+            const result = await CommentModel.updateOne(
+                { _id: parentCommentId },
+                {
+                    $pull: {
+                        replies: { _id: comment._id }
+                    }
+                }
+            );
+            return result
+        } catch (error) {
+
+        }
+    }
+    async likedUserDetails(likedUsersId: any): Promise<any> {
+        try {
+            const LikedUsers = await UserModel.find({
+
+                _id: { $in: likedUsersId }
+            })
+            return LikedUsers
+        } catch (error) {
+
+        }
+    }
+
+    async postAlreadyReported(postId: any, victimUser: any): Promise<any> {
+        try {
+            const existingReport = await Report.findOne({
+                postId: postId,
+                reporterId: victimUser
+            });
+            return existingReport
+        } catch (error) {
+
+        }
+    }
+
+
 }
 

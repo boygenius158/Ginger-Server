@@ -17,6 +17,9 @@ export interface IDatingUseCase {
     deletePost(postId: string): Promise<void>
     fetchPostComment(postId: string): Promise<any>
     executed(content: string, userId: string, postId: string): Promise<any>;
+    deleteCommentReply(parentCommentId: string, comment: any): Promise<any>
+    likedUserDetails(likedUsersId: any): Promise<any>
+    postAlreadyReported(postId: any, victimUser: any): Promise<any>
 
 
 }
@@ -188,7 +191,7 @@ export class DatingUseCase implements IDatingUseCase {
             throw new Error("Failed to get adminDeleteRecord");
         }
     }
-   
+
     async executed(content: string, userId: string, postId: string): Promise<any> {
         if (!content || !userId || !postId) {
             throw new Error("Content, userId, and postId are required");
@@ -237,5 +240,34 @@ export class DatingUseCase implements IDatingUseCase {
             replies: formattedReplies
         };
     }
+    async deleteCommentReply(parentCommentId: string, comment: string) {
+        try {
+            const result = await this._repository.deleteCommentReply(parentCommentId, comment)
+            return result
+        } catch (error) {
+            console.error("Error fetching adminDeleteRecord:", error);
+            throw new Error("Failed to get adminDeleteRecord");
+        }
+    }
+    async likedUserDetails(likedUsersId: any): Promise<any> {
+        try {
+            const LikedUsers = await this._repository.likedUserDetails(likedUsersId)
+            return LikedUsers
+        } catch (error) {
+            console.error("Error fetching adminDeleteRecord:", error);
+            throw new Error("Failed to get adminDeleteRecord");
+        }
+    }
+    async postAlreadyReported(postId: any, victimUser: any): Promise<any> {
+        try {
+            const existingReport = await this._repository.postAlreadyReported(postId,victimUser)
+            return existingReport
+        } catch (error) {
+            console.error("Error fetching adminDeleteRecord:", error);
+            throw new Error("Failed to get adminDeleteRecord");
+        }
+    }
+
+
 
 }

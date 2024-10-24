@@ -226,7 +226,53 @@ export class DatingController {
             return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: "Internal server error" });
         }
     }
-   
+    async deleteCommentReply(req: Request, res: Response): Promise<any> {
+        try {
+            const { parentCommentId, comment } = req.body;
+
+            const result = await this._datingUseCase.deleteCommentReply(parentCommentId, comment)
+            if (result.modifiedCount === 0) {
+                return res.status(HttpStatus.NOT_FOUND).json({ message: 'Comment or reply not found' });
+            }
+
+            return res.status(HttpStatus.OK).json({ message: 'Reply deleted successfully' });
+        } catch (error) {
+            console.error("Error occurred:", error);
+            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: "Internal Server Error" });
+        }
+    }
+
+    async likedUserDetails(req: Request, res: Response): Promise<any> {
+        try {
+            const likedUsersId = req.body.likes
+            const LikedUsers = await this._datingUseCase.likedUserDetails(likedUsersId)
+
+
+            // Report does not exist
+            return res.json({ LikedUsers })
+
+        } catch (error) {
+            console.error("Error occurred:", error);
+            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: "Internal Server Error" });
+        }
+    }
+
+    async postAlreadyReported(req: Request, res: Response): Promise<any> {
+        try {
+            const { postId, victimUser } = req.body;
+            const existingReport = await this._datingUseCase.postAlreadyReported(postId,victimUser)
+            if (existingReport) {
+                // Report already exists
+                return res.json({ alreadyReported: true });
+            }
+
+            // Report does not exist
+            return res.json({ alreadyReported: false });
+        } catch (error) {
+            console.error("Error occurred:", error);
+            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: "Internal Server Error" });
+        }
+    }
 
 
 }

@@ -128,71 +128,70 @@ router.post("/refresh-token", (req, res) => {
 });
 
 
-router.post('/api/user/delete-commentreply', async (req, res) => {
-    try {
-        const { parentCommentId, comment } = req.body;
+// router.post('/api/user/delete-commentreply', async (req, res) => {
+//     try {
+//         const { parentCommentId, comment } = req.body;
 
-        // Update the document and remove the reply
-        const result = await CommentModel.updateOne(
-            { _id: parentCommentId },
-            {
-                $pull: {
-                    replies: { _id: comment._id }
-                }
-            }
-        );
+//         // Update the document and remove the reply
+//         const result = await CommentModel.updateOne(
+//             { _id: parentCommentId },
+//             {
+//                 $pull: {
+//                     replies: { _id: comment._id }
+//                 }
+//             }
+//         );
 
-        if (result.modifiedCount === 0) {
-            return res.status(HttpStatus.NOT_FOUND).json({ message: 'Comment or reply not found' });
-        }
+//         if (result.modifiedCount === 0) {
+//             return res.status(HttpStatus.NOT_FOUND).json({ message: 'Comment or reply not found' });
+//         }
 
-        return res.status(HttpStatus.OK).json({ message: 'Reply deleted successfully' });
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ message: 'An error occurred', error });
-    }
-});
-
-
-router.post('/api/user/likedUserDetails', async (req, res) => {
-    // console.log("messaged", req.body);
-    const likedUsersId = req.body.likes
-    const LikedUsers = await UserModel.find({
-
-        _id: { $in: likedUsersId }
-    })
-    // console.log(LikedUsers);
-
-    res.json({ LikedUsers })
-})
+//         return res.status(HttpStatus.OK).json({ message: 'Reply deleted successfully' });
+//     } catch (error) {
+//         console.error(error);
+//         return res.status(500).json({ message: 'An error occurred', error });
+//     }
+// });
 
 
-router.post('/api/user/post-already-reported', async (req, res) => {
-    try {
-        const { postId, victimUser } = req.body;
+// router.post('/api/user/likedUserDetails', async (req, res) => {
+//     // console.log("messaged", req.body);
+//     const likedUsersId = req.body.likes
+//     const LikedUsers = await UserModel.find({
 
-        const existingReport = await Report.findOne({
-            postId: postId,        // Use postId from the request
-            reporterId: victimUser // Assuming victimUser is the reporter's ID
-        });
+//         _id: { $in: likedUsersId }
+//     })
+//     // console.log(LikedUsers);
 
-        if (existingReport) {
-            // Report already exists
-            return res.json({ alreadyReported: true });
-        }
-
-        // Report does not exist
-        return res.json({ alreadyReported: false });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-});
-const bcrypt = require('bcrypt');  // Ensure bcrypt is required
+//     res.json({ LikedUsers })
+// })
 
 
+// router.post('/api/user/post-already-reported', async (req, res) => {
+//     try {
+//         const { postId, victimUser } = req.body;
 
-router.post('/api/user/user-posted-reply', async (req, res) => {
+//         const existingReport = await Report.findOne({
+//             postId: postId,
+//             reporterId: victimUser
+//         });
+
+//         if (existingReport) {
+//             // Report already exists
+//             return res.json({ alreadyReported: true });
+//         }
+
+//         // Report does not exist
+//         return res.json({ alreadyReported: false });
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).json({ error: 'Internal server error' });
+//     }
+// });
+
+
+
+router.post('/api/user/user-posgted-reply', async (req, res) => {
     try {
         console.log(req.body);
         const { content, userId, postId, parentId } = req.body;

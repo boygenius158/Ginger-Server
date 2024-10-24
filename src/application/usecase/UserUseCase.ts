@@ -260,5 +260,5 @@ export class AuthUseCase implements IAuthUseCase {
         user.roles = role; // role should be of type UserRole
         await this._repository.saveRole(user._id,UserRole.Premium);
     }
-
+    
 }

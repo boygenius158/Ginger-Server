@@ -16,6 +16,9 @@ export interface IDatingRepository {
     saveComment(commentData: any): Promise<any>;
     createNotification(notificationData: any): Promise<any>;
     getRepliesWithUserData(commentId: string): Promise<any>;
+    deleteCommentReply(parentCommentId: string, comment: any): Promise<any>
+    likedUserDetails(likedUsersId: any): Promise<any>
+    postAlreadyReported(postId: any, victimUser: any): Promise<any>
 
 
 }

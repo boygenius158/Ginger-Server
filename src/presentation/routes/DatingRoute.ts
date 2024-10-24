@@ -27,8 +27,9 @@ router.post('/api/user/delete-post', verifyJWT, datingController.deletePost.bind
 router.post('/api/user/fetch-post-comment', verifyJWT, datingController.fetchPostComment.bind(datingController))
 
 router.post('/api/user/user-posted-comment', verifyJWT, datingController.userPostedComment.bind(datingController))
-// router.post('/api/user/user-posted-reply', verifyJWT, datingController.postReply.bind(datingController));
+router.post('/api/user/likedUserDetails', verifyJWT, datingController.likedUserDetails.bind(datingController));
 
-
+router.post('/api/user/delete-commentreply', verifyJWT, datingController.deleteCommentReply.bind(datingController))
+router.post('/api/user/post-already-reported', verifyJWT, datingController.postAlreadyReported.bind(datingController))
 
 export default router
