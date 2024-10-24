@@ -380,4 +380,5 @@ export class MediaUseCase implements IMediaUseCase {
 
         return { chartData, chartConfig };
     }
+    
 } 

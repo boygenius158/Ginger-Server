@@ -12,15 +12,23 @@ const service = new DatingUseCase(repo)
 const datingController = new DatingController(service)
 
 
-router.post('/api/user/swipe-profiles', datingController.swipeProfile.bind(datingController));
+router.post('/api/user/swipe-profiles', verifyJWT, datingController.swipeProfile.bind(datingController));
 router.post('/api/user/dating-tab2', verifyJWT, datingController.updateDatingProfileImages.bind(datingController));
 router.post('/api/user/fetch-matches', verifyJWT, datingController.fetchMatches.bind(datingController));
 router.post('/api/user/get-user-datingprofile', verifyJWT, datingController.getUserDatingProfile.bind(datingController));
-router.post('/api/user/dating-tab1', datingController.handleDatingTab1.bind(datingController));
+router.post('/api/user/dating-tab1', verifyJWT, datingController.handleDatingTab1.bind(datingController));
 router.post('/api/user/dating-tab3', verifyJWT, datingController.handleDatingTab3.bind(datingController));
 router.post('/api/user/dating-tab4', verifyJWT, datingController.handleDatingTab4.bind(datingController));
-router.post('/api/user/settings', datingController.handleUserSettings.bind(datingController));
-router.post('/api/user/dating-tab1-getdetails', datingController.getDatingTab1Details.bind(datingController));
+router.post('/api/user/settings', verifyJWT, datingController.handleUserSettings.bind(datingController));
+router.post('/api/user/dating-tab1-getdetails', verifyJWT, datingController.getDatingTab1Details.bind(datingController));
+router.post('/api/admin/delete-record', verifyJWT, datingController.adminDeleteRecord.bind(datingController))
+router.post('/api/user/delete-comment', verifyJWT, datingController.deleteComment.bind(datingController))
+router.post('/api/user/delete-post', verifyJWT, datingController.deletePost.bind(datingController))
+router.post('/api/user/fetch-post-comment', verifyJWT, datingController.fetchPostComment.bind(datingController))
+
+router.post('/api/user/user-posted-comment', verifyJWT, datingController.userPostedComment.bind(datingController))
+// router.post('/api/user/user-posted-reply', verifyJWT, datingController.postReply.bind(datingController));
+
 
 
 export default router

@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { IDatingUseCase } from "../../application/usecase/DatingUseCase";
 import { HttpStatus } from "../../utils/HttpStatus";
+import CommentModel from "../../infrastructure/database/model/CommentModel";
+import mongoose from "mongoose";
 
 export class DatingController {
     private _datingUseCase: IDatingUseCase;
@@ -66,7 +68,7 @@ export class DatingController {
         try {
             const { userId, formData } = req.body;
             console.log(req.body);
-            
+
             const result = await this._datingUseCase.handleDatingTab1(userId, formData);
             res.json(result);
         } catch (error) {
@@ -113,7 +115,7 @@ export class DatingController {
             // console.log(userId);
 
             if (!userId) {
-                return res.status(400).json({ error: 'User ID is required' });
+                return res.status(HttpStatus.BAD_REQUEST).json({ error: 'User ID is required' });
             }
 
             const userSettings = await this._datingUseCase.getUserSettings(userId);
@@ -122,7 +124,7 @@ export class DatingController {
                 return res.status(HttpStatus.NOT_FOUND).json({ error: 'User not found' });
             }
 
-            res.status(200).json({ data: userSettings });
+            res.status(HttpStatus.OK).json({ data: userSettings });
         } catch (error) {
             console.error("Error fetching user settings:", error);
             res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: "Internal Server Error" });
@@ -134,21 +136,97 @@ export class DatingController {
             console.log(userId, "lop");
 
             if (!userId) {
-                return res.status(400).json({ error: "User ID is required" });
+                return res.status(HttpStatus.BAD_REQUEST).json({ error: "User ID is required" });
             }
 
             const formData = await this._datingUseCase.getDatingTab1Details(userId);
 
             if (!formData) {
-                return res.status(200).json({ formData })
+                return res.status(HttpStatus.OK).json({ formData })
                 // return res.status(HttpStatus.NOT_FOUND).json({ error: "User not found" });
             }
 
-            return res.status(200).json({ formData });
+            return res.status(HttpStatus.OK).json({ formData });
         } catch (error) {
             console.error("Error fetching dating tab 1 details:", error);
             return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: "Internal Server Error" });
         }
     }
+    async adminDeleteRecord(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { id } = req.body
+            if (!id) {
+                return res.status(HttpStatus.BAD_REQUEST).json({ error: "id is required" });
+            }
+            await this._datingUseCase.adminDeleteRecord(id)
+            return res.json({})
+
+        } catch (error) {
+            console.error('error in admin delete record')
+            return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: "internal server errro" })
+        }
+    }
+    async deleteComment(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { commentId } = req.body
+            if (!commentId) {
+                return res.status(HttpStatus.BAD_REQUEST).json({ error: "id is required" });
+            }
+            await this._datingUseCase.deleteComment(commentId)
+            res.status(HttpStatus.OK).json({ success: true })
+
+        } catch (error) {
+            console.error('error in admin delete record')
+            return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: "internal server errro" })
+        }
+    }
+    async deletePost(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { postId } = req.body
+            if (!postId) {
+                return res.status(HttpStatus.BAD_REQUEST).json({ error: "id is required" });
+            }
+            await this._datingUseCase.deletePost(postId)
+            res.status(HttpStatus.OK).json({ success: true })
+
+        } catch (error) {
+            console.error('error in admin delete record')
+            return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: "internal server errro" })
+        }
+    }
+    async fetchPostComment(req: Request, res: Response, next: NextFunction) {
+        try {
+            console.log(req.body);
+
+            const { postId } = req.body;
+            if (!postId) {
+                return res.status(HttpStatus.BAD_REQUEST).json({ error: "id is required" });
+            }
+
+            // Validate the postId format before proceeding
+            if (!mongoose.Types.ObjectId.isValid(postId)) {
+                return res.status(HttpStatus.BAD_REQUEST).json({ error: "Invalid postId format" });
+            }
+
+            const formattedComments = await this._datingUseCase.fetchPostComment(postId);
+            res.status(HttpStatus.OK).json({ comments: formattedComments });
+
+        } catch (error) {
+            console.error('Error fetching post comments:', error);
+            return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: "Internal server error" });
+        }
+    }
+    async userPostedComment(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { content, userId, postId } = req.body;
+            const response = await this._datingUseCase.executed(content, userId, postId);
+            res.status(HttpStatus.OK).json(response);
+        } catch (error) {
+            console.error('Error fetching post comments:', error);
+            return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: "Internal server error" });
+        }
+    }
+   
+
 
 }

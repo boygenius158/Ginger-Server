@@ -8,9 +8,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DatingController = void 0;
 const HttpStatus_1 = require("../../utils/HttpStatus");
+const mongoose_1 = __importDefault(require("mongoose"));
 class DatingController {
     constructor(_datingUseCase) {
         this._datingUseCase = _datingUseCase;
@@ -127,13 +131,13 @@ class DatingController {
                 const { userId } = req.body;
                 // console.log(userId);
                 if (!userId) {
-                    return res.status(400).json({ error: 'User ID is required' });
+                    return res.status(HttpStatus_1.HttpStatus.BAD_REQUEST).json({ error: 'User ID is required' });
                 }
                 const userSettings = yield this._datingUseCase.getUserSettings(userId);
                 if (!userSettings) {
                     return res.status(HttpStatus_1.HttpStatus.NOT_FOUND).json({ error: 'User not found' });
                 }
-                res.status(200).json({ data: userSettings });
+                res.status(HttpStatus_1.HttpStatus.OK).json({ data: userSettings });
             }
             catch (error) {
                 console.error("Error fetching user settings:", error);
@@ -147,18 +151,87 @@ class DatingController {
                 const { userId } = req.body;
                 console.log(userId, "lop");
                 if (!userId) {
-                    return res.status(400).json({ error: "User ID is required" });
+                    return res.status(HttpStatus_1.HttpStatus.BAD_REQUEST).json({ error: "User ID is required" });
                 }
                 const formData = yield this._datingUseCase.getDatingTab1Details(userId);
                 if (!formData) {
-                    return res.status(200).json({ formData });
+                    return res.status(HttpStatus_1.HttpStatus.OK).json({ formData });
                     // return res.status(HttpStatus.NOT_FOUND).json({ error: "User not found" });
                 }
-                return res.status(200).json({ formData });
+                return res.status(HttpStatus_1.HttpStatus.OK).json({ formData });
             }
             catch (error) {
                 console.error("Error fetching dating tab 1 details:", error);
                 return res.status(HttpStatus_1.HttpStatus.INTERNAL_SERVER_ERROR).json({ error: "Internal Server Error" });
+            }
+        });
+    }
+    adminDeleteRecord(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { id } = req.body;
+                if (!id) {
+                    return res.status(HttpStatus_1.HttpStatus.BAD_REQUEST).json({ error: "id is required" });
+                }
+                yield this._datingUseCase.adminDeleteRecord(id);
+                return res.json({});
+            }
+            catch (error) {
+                console.error('error in admin delete record');
+                return res.status(HttpStatus_1.HttpStatus.INTERNAL_SERVER_ERROR).json({ error: "internal server errro" });
+            }
+        });
+    }
+    deleteComment(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { commentId } = req.body;
+                if (!commentId) {
+                    return res.status(HttpStatus_1.HttpStatus.BAD_REQUEST).json({ error: "id is required" });
+                }
+                yield this._datingUseCase.deleteComment(commentId);
+                res.status(HttpStatus_1.HttpStatus.OK).json({ success: true });
+            }
+            catch (error) {
+                console.error('error in admin delete record');
+                return res.status(HttpStatus_1.HttpStatus.INTERNAL_SERVER_ERROR).json({ error: "internal server errro" });
+            }
+        });
+    }
+    deletePost(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { postId } = req.body;
+                if (!postId) {
+                    return res.status(HttpStatus_1.HttpStatus.BAD_REQUEST).json({ error: "id is required" });
+                }
+                yield this._datingUseCase.deletePost(postId);
+                res.status(HttpStatus_1.HttpStatus.OK).json({ success: true });
+            }
+            catch (error) {
+                console.error('error in admin delete record');
+                return res.status(HttpStatus_1.HttpStatus.INTERNAL_SERVER_ERROR).json({ error: "internal server errro" });
+            }
+        });
+    }
+    fetchPostComment(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                console.log(req.body);
+                const { postId } = req.body;
+                if (!postId) {
+                    return res.status(HttpStatus_1.HttpStatus.BAD_REQUEST).json({ error: "id is required" });
+                }
+                // Validate the postId format before proceeding
+                if (!mongoose_1.default.Types.ObjectId.isValid(postId)) {
+                    return res.status(HttpStatus_1.HttpStatus.BAD_REQUEST).json({ error: "Invalid postId format" });
+                }
+                const formattedComments = yield this._datingUseCase.fetchPostComment(postId);
+                res.status(HttpStatus_1.HttpStatus.OK).json({ comments: formattedComments });
+            }
+            catch (error) {
+                console.error('Error fetching post comments:', error);
+                return res.status(HttpStatus_1.HttpStatus.INTERNAL_SERVER_ERROR).json({ error: "Internal server error" });
             }
         });
     }

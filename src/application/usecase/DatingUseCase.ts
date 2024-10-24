@@ -12,6 +12,13 @@ export interface IDatingUseCase {
     updateUserPreferences(userId: string, maximumAge: number, profileVisibility: boolean, interestedGender: string): Promise<any>;
     getUserSettings(userId: string): Promise<any>;
     getDatingTab1Details(userId: string): Promise<any>;
+    adminDeleteRecord(id: string): Promise<void>
+    deleteComment(commentId: string): Promise<void>
+    deletePost(postId: string): Promise<void>
+    fetchPostComment(postId: string): Promise<any>
+    executed(content: string, userId: string, postId: string): Promise<any>;
+
+
 }
 
 export class DatingUseCase implements IDatingUseCase {
@@ -146,4 +153,89 @@ export class DatingUseCase implements IDatingUseCase {
             throw new Error("Failed to get dating tab 1 details");
         }
     }
+    async adminDeleteRecord(id: string): Promise<any> {
+        try {
+            await this._repository.findReportById(id)
+        } catch (error) {
+            console.error("Error fetching adminDeleteRecord:", error);
+            throw new Error("Failed to get adminDeleteRecord");
+        }
+    }
+    async deleteComment(commentId: string): Promise<void> {
+        try {
+            await this._repository.deleteComment(commentId)
+        } catch (error) {
+            console.error("Error fetching adminDeleteRecord:", error);
+            throw new Error("Failed to get adminDeleteRecord");
+        }
+    }
+    async deletePost(postId: string): Promise<void> {
+        try {
+            await this._repository.deletePost(postId)
+        } catch (error) {
+            console.error("Error fetching adminDeleteRecord:", error);
+            throw new Error("Failed to get adminDeleteRecord");
+        }
+    }
+    async fetchPostComment(postId: string): Promise<any> {
+        try {
+            console.log(postId);
+
+            const formattedComments = await this._repository.fetchPostComment(postId)
+            return formattedComments
+        } catch (error) {
+            console.error("Error fetching adminDeleteRecord:", error);
+            throw new Error("Failed to get adminDeleteRecord");
+        }
+    }
+   
+    async executed(content: string, userId: string, postId: string): Promise<any> {
+        if (!content || !userId || !postId) {
+            throw new Error("Content, userId, and postId are required");
+        }
+
+        const user = await this._repository.findUser(userId);
+        if (!user) {
+            throw new Error("User not found");
+        }
+
+        const postDetails = await this._repository.findPostById(postId);
+        if (!postDetails) {
+            throw new Error("Post not found");
+        }
+
+        const newComment = await this._repository.saveComment({
+            userId,
+            postId,
+            content,
+            replies: []
+        });
+
+        const message = `${user.username} commented: ${content}`;
+        await this._repository.createNotification({
+            user: postDetails.userId,
+            interactorId: userId,
+            type: 'comment',
+            message: message
+        });
+
+        const repliesWithUserData = await this._repository.getRepliesWithUserData(newComment._id);
+
+        const formattedReplies = repliesWithUserData.map((reply: any) => ({
+            _id: reply.replies._id,
+            content: reply.replies.content,
+            createdAt: reply.replies.createdAt,
+            avatar: reply.replies.author.profilePicture,
+            author: reply.replies.author.username
+        }));
+
+        return {
+            _id: newComment._id,
+            content: newComment.content,
+            avatar: user.profilePicture,
+            author: user.username,
+            replies: formattedReplies
+        };
+    }
+
 }

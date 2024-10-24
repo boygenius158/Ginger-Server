@@ -7,4 +7,15 @@ export interface IDatingRepository {
     updateProfile(userId: string, formData: { name: string, age: number, bio: string, gender: string }): Promise<any>;
     createProfile(userId: string, formData: { name: string, age: number, bio: string, gender: string }): Promise<any>;
     saveUser(user: any): Promise<any>;
+    findReportById(id: string): Promise<void>
+    deleteComment(commentId: string): Promise<void>
+    deletePost(postId: string): Promise<void>
+    fetchPostComment(postId: string): Promise<any>
+    findUser(userId: string): Promise<any>;
+    findPostById(postId: string): Promise<any>;
+    saveComment(commentData: any): Promise<any>;
+    createNotification(notificationData: any): Promise<any>;
+    getRepliesWithUserData(commentId: string): Promise<any>;
+
+
 }

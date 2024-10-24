@@ -1,5 +1,11 @@
+import mongoose from "mongoose";
 import { IDatingRepository } from "../../application/interface/IDatingRepository";
+import CommentModel from "../database/model/CommentModel";
 import DatingProfile from "../database/model/DatingProfileMode";
+import { PostModel } from "../database/model/PostModel";
+import Report from "../database/model/ReportModel";
+import { Notification } from "../database/model/NotificationModel";
+import UserModel from "../database/model/UserModel";
 
 // export interface IDatingRepository {
 //     swipeProfiles(userId: string, maximumAge: number, interestedGender: string): Promise<any>;
@@ -11,7 +17,15 @@ import DatingProfile from "../database/model/DatingProfileMode";
 //     createProfile(userId: string, formData: { name: string, age: number, bio: string, gender: string }): Promise<any>;
 //     saveUser(user: any): Promise<any>;
 // }
-
+interface Reply {
+    _id: mongoose.Types.ObjectId;
+    content: string;
+    createdAt: Date;
+    author: {
+        profilePicture: string;
+        username: string;
+    };
+}
 export class DatingRepository implements IDatingRepository {
     async swipeProfiles(userId: string, maximumAge: number, interestedGender: string): Promise<any> {
         console.log(userId, maximumAge, interestedGender, "maximumage");
@@ -135,4 +149,176 @@ export class DatingRepository implements IDatingRepository {
             throw new Error("Failed to save user. Please try again later.");
         }
     }
+    async findReportById(id: string): Promise<void> {
+        try {
+            await Report.findByIdAndDelete(id)
+        } catch (error) {
+            console.error("Error saving user:", error);
+            throw new Error("Failed to save user. Please try again later.");
+        }
+    }
+    async deleteComment(commentId: string): Promise<void> {
+        try {
+            await CommentModel.findByIdAndDelete(commentId)
+        } catch (error) {
+            console.error("Error saving user:", error);
+            throw new Error("Failed to save user. Please try again later.");
+        }
+    }
+    async deletePost(postId: string): Promise<void> {
+        try {
+            await PostModel.findByIdAndDelete(postId)
+
+        } catch (error) {
+            console.error("Error delete post:", error);
+            throw new Error("Failed to delete post. Please try again later.");
+        }
+    }
+
+    async fetchPostComment(postId: string): Promise<any> {
+        
+
+        try {
+            const comments = await CommentModel.aggregate([
+                {
+                    $match: { postId: new mongoose.Types.ObjectId(postId) }
+                },
+                {
+                    $lookup: {
+                        from: 'users',
+                        localField: 'userId',
+                        foreignField: '_id',
+                        as: 'user'
+                    }
+                },
+                { $unwind: '$user' },
+                {
+
+                    $lookup: {
+                        from: 'users',
+                        localField: 'replies.userId',
+                        foreignField: '_id',
+                        as: 'replyUser'
+                    }
+                },
+                {
+                    $addFields: {
+
+                        replies: {
+                            $map: {
+                                input: '$replies',
+                                as: 'reply',
+                                in: {
+                                    _id: '$$reply._id',
+                                    content: '$$reply.content',
+                                    createdAt: '$$reply.createdAt',
+                                    userId: '$$reply.userId',
+
+                                    author: {
+                                        $arrayElemAt: [
+                                            {
+                                                $filter: {
+                                                    input: '$replyUser',
+                                                    as: 'ru',
+                                                    cond: { $eq: ['$$ru._id', '$$reply.userId'] }
+                                                }
+                                            }, 0
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+
+                    $project: {
+                        _id: 1,
+                        content: 1,
+                        'user.profilePicture': 1,
+                        'user.username': 1,
+                        replies: {
+                            _id: 1,
+                            content: 1,
+                            createdAt: 1,
+                            'author.profilePicture': '$replies.author.profilePicture',
+                            'author.username': '$replies.author.username'
+                        }
+                    }
+                }
+            ]);
+
+            const formattedComments = comments.map(comment => ({
+                _id: comment._id,
+                content: comment.content,
+                avatar: comment.user.profilePicture,
+                author: comment.user.username,
+                replies: comment.replies.map((reply: Reply) => ({
+                    _id: reply._id,
+                    content: reply.content,
+                    createdAt: reply.createdAt,
+                    avatar: reply.author.profilePicture,
+                    author: reply.author.username
+                }))
+            }));
+            console.log(formattedComments);
+
+            return formattedComments
+        } catch (error) {
+            console.log('Error fetching comments:', error);
+            throw new Error
+        }
+    }
+    async findUser(userId: string): Promise<any> {
+        return await UserModel.findById(userId);
+    }
+
+    async findPostById(postId: string): Promise<any> {
+        return await PostModel.findById(postId);
+    }
+
+    async saveComment(commentData: any): Promise<any> {
+        const comment = new CommentModel(commentData);
+        return await comment.save();
+    }
+
+    async createNotification(notificationData: any): Promise<any> {
+        const notification = new Notification(notificationData);
+        return await notification.save();
+    }
+
+    async getRepliesWithUserData(commentId: string): Promise<any> {
+        return await CommentModel.aggregate([
+            {
+                $match: { _id: new mongoose.Types.ObjectId(commentId) }
+            },
+            {
+                $unwind: "$replies"
+            },
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'replies.userId',
+                    foreignField: '_id',
+                    as: 'replyUser'
+                }
+            },
+            {
+                $addFields: {
+                    "replies.author": { $arrayElemAt: ["$replyUser", 0] }
+                }
+            },
+            {
+                $project: {
+                    "replies._id": 1,
+                    "replies.content": 1,
+                    "replies.createdAt": 1,
+                    "replies.author.profilePicture": "$replies.author.profilePicture",
+                    "replies.author.username": "$replies.author.username"
+                }
+            }
+        ]);
+    }
+    
 }
+

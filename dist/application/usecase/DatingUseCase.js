@@ -156,5 +156,51 @@ class DatingUseCase {
             }
         });
     }
+    adminDeleteRecord(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                yield this._repository.findReportById(id);
+            }
+            catch (error) {
+                console.error("Error fetching adminDeleteRecord:", error);
+                throw new Error("Failed to get adminDeleteRecord");
+            }
+        });
+    }
+    deleteComment(commentId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                yield this._repository.deleteComment(commentId);
+            }
+            catch (error) {
+                console.error("Error fetching adminDeleteRecord:", error);
+                throw new Error("Failed to get adminDeleteRecord");
+            }
+        });
+    }
+    deletePost(postId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                yield this._repository.deletePost(postId);
+            }
+            catch (error) {
+                console.error("Error fetching adminDeleteRecord:", error);
+                throw new Error("Failed to get adminDeleteRecord");
+            }
+        });
+    }
+    fetchPostComment(postId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                console.log(postId);
+                const formattedComments = yield this._repository.fetchPostComment(postId);
+                return formattedComments;
+            }
+            catch (error) {
+                console.error("Error fetching post comments:", error);
+                throw new Error("Failed to fetch post comments");
+            }
+        });
+    }
 }
 exports.DatingUseCase = DatingUseCase;

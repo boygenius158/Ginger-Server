@@ -13,17 +13,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DatingRepository = void 0;
+const mongoose_1 = __importDefault(require("mongoose"));
+const CommentModel_1 = __importDefault(require("../database/model/CommentModel"));
 const DatingProfileMode_1 = __importDefault(require("../database/model/DatingProfileMode"));
-// export interface IDatingRepository {
-//     swipeProfiles(userId: string, maximumAge: number, interestedGender: string): Promise<any>;
-//     updateProfileImages(userId: string, url: string[]): Promise<any>;
-//     fetchMatches(userId: string): Promise<any>;
-//     getUserDatingProfile(userId: string): Promise<any>;
-//     findUserById(userId: string): Promise<any>;
-//     updateProfile(userId: string, formData: { name: string, age: number, bio: string, gender: string }): Promise<any>;
-//     createProfile(userId: string, formData: { name: string, age: number, bio: string, gender: string }): Promise<any>;
-//     saveUser(user: any): Promise<any>;
-// }
+const PostModel_1 = require("../database/model/PostModel");
+const ReportModel_1 = __importDefault(require("../database/model/ReportModel"));
 class DatingRepository {
     swipeProfiles(userId, maximumAge, interestedGender) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -158,6 +152,128 @@ class DatingRepository {
             catch (error) {
                 console.error("Error saving user:", error);
                 throw new Error("Failed to save user. Please try again later.");
+            }
+        });
+    }
+    findReportById(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                yield ReportModel_1.default.findByIdAndDelete(id);
+            }
+            catch (error) {
+                console.error("Error saving user:", error);
+                throw new Error("Failed to save user. Please try again later.");
+            }
+        });
+    }
+    deleteComment(commentId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                yield CommentModel_1.default.findByIdAndDelete(commentId);
+            }
+            catch (error) {
+                console.error("Error saving user:", error);
+                throw new Error("Failed to save user. Please try again later.");
+            }
+        });
+    }
+    deletePost(postId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                yield PostModel_1.PostModel.findByIdAndDelete(postId);
+            }
+            catch (error) {
+                console.error("Error delete post:", error);
+                throw new Error("Failed to delete post. Please try again later.");
+            }
+        });
+    }
+    fetchPostComment(postId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const comments = yield CommentModel_1.default.aggregate([
+                    {
+                        $match: { postId: new mongoose_1.default.Types.ObjectId(postId) }
+                    },
+                    {
+                        $lookup: {
+                            from: 'users',
+                            localField: 'userId',
+                            foreignField: '_id',
+                            as: 'user'
+                        }
+                    },
+                    { $unwind: '$user' },
+                    {
+                        $lookup: {
+                            from: 'users',
+                            localField: 'replies.userId',
+                            foreignField: '_id',
+                            as: 'replyUser'
+                        }
+                    },
+                    {
+                        $addFields: {
+                            replies: {
+                                $map: {
+                                    input: '$replies',
+                                    as: 'reply',
+                                    in: {
+                                        _id: '$$reply._id',
+                                        content: '$$reply.content',
+                                        createdAt: '$$reply.createdAt',
+                                        userId: '$$reply.userId',
+                                        author: {
+                                            $arrayElemAt: [
+                                                {
+                                                    $filter: {
+                                                        input: '$replyUser',
+                                                        as: 'ru',
+                                                        cond: { $eq: ['$$ru._id', '$$reply.userId'] }
+                                                    }
+                                                }, 0
+                                            ]
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    {
+                        $project: {
+                            _id: 1,
+                            content: 1,
+                            'user.profilePicture': 1,
+                            'user.username': 1,
+                            replies: {
+                                _id: 1,
+                                content: 1,
+                                createdAt: 1,
+                                'author.profilePicture': '$replies.author.profilePicture',
+                                'author.username': '$replies.author.username'
+                            }
+                        }
+                    }
+                ]);
+                const formattedComments = comments.map(comment => ({
+                    _id: comment._id,
+                    content: comment.content,
+                    avatar: comment.user.profilePicture,
+                    author: comment.user.username,
+                    replies: comment.replies.map((reply) => ({
+                        _id: reply._id,
+                        content: reply.content,
+                        createdAt: reply.createdAt,
+                        avatar: reply.author.profilePicture,
+                        author: reply.author.username
+                    }))
+                }));
+                console.log(formattedComments);
+                return formattedComments;
+            }
+            catch (error) {
+                console.log('Error fetching comments:', error);
+                throw new Error;
             }
         });
     }
