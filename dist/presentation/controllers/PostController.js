@@ -252,7 +252,7 @@ class MediaController {
                 const { userId } = req.body;
                 const role = yield this._mediaUseCase.getPremiumStatus(userId);
                 if (!role) {
-                    return res.status(404).json({ error: 'User not found' });
+                    return res.status(HttpStatus_1.HttpStatus.NOT_FOUND).json({ error: 'User not found' });
                 }
                 res.status(HttpStatus_1.HttpStatus.OK).json({ role });
             }

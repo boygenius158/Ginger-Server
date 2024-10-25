@@ -25,4 +25,9 @@ router.post('/api/admin/delete-record', verifyJWT_1.default, datingController.ad
 router.post('/api/user/delete-comment', verifyJWT_1.default, datingController.deleteComment.bind(datingController));
 router.post('/api/user/delete-post', verifyJWT_1.default, datingController.deletePost.bind(datingController));
 router.post('/api/user/fetch-post-comment', verifyJWT_1.default, datingController.fetchPostComment.bind(datingController));
+router.post('/api/user/user-posted-comment', verifyJWT_1.default, datingController.userPostedComment.bind(datingController));
+router.post('/api/user/likedUserDetails', verifyJWT_1.default, datingController.likedUserDetails.bind(datingController));
+router.post('/api/user/delete-commentreply', verifyJWT_1.default, datingController.deleteCommentReply.bind(datingController));
+router.post('/api/user/post-already-reported', verifyJWT_1.default, datingController.postAlreadyReported.bind(datingController));
+router.post('/api/user/user-posted-reply', verifyJWT_1.default, datingController.userPostedReply.bind(datingController));
 exports.default = router;

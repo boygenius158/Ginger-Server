@@ -18,6 +18,8 @@ const CommentModel_1 = __importDefault(require("../database/model/CommentModel")
 const DatingProfileMode_1 = __importDefault(require("../database/model/DatingProfileMode"));
 const PostModel_1 = require("../database/model/PostModel");
 const ReportModel_1 = __importDefault(require("../database/model/ReportModel"));
+const NotificationModel_1 = require("../database/model/NotificationModel");
+const UserModel_1 = __importDefault(require("../database/model/UserModel"));
 class DatingRepository {
     swipeProfiles(userId, maximumAge, interestedGender) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -274,6 +276,145 @@ class DatingRepository {
             catch (error) {
                 console.log('Error fetching comments:', error);
                 throw new Error;
+            }
+        });
+    }
+    findUser(userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield UserModel_1.default.findById(userId);
+        });
+    }
+    findPostById(postId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield PostModel_1.PostModel.findById(postId);
+        });
+    }
+    saveComment(commentData) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const comment = new CommentModel_1.default(commentData);
+            return yield comment.save();
+        });
+    }
+    createNotification(notificationData) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const notification = new NotificationModel_1.Notification(notificationData);
+            return yield notification.save();
+        });
+    }
+    getRepliesWithUserData(commentId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield CommentModel_1.default.aggregate([
+                {
+                    $match: { _id: new mongoose_1.default.Types.ObjectId(commentId) }
+                },
+                {
+                    $unwind: "$replies"
+                },
+                {
+                    $lookup: {
+                        from: 'users',
+                        localField: 'replies.userId',
+                        foreignField: '_id',
+                        as: 'replyUser'
+                    }
+                },
+                {
+                    $addFields: {
+                        "replies.author": { $arrayElemAt: ["$replyUser", 0] }
+                    }
+                },
+                {
+                    $project: {
+                        "replies._id": 1,
+                        "replies.content": 1,
+                        "replies.createdAt": 1,
+                        "replies.author.profilePicture": "$replies.author.profilePicture",
+                        "replies.author.username": "$replies.author.username"
+                    }
+                }
+            ]);
+        });
+    }
+    deleteCommentReply(parentCommentId, comment) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                // Update the document and remove the reply
+                const result = yield CommentModel_1.default.updateOne({ _id: parentCommentId }, {
+                    $pull: {
+                        replies: { _id: comment._id }
+                    }
+                });
+                return result;
+            }
+            catch (error) {
+            }
+        });
+    }
+    likedUserDetails(likedUsersId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const LikedUsers = yield UserModel_1.default.find({
+                    _id: { $in: likedUsersId }
+                });
+                return LikedUsers;
+            }
+            catch (error) {
+            }
+        });
+    }
+    postAlreadyReported(postId, victimUser) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const existingReport = yield ReportModel_1.default.findOne({
+                    postId: postId,
+                    reporterId: victimUser
+                });
+                return existingReport;
+            }
+            catch (error) {
+            }
+        });
+    }
+    userPostedReply(content, userId, postId, parentId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const user = yield UserModel_1.default.findById(userId);
+                if (!user)
+                    throw new Error;
+                const objectIdParentId = new mongoose_1.default.Types.ObjectId(parentId);
+                // Fetch the parent comment using the parentId
+                const parentComment = yield CommentModel_1.default.findById(objectIdParentId);
+                if (!parentComment) {
+                    console.log("Parent comment not found");
+                    throw new Error;
+                }
+                // Create the new reply object
+                const reply = {
+                    _id: new mongoose_1.default.Types.ObjectId(), // Generate a unique _id for the reply
+                    userId,
+                    content,
+                    createdAt: new Date(),
+                    author: {
+                        profilePicture: user.profilePicture, // Attach user's profile picture
+                        username: user.username // Attach user's username
+                    }
+                };
+                // Push the reply into the replies array of the parent comment
+                parentComment.replies.push(reply);
+                // Save the updated parent comment with the new reply
+                yield parentComment.save();
+                // Format the reply for the response
+                const formattedReply = {
+                    _id: reply._id,
+                    content: reply.content,
+                    createdAt: reply.createdAt,
+                    avatar: reply.author.profilePicture, // Include avatar in the response
+                    author: reply.author.username // Include author username in the response
+                };
+                // Send the formatted reply back to the frontend
+                return formattedReply;
+            }
+            catch (error) {
             }
         });
     }

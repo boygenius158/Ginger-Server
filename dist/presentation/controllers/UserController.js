@@ -131,7 +131,7 @@ class authController {
                     return res.json({ success: true, role: userRole });
                 }
                 else {
-                    return res.status(403).json({ success: false, message: "User does not have a role" });
+                    return res.status(HttpStatus_1.HttpStatus.FORBIDDEN).json({ success: false, message: "User does not have a role" });
                 }
             }
             catch (error) {
@@ -188,7 +188,7 @@ class authController {
             try {
                 const { url, userId } = req.body;
                 const updatedUser = yield this._authUsecase.uploadProfilePicture(userId, url);
-                res.status(200).json({ success: true });
+                res.status(HttpStatus_1.HttpStatus.OK).json({ success: true });
             }
             catch (error) {
                 console.error("Error uploading profile picture:", error);

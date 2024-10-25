@@ -197,8 +197,99 @@ class DatingUseCase {
                 return formattedComments;
             }
             catch (error) {
-                console.error("Error fetching post comments:", error);
-                throw new Error("Failed to fetch post comments");
+                console.error("Error fetching adminDeleteRecord:", error);
+                throw new Error("Failed to get adminDeleteRecord");
+            }
+        });
+    }
+    executed(content, userId, postId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!content || !userId || !postId) {
+                throw new Error("Content, userId, and postId are required");
+            }
+            const user = yield this._repository.findUser(userId);
+            if (!user) {
+                throw new Error("User not found");
+            }
+            const postDetails = yield this._repository.findPostById(postId);
+            if (!postDetails) {
+                throw new Error("Post not found");
+            }
+            const newComment = yield this._repository.saveComment({
+                userId,
+                postId,
+                content,
+                replies: []
+            });
+            const message = `${user.username} commented: ${content}`;
+            yield this._repository.createNotification({
+                user: postDetails.userId,
+                interactorId: userId,
+                type: 'comment',
+                message: message
+            });
+            const repliesWithUserData = yield this._repository.getRepliesWithUserData(newComment._id);
+            const formattedReplies = repliesWithUserData.map((reply) => ({
+                _id: reply.replies._id,
+                content: reply.replies.content,
+                createdAt: reply.replies.createdAt,
+                avatar: reply.replies.author.profilePicture,
+                author: reply.replies.author.username
+            }));
+            return {
+                _id: newComment._id,
+                content: newComment.content,
+                avatar: user.profilePicture,
+                author: user.username,
+                replies: formattedReplies
+            };
+        });
+    }
+    deleteCommentReply(parentCommentId, comment) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const result = yield this._repository.deleteCommentReply(parentCommentId, comment);
+                return result;
+            }
+            catch (error) {
+                console.error("Error fetching adminDeleteRecord:", error);
+                throw new Error("Failed to get adminDeleteRecord");
+            }
+        });
+    }
+    likedUserDetails(likedUsersId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const LikedUsers = yield this._repository.likedUserDetails(likedUsersId);
+                return LikedUsers;
+            }
+            catch (error) {
+                console.error("Error fetching adminDeleteRecord:", error);
+                throw new Error("Failed to get adminDeleteRecord");
+            }
+        });
+    }
+    postAlreadyReported(postId, victimUser) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const existingReport = yield this._repository.postAlreadyReported(postId, victimUser);
+                return existingReport;
+            }
+            catch (error) {
+                console.error("Error fetching adminDeleteRecord:", error);
+                throw new Error("Failed to get adminDeleteRecord");
+            }
+        });
+    }
+    userPostedReply(content, userId, postId, parentId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const formattedReply = yield this._repository.userPostedReply(content, userId, postId, parentId);
+                return formattedReply;
+            }
+            catch (error) {
+                console.error("Error fetching adminDeleteRecord:", error);
+                throw new Error("Failed to get adminDeleteRecord");
             }
         });
     }

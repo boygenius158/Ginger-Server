@@ -235,5 +235,79 @@ class DatingController {
             }
         });
     }
+    userPostedComment(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { content, userId, postId } = req.body;
+                const response = yield this._datingUseCase.executed(content, userId, postId);
+                res.status(HttpStatus_1.HttpStatus.OK).json(response);
+            }
+            catch (error) {
+                console.error('Error fetching post comments:', error);
+                return res.status(HttpStatus_1.HttpStatus.INTERNAL_SERVER_ERROR).json({ error: "Internal server error" });
+            }
+        });
+    }
+    deleteCommentReply(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { parentCommentId, comment } = req.body;
+                const result = yield this._datingUseCase.deleteCommentReply(parentCommentId, comment);
+                if (result.modifiedCount === 0) {
+                    return res.status(HttpStatus_1.HttpStatus.NOT_FOUND).json({ message: 'Comment or reply not found' });
+                }
+                return res.status(HttpStatus_1.HttpStatus.OK).json({ message: 'Reply deleted successfully' });
+            }
+            catch (error) {
+                console.error("Error occurred:", error);
+                res.status(HttpStatus_1.HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: "Internal Server Error" });
+            }
+        });
+    }
+    likedUserDetails(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const likedUsersId = req.body.likes;
+                const LikedUsers = yield this._datingUseCase.likedUserDetails(likedUsersId);
+                // Report does not exist
+                return res.json({ LikedUsers });
+            }
+            catch (error) {
+                console.error("Error occurred:", error);
+                res.status(HttpStatus_1.HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: "Internal Server Error" });
+            }
+        });
+    }
+    postAlreadyReported(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { postId, victimUser } = req.body;
+                const existingReport = yield this._datingUseCase.postAlreadyReported(postId, victimUser);
+                if (existingReport) {
+                    // Report already exists
+                    return res.json({ alreadyReported: true });
+                }
+                // Report does not exist
+                return res.json({ alreadyReported: false });
+            }
+            catch (error) {
+                console.error("Error occurred:", error);
+                res.status(HttpStatus_1.HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: "Internal Server Error" });
+            }
+        });
+    }
+    userPostedReply(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { content, userId, postId, parentId } = req.body;
+                const formattedReply = yield this._datingUseCase.userPostedReply(content, userId, postId, parentId);
+                return res.json(formattedReply);
+            }
+            catch (error) {
+                console.error("Error occurred:", error);
+                res.status(HttpStatus_1.HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: "Internal Server Error" });
+            }
+        });
+    }
 }
 exports.DatingController = DatingController;
