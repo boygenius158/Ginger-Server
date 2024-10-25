@@ -260,7 +260,7 @@ export class DatingController {
     async postAlreadyReported(req: Request, res: Response): Promise<any> {
         try {
             const { postId, victimUser } = req.body;
-            const existingReport = await this._datingUseCase.postAlreadyReported(postId,victimUser)
+            const existingReport = await this._datingUseCase.postAlreadyReported(postId, victimUser)
             if (existingReport) {
                 // Report already exists
                 return res.json({ alreadyReported: true });
@@ -268,6 +268,18 @@ export class DatingController {
 
             // Report does not exist
             return res.json({ alreadyReported: false });
+        } catch (error) {
+            console.error("Error occurred:", error);
+            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: "Internal Server Error" });
+        }
+    }
+
+    async userPostedReply(req: Request, res: Response): Promise<any> {
+        try {
+            const { content, userId, postId, parentId } = req.body;
+            const formattedReply = await this._datingUseCase.userPostedReply(content, userId, postId, parentId)
+            return res.json(formattedReply);
+
         } catch (error) {
             console.error("Error occurred:", error);
             res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: "Internal Server Error" });

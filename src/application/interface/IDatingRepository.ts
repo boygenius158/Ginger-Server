@@ -19,6 +19,7 @@ export interface IDatingRepository {
     deleteCommentReply(parentCommentId: string, comment: any): Promise<any>
     likedUserDetails(likedUsersId: any): Promise<any>
     postAlreadyReported(postId: any, victimUser: any): Promise<any>
+    userPostedReply(content: any, userId: any, postId: any, parentId: any): Promise<any>
 
 
 }

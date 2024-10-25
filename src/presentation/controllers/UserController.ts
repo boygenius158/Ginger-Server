@@ -117,7 +117,7 @@ export class authController {
             if (userRole) {
                 return res.json({ success: true, role: userRole });
             } else {
-                return res.status(403).json({ success: false, message: "User does not have a role" });
+                return res.status(HttpStatus.FORBIDDEN).json({ success: false, message: "User does not have a role" });
             }
         } catch (error) {
             console.log(error);
@@ -168,7 +168,7 @@ export class authController {
         try {
             const { url, userId } = req.body;
             const updatedUser = await this._authUsecase.uploadProfilePicture(userId, url);
-            res.status(200).json({ success:true });
+            res.status(HttpStatus.OK).json({ success:true });
         } catch (error) {
             console.error("Error uploading profile picture:", error);
             res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: "Internal Server Error" });

@@ -20,6 +20,7 @@ export interface IDatingUseCase {
     deleteCommentReply(parentCommentId: string, comment: any): Promise<any>
     likedUserDetails(likedUsersId: any): Promise<any>
     postAlreadyReported(postId: any, victimUser: any): Promise<any>
+    userPostedReply(content:any, userId:any, postId:any, parentId:any): Promise<any>
 
 
 }
@@ -260,8 +261,17 @@ export class DatingUseCase implements IDatingUseCase {
     }
     async postAlreadyReported(postId: any, victimUser: any): Promise<any> {
         try {
-            const existingReport = await this._repository.postAlreadyReported(postId,victimUser)
+            const existingReport = await this._repository.postAlreadyReported(postId, victimUser)
             return existingReport
+        } catch (error) {
+            console.error("Error fetching adminDeleteRecord:", error);
+            throw new Error("Failed to get adminDeleteRecord");
+        }
+    }
+    async userPostedReply(content: any, userId: any, postId: any, parentId: any): Promise<any> {
+        try {
+            const formattedReply = await this._repository.userPostedReply(content, userId, postId, parentId)
+            return formattedReply
         } catch (error) {
             console.error("Error fetching adminDeleteRecord:", error);
             throw new Error("Failed to get adminDeleteRecord");

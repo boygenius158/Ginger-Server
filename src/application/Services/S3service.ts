@@ -191,57 +191,62 @@ router.post("/refresh-token", (req, res) => {
 
 
 
-router.post('/api/user/user-posgted-reply', async (req, res) => {
-    try {
-        console.log(req.body);
-        const { content, userId, postId, parentId } = req.body;
-        const user = await UserModel.findById(userId);
-        if (!user) return
-        // log("parentId", parentId);
-        const objectIdParentId = new mongoose.Types.ObjectId(parentId);
-        // Find the parent comment using the parentId
+// router.post('/api/user/user-posted-reply', async (req, res) => {
+//     try {
+//         // Log the incoming request body
+//         console.log(req.body);
 
-        const parentComment = await CommentModel.findById(objectIdParentId);
-        if (!parentComment) {
-            log("Parent comment not found");
-            return res.status(HttpStatus.NOT_FOUND).json({ message: 'Parent comment not found' });
-        }
+//         // Destructure the request body
+//         const { content, userId, postId, parentId } = req.body;
 
+//         // Fetch the user who is posting the reply
+//         const user = await UserModel.findById(userId);
+//         if (!user) return res.status(404).json({ message: 'User not found' });
 
-        // Fetch the user data to attach to the reply
+//         // Convert the parentId to an ObjectId
+//         const objectIdParentId = new mongoose.Types.ObjectId(parentId);
 
-        // Create the new reply with user details
-        const reply = {
-            _id: new mongoose.Types.ObjectId(), // Generate a unique _id for the reply
-            userId,
-            content,
-            createdAt: new Date(),
-            author: {
-                profilePicture: user.profilePicture, // Attach user's profile picture
-                username: user.username              // Attach user's username
-            }
-        };
+//         // Fetch the parent comment using the parentId
+//         const parentComment = await CommentModel.findById(objectIdParentId);
+//         if (!parentComment) {
+//             console.log("Parent comment not found");
+//             return res.status(404).json({ message: 'Parent comment not found' });
+//         }
 
-        // Push the reply into the replies array of the parent comment
-        parentComment.replies.push(reply);
-        await parentComment.save();
+//         // Create the new reply object
+//         const reply = {
+//             _id: new mongoose.Types.ObjectId(), // Generate a unique _id for the reply
+//             userId,
+//             content,
+//             createdAt: new Date(),
+//             author: {
+//                 profilePicture: user.profilePicture, // Attach user's profile picture
+//                 username: user.username              // Attach user's username
+//             }
+//         };
 
-        // Format the response with avatar and author details
-        const formattedReply = {
-            _id: reply._id,
-            content: reply.content,
-            createdAt: reply.createdAt,
-            avatar: reply.author.profilePicture, // Include avatar in the response
-            author: reply.author.username        // Include author username in the response
-        };
+//         // Push the reply into the replies array of the parent comment
+//         parentComment.replies.push(reply);
 
-        // Send the formatted reply back to the frontend
-        res.json(formattedReply);
-    } catch (error) {
-        console.error('Error posting reply:', error);
-        res.status(500).json({ message: 'Error posting reply' });
-    }
-});
+//         // Save the updated parent comment with the new reply
+//         await parentComment.save();
+
+//         // Format the reply for the response
+//         const formattedReply = {
+//             _id: reply._id,
+//             content: reply.content,
+//             createdAt: reply.createdAt,
+//             avatar: reply.author.profilePicture, // Include avatar in the response
+//             author: reply.author.username        // Include author username in the response
+//         };
+
+//         // Send the formatted reply back to the frontend
+//         res.json(formattedReply);
+//     } catch (error) {
+//         console.error('Error posting reply:', error);
+//         res.status(500).json({ message: 'Error posting reply' });
+//     }
+// });
 
 // router.post('/api/user/user-posted-comment', async (req, res) => {
 //     try {

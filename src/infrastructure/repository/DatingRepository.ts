@@ -362,6 +362,54 @@ export class DatingRepository implements IDatingRepository {
         }
     }
 
+    async userPostedReply(content: any, userId: any, postId: any, parentId: any): Promise<any> {
+        try {
+            const user = await UserModel.findById(userId);
+            if (!user) throw new Error
+            const objectIdParentId = new mongoose.Types.ObjectId(parentId);
+
+            // Fetch the parent comment using the parentId
+            const parentComment = await CommentModel.findById(objectIdParentId);
+            if (!parentComment) {
+                console.log("Parent comment not found");
+                throw new Error
+            }
+
+            // Create the new reply object
+            const reply = {
+                _id: new mongoose.Types.ObjectId(), // Generate a unique _id for the reply
+                userId,
+                content,
+                createdAt: new Date(),
+                author: {
+                    profilePicture: user.profilePicture, // Attach user's profile picture
+                    username: user.username              // Attach user's username
+                }
+            };
+
+            // Push the reply into the replies array of the parent comment
+            parentComment.replies.push(reply);
+
+            // Save the updated parent comment with the new reply
+            await parentComment.save();
+
+            // Format the reply for the response
+            const formattedReply = {
+                _id: reply._id,
+                content: reply.content,
+                createdAt: reply.createdAt,
+                avatar: reply.author.profilePicture, // Include avatar in the response
+                author: reply.author.username        // Include author username in the response
+            };
+
+            // Send the formatted reply back to the frontend
+            return formattedReply
+
+        } catch (error) {
+
+        }
+    }
+
 
 }
 
