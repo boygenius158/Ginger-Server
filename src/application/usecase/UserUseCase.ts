@@ -229,10 +229,7 @@ export class AuthUseCase implements IAuthUseCase {
     }
 
     async handlePremiumPayment(userId: string): Promise<void> {
-        const premium = new PremiumModel({
-            userId,
-            amount: 350
-        });
+        
         // await this._repository.save(premium);
         await this.updateUserRole(userId,UserRole.Premium)
     }

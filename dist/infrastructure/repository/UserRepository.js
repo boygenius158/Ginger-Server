@@ -17,6 +17,7 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const UserModel_1 = __importDefault(require("../database/model/UserModel"));
 const SearchHistoryModel_1 = __importDefault(require("../database/model/SearchHistoryModel"));
 const PostModel_1 = require("../database/model/PostModel");
+const PremiumModel_1 = require("../database/model/PremiumModel");
 const bcrypt = require('bcryptjs'); // Import bcrypt for password hashing
 class AuthRepository {
     addNewUser(user) {
@@ -311,6 +312,11 @@ class AuthRepository {
                 }
                 user.roles = role;
                 yield user.save();
+                const premium = new PremiumModel_1.PremiumModel({
+                    userId,
+                    amount: 350
+                });
+                yield premium.save();
             }
             catch (error) {
                 console.error("Error updating user roles:", error);

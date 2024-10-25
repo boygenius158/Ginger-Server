@@ -4,6 +4,7 @@ import { User, UserRole } from "../../domain/entities/User";
 import UserModel from "../database/model/UserModel";
 import ProfileSearchHistoryModel from "../database/model/SearchHistoryModel";
 import { PostModel } from "../database/model/PostModel";
+import { PremiumModel } from "../database/model/PremiumModel";
 
 const bcrypt = require('bcryptjs'); // Import bcrypt for password hashing
 
@@ -166,7 +167,7 @@ export class AuthRepository implements IAuthUserRepository {
             }
 
             // Return both in a single object
-            return { 
+            return {
                 ...userDetails.toObject(), // Spread user details into the object
                 postCount
             };
@@ -182,7 +183,7 @@ export class AuthRepository implements IAuthUserRepository {
             if (!updateUser) {
                 throw new Error("User not found");
             }
-             updateUser.profilePicture = url;
+            updateUser.profilePicture = url;
             console.log(updateUser);
 
             await updateUser.save();
@@ -284,7 +285,13 @@ export class AuthRepository implements IAuthUserRepository {
                 throw new Error('User not found');
             }
             user.roles = role
+
             await user.save()
+            const premium = new PremiumModel({
+                userId,
+                amount: 350
+            });
+            await premium.save()
         } catch (error) {
             console.error("Error updating user roles:", error);
             throw new Error("Failed to update user roles. Please try again later.");
