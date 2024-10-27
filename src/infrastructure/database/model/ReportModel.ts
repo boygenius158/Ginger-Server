@@ -4,7 +4,7 @@ import { Schema, model, Document, Types } from 'mongoose';
 interface IReport extends Document {
   reporterId: Types.ObjectId;
   postId: Types.ObjectId;
-  actionTaken: boolean; // Field to check whether admin has taken action
+  // actionTaken: boolean; // Field to check whether admin has taken action
   createdAt: Date;
 }
 
@@ -12,7 +12,7 @@ interface IReport extends Document {
 const reportSchema = new Schema<IReport>({
   reporterId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   postId: { type: Schema.Types.ObjectId, ref: 'Post', required: true },
-  actionTaken: { type: Boolean, default: false }, // Default is false, meaning no action taken yet
+  // actionTaken: { type: Boolean, default: false }, // Default is false, meaning no action taken yet
   createdAt: { type: Date, default: Date.now },
 });
 

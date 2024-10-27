@@ -15,9 +15,9 @@ export class DatingController {
         console.log("swipe profile", req.body);
 
         try {
-            const { userId, maximumAge, interestedGender } = req.body;
+            const { userId } = req.body;
 
-            const profiles = await this._datingUseCase.swipeProfiles(userId, maximumAge, interestedGender);
+            const profiles = await this._datingUseCase.swipeProfiles(userId);
             if (!profiles) {
                 return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: "An error occurred while fetching profiles" });
             }

@@ -3,7 +3,7 @@
 import { IDatingRepository } from "../interface/IDatingRepository";
 
 export interface IDatingUseCase {
-    swipeProfiles(userId: string, maximumAge: number, interestedGender: string): Promise<any>;
+    swipeProfiles(userId: string): Promise<any>;
     updateProfileImages(userId: string, url: string[]): Promise<any>;
     fetchMatches(userId: string): Promise<any>;
     getUserDatingProfile(userId: string): Promise<any>;
@@ -32,7 +32,7 @@ export class DatingUseCase implements IDatingUseCase {
         this._repository = _repository;
     }
 
-    async swipeProfiles(userId: string, maximumAge: number, interestedGender: string): Promise<any> {
+    async swipeProfiles(userId: string, ): Promise<any> {
         try {
             const datingProfile = await this._repository.getUserDatingProfile(userId);
             console.log(datingProfile.name);

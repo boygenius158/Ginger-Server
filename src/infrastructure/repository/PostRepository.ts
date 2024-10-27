@@ -18,6 +18,13 @@ export class MediaRepository implements IMediaRepository {
             console.log("ys");
             return await UserModel.aggregate([
                 {
+                    $match: {
+                        roles: {
+                            $ne: "admin"
+                        }
+                    }
+                },
+                {
                     $group: {
                         _id: "$roles",
                         count: { $sum: 1 }

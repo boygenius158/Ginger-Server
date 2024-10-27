@@ -184,6 +184,9 @@ export class DatingRepository implements IDatingRepository {
                     $match: { postId: new mongoose.Types.ObjectId(postId) }
                 },
                 {
+                    $sort: { createdAt: -1 }
+                },
+                {
                     $lookup: {
                         from: 'users',
                         localField: 'userId',

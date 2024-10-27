@@ -29,6 +29,13 @@ class MediaRepository {
                 console.log("ys");
                 return yield UserModel_1.default.aggregate([
                     {
+                        $match: {
+                            roles: {
+                                $ne: "admin"
+                            }
+                        }
+                    },
+                    {
                         $group: {
                             _id: "$roles",
                             count: { $sum: 1 }

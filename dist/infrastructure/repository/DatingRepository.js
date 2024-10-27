@@ -198,6 +198,9 @@ class DatingRepository {
                         $match: { postId: new mongoose_1.default.Types.ObjectId(postId) }
                     },
                     {
+                        $sort: { createdAt: -1 }
+                    },
+                    {
                         $lookup: {
                             from: 'users',
                             localField: 'userId',

@@ -32,7 +32,7 @@ function setupSocketIO(server) {
     const io = new socket_io_1.Server(server, {
         cors: {
             origin: 'https://gingerfrontend.vercel.app',
-            // origin: 'http://localhost:3000', 
+            // origin: 'http://localhost:3000',
             methods: ["GET", "POST"],
             allowedHeaders: ["Authorization"],
             credentials: true, // if you need to allow cookies or other credentialsddd
@@ -135,62 +135,6 @@ function setupSocketIO(server) {
                 console.error('Error handling notification:', error);
             }
         }));
-        socket.on('call', (callee, caller) => __awaiter(this, void 0, void 0, function* () {
-            console.log(caller, "calling ...");
-            const calleeSocketId = findSocketWithEmail(callee);
-            const callerSocketId = findSocketWithEmail(caller);
-            // console.log(calleeSocketId,);
-            const userdetails = yield UserService_1.default.findUserDetailsWithEmail(caller);
-            console.log(userdetails, "lop", caller);
-            io.to(calleeSocketId).emit('user_calling', userdetails);
-        }));
-        socket.on('offer', (offer, email) => {
-            console.log(socket.id, "socketid");
-            let targetSocketId = findSocketWithEmail(email);
-            console.log(targetSocketId, "email found", email);
-            io.to(targetSocketId).emit('offer', offer);
-            // socket.to()
-        });
-        socket.on('answer', (answer, email) => {
-            console.log('answer', "socketid", socket.id, 'mail', email);
-            let targetSocketId = findSocketWithEmail(email);
-            console.log(targetSocketId, "found");
-            io.to(targetSocketId).emit('answer', answer);
-        });
-        socket.on('ice-candidate', (candidate, email) => {
-            let targetSocketId = findSocketWithEmail(email);
-            io.to(targetSocketId).emit('ice-candidate', candidate);
-        });
-        socket.on('call_button_clicked', (data) => __awaiter(this, void 0, void 0, function* () {
-            console.log("hello", data.recipientEmail);
-            let targetSocketId = findSocketWithEmail(data.recipientEmail);
-            let caller = yield UserService_1.default.findUserDetailsWithEmail(data.senderEmail);
-            console.log(caller);
-            console.log(targetSocketId, "socketid");
-            io.to(targetSocketId).emit('call_notification_sent', caller);
-            // console.log(email);
-            // const userdetails = await UserService.findUserDetailsWithEmail(email)
-            // // console.log(userdetails);
-            // // io.to(targetSocketId).emit('caller_notification', userdetails) 
-            // io.to(targetSocketId).emit('caller_notification', userdetails)
-        }));
-        socket.on('rec_accepted_call', (data) => {
-            console.log(data);
-            let rec = findSocketWithEmail(data.rec);
-            let caller = findSocketWithEmail(data.caller);
-            // Generate a random UUID
-            let roomId = uuidv4();
-            io.to(rec).emit('join_room', roomId);
-            io.to(caller).emit('join_room', roomId);
-        });
-        socket.on('call_accepted', ({ caller, useremail }) => {
-            console.log(caller.email, "call accepted");
-            let targetSocketId = findSocketWithEmail(caller.email);
-            let user = findSocketWithEmail(useremail);
-            console.log(user, "09", targetSocketId);
-            io.to(targetSocketId).emit('proceed_with_call', "your target has been accepted");
-            // io.to(user).emit('proceed_with_call', "your user has been accepted")
-        });
         socket.on('onlineStatus', (recipient, sender) => {
             console.log(recipient, "onlineStatus");
             let socketFound = findSocketWithEmail(recipient);
@@ -221,30 +165,6 @@ function setupSocketIO(server) {
                 console.error(`Failed to send 'force-logout2' to socket ID: ${targetSocketId}`, error);
             }
         });
-        // socket.on('audio-chat', ({ recipientEmail, senderEmail, message, type }) => {
-        //   console.log(message, "message", type, "type");
-        //   console.log("audio chat90000", senderEmail);
-        //   let targetSocketId = findSocketWithEmail(recipientEmail);
-        //   if (targetSocketId) console.log(true, "099");
-        //   io.to(targetSocketId).emit('audio-chat')
-        // }) 
-        // socket.on('person_follows', async({followUser,orginalUser}) => {
-        //   console.log(orginalUser,"person_follows");
-        //   const user1 = await UserService.findUserDetailsWithEmail(followUser)
-        //   const followUser_username = user1?.username
-        //   const user2 = await UserService.findUserDetailsWithEmail(orginalUser)
-        //   const followUser_username2 = user2?.username
-        //   console.log("followUser",followUser_username);
-        //   console.log("followUser",followUser_username2);
-        //   const message = `${user2?.username} started following you`
-        //   const user1Notification = new Notification({
-        //     user:user1?._id,
-        //     interactorId:user2?._id,
-        //     type:'follow',
-        //     message:message
-        //   })
-        //   await user1Notification.save()
-        // })
         socket.on('audio-chat', (_a) => __awaiter(this, [_a], void 0, function* ({ recipientEmail, senderEmail, message, type }) {
             const data = {
                 recipientEmail,

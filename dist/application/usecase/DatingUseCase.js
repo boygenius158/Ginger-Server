@@ -15,7 +15,7 @@ class DatingUseCase {
     constructor(_repository) {
         this._repository = _repository;
     }
-    swipeProfiles(userId, maximumAge, interestedGender) {
+    swipeProfiles(userId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const datingProfile = yield this._repository.getUserDatingProfile(userId);

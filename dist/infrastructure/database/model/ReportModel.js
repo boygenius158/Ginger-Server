@@ -5,7 +5,7 @@ const mongoose_1 = require("mongoose");
 const reportSchema = new mongoose_1.Schema({
     reporterId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'User', required: true },
     postId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Post', required: true },
-    actionTaken: { type: Boolean, default: false }, // Default is false, meaning no action taken yet
+    // actionTaken: { type: Boolean, default: false }, // Default is false, meaning no action taken yet
     createdAt: { type: Date, default: Date.now },
 });
 // Create a Model
