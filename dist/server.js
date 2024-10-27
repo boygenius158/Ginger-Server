@@ -35,7 +35,7 @@ const server = http.createServer(app);
 logger_1.default;
 app.get('/', (req, res) => {
     // console.log("hi");
-    res.send('backend is running on aws .....');
+    res.send('backend is running on awss .....');
 });
 app.use((0, morgan_1.default)('combined', {
     stream: {

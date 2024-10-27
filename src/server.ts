@@ -43,7 +43,7 @@ logger
 app.get('/', (req, res) => {
     // console.log("hi");
     
-    res.send('backend is running on aws .....')
+    res.send('backend is running on awss .....')
 })
 app.use(
     morgan('combined', {
