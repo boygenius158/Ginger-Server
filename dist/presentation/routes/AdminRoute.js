@@ -22,6 +22,7 @@ const repo = new AdminRepository_1.AdminRepository();
 const service = new AdminUseCase_1.AdminUseCase(repo);
 const adminController = new AdminController_1.AdminController(service);
 const verifyJWT_1 = __importDefault(require("../../utils/verifyJWT"));
+const PostModel_1 = require("../../infrastructure/database/model/PostModel");
 const UserModel_1 = __importDefault(require("../../infrastructure/database/model/UserModel"));
 router.get('/api/admin/premium-payment-details', verifyJWT_1.default, adminController.fetchPremiumPaymentDetails.bind(adminController));
 router.post('/api/admin/userDetails', verifyJWT_1.default, adminController.fetchUserDetailsByRoles.bind(adminController));
@@ -30,13 +31,13 @@ router.get('/api/admin/total-revenue', verifyJWT_1.default, adminController.getT
 router.post('/api/admin/unblockUser', verifyJWT_1.default, adminController.unblockUser.bind(adminController));
 router.post('/api/admin/getBlockedUsers', verifyJWT_1.default, adminController.getBlockedUsers.bind(adminController));
 router.post('/api/admin/filterPost', verifyJWT_1.default, adminController.handle.bind(adminController));
-router.post('/api/admin/banPost', verifyJWT_1.default, adminController.banPost.bind(adminController));
-// router.post('/api/admin/banPost', async (req, res) => {
-//     console.log("ban", req.body);
-//     const { postId } = req.body
-//     const post = await PostModel.findByIdAndDelete(postId)
-//     res.json({})
-// })
+// router.post('/api/admin/banPost', verifyJWT, adminController.banPost.bind(adminController));
+router.post('/api/admin/banPost', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log("ban", req.body);
+    const { postId } = req.body;
+    const post = yield PostModel_1.PostModel.findByIdAndDelete(postId);
+    res.json({});
+}));
 // router.post('/api/admin/banPost')
 // router.post('/api/admin/filterPost', async (req, res) => {
 //     console.log("filter post");

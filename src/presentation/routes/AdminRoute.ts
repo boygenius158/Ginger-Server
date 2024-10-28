@@ -21,15 +21,15 @@ router.get('/api/admin/total-revenue', verifyJWT, adminController.getTotalRevenu
 router.post('/api/admin/unblockUser', verifyJWT, adminController.unblockUser.bind(adminController));
 router.post('/api/admin/getBlockedUsers', verifyJWT, adminController.getBlockedUsers.bind(adminController));
 router.post('/api/admin/filterPost', verifyJWT, adminController.handle.bind(adminController));
-router.post('/api/admin/banPost', verifyJWT, adminController.banPost.bind(adminController));
+// router.post('/api/admin/banPost', verifyJWT, adminController.banPost.bind(adminController));
 
-// router.post('/api/admin/banPost', async (req, res) => {
-//     console.log("ban", req.body);
-//     const { postId } = req.body
-//     const post = await PostModel.findByIdAndDelete(postId)
-//     res.json({})
+router.post('/api/admin/banPost', async (req, res) => {
+    console.log("ban", req.body);
+    const { postId } = req.body
+    const post = await PostModel.findByIdAndDelete(postId)
+    res.json({})
 
-// })
+})
 // router.post('/api/admin/banPost')
 // router.post('/api/admin/filterPost', async (req, res) => {
 //     console.log("filter post");
