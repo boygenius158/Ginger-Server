@@ -122,7 +122,7 @@ class AdminRepository {
     findReportsByActionTaken(actionTaken) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield ReportModel_1.default.find({ actionTaken }).populate({
+                return yield ReportModel_1.default.find({}).populate({
                     path: 'postId',
                     populate: {
                         path: 'userId'
@@ -141,6 +141,17 @@ class AdminRepository {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 return yield PostModel_1.PostModel.findById(postId).exec();
+            }
+            catch (error) {
+                console.error(`Error fetching post with ID ${postId}:`, error);
+                throw new Error('Failed to fetch post');
+            }
+        });
+    }
+    banPost(postId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                yield PostModel_1.PostModel.findByIdAndDelete(postId);
             }
             catch (error) {
                 console.error(`Error fetching post with ID ${postId}:`, error);

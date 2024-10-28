@@ -101,7 +101,7 @@ class AdminUseCase {
     banPost(postId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const post = yield this._repository.findPostById(postId);
+                const post = yield this._repository.banPost(postId);
                 if (post) {
                     post.isBanned = true;
                     yield post.save();

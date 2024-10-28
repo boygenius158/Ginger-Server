@@ -92,7 +92,7 @@ export class AdminUseCase implements IAdminUseCase {
 
     async banPost(postId: string): Promise<void> {
         try {
-            const post = await this._repository.findPostById(postId);
+            const post = await this._repository.banPost(postId);
             if (post) {
                 post.isBanned = true;
                 await post.save();

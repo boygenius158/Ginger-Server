@@ -44,7 +44,8 @@ class Mailer {
     }
 
     async sendVerificationMail(to: string, token: string) {
-
+        console.log("hi");
+        
         const subject = "Email Verification";
         const htmlContent = `<p>Hi,</p>
                              <p>Please click <a href="https://gingerfrontend.vercel.app/verify?token=${token}">here</a> to verify your email.</p>`;

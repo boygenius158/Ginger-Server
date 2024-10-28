@@ -100,7 +100,7 @@ export class AdminRepository implements IAdminRepository {
 
     async findReportsByActionTaken(actionTaken: boolean): Promise<any[]> {
         try {
-            return await Report.find({ actionTaken }).populate({
+            return await Report.find({}).populate({
                 path: 'postId',
                 populate: {
                     path: 'userId'
@@ -122,4 +122,14 @@ export class AdminRepository implements IAdminRepository {
             throw new Error('Failed to fetch post');
         }
     }
+    async banPost(postId: string): Promise<any> {
+        try {
+            await PostModel.findByIdAndDelete(postId)
+
+        } catch (error) {
+            console.error(`Error fetching post with ID ${postId}:`, error);
+            throw new Error('Failed to fetch post');
+        }
+    }
+
 }
