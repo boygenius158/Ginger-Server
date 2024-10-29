@@ -156,7 +156,7 @@ class AdminController {
             try {
                 const { userId } = req.body;
                 const user = this._adminUseCase.isPostSaved(userId);
-                return user;
+                res.json({ user });
             }
             catch (error) {
                 console.error(`Error isPostSaved:`, error);
@@ -168,7 +168,7 @@ class AdminController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const posts = this._adminUseCase.filterPost();
-                return posts;
+                res.json({ posts });
             }
             catch (error) {
                 console.error(`Error isPostSaved:`, error);

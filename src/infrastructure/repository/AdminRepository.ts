@@ -163,7 +163,12 @@ export class AdminRepository implements IAdminRepository {
     }
     async banPostUser(postId: string): Promise<any> {
         try {
-            const response = await PostModel.findByIdAndDelete(postId)
+            // Delete the post with the specified postId
+            const response = await PostModel.findByIdAndDelete(postId);
+
+            // Delete all reports with the specified postId
+            const reportResponse = await Report.deleteMany({ postId: postId });
+
             return response
 
         } catch (error) {
@@ -171,6 +176,7 @@ export class AdminRepository implements IAdminRepository {
             throw new Error('Failed');
         }
     }
+
     async isPostSaved(userId: string): Promise<any> {
         try {
             const user = await UserModel.findById(userId)
@@ -190,6 +196,7 @@ export class AdminRepository implements IAdminRepository {
             })
                 .sort({ createdAt: -1 })
                 .exec();
+            console.log(posts, "h");
 
             return posts
         } catch (error) {

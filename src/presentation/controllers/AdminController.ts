@@ -128,7 +128,7 @@ export class AdminController {
         try {
             const { userId } = req.body
             const user = this._adminUseCase.isPostSaved(userId)
-            return user
+            res.json({user}) 
         } catch (error) {
             console.error(`Error isPostSaved:`, error);
             throw new Error('Failed');
@@ -137,7 +137,7 @@ export class AdminController {
     async filterPost(req: Request, res: Response): Promise<any> {
         try {
             const posts = this._adminUseCase.filterPost()
-            return posts
+            res.json({posts})
         } catch (error) {
             console.error(`Error isPostSaved:`, error);
             throw new Error('Failed');

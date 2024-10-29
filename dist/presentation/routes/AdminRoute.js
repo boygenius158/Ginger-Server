@@ -23,7 +23,7 @@ router.post('/api/admin/filterPost', verifyJWT_1.default, adminController.handle
 // router.post('/api/admin/banPost', verifyJWT, adminController.banPost.bind(adminController));
 router.post('/api/admin/banPost', verifyJWT_1.default, adminController.banPostUser.bind(adminController));
 router.post('/api/user/is-post-saved', verifyJWT_1.default, adminController.isPostSaved.bind(adminController));
-router.post('/api/admin/filterPost', verifyJWT_1.default, adminController.filterPost.bind(adminController));
+// router.post('/api/admin/filterPost', verifyJWT, adminController.filterPost.bind(adminController))
 router.get('/api/admin/user-demographics-info', verifyJWT_1.default, adminController.userDemoInfo.bind(adminController));
 // router.post('/api/admin/banPost', async (req, res) => {
 //     console.log("ban", req.body);

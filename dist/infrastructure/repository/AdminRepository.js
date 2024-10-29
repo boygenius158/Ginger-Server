@@ -191,7 +191,10 @@ class AdminRepository {
     banPostUser(postId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                // Delete the post with the specified postId
                 const response = yield PostModel_1.PostModel.findByIdAndDelete(postId);
+                // Delete all reports with the specified postId
+                const reportResponse = yield ReportModel_1.default.deleteMany({ postId: postId });
                 return response;
             }
             catch (error) {
@@ -223,6 +226,7 @@ class AdminRepository {
                 })
                     .sort({ createdAt: -1 })
                     .exec();
+                console.log(posts, "h");
                 return posts;
             }
             catch (error) {
