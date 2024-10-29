@@ -18,6 +18,7 @@ export class authController {
         try {
             const { email } = req.body;
             const userExists = await this._authUsecase.userExists(email);
+            // this._authUsecase
             if (!userExists) {
                 const userData = await this._authUsecase.registerUser(req.body);
                 console.log(userData, "990099");
