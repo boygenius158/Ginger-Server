@@ -111,7 +111,7 @@ export class AuthRepository implements IAuthUserRepository {
         }
     }
 
-    async verifyPassword(email: string, password: string): Promise<User | boolean> {
+    async verifyPassword(email: string, password: string): Promise<User | boolean | string> {
         try {
             const user = await UserModel.findOne({ email });
             if (!user) {
@@ -120,7 +120,12 @@ export class AuthRepository implements IAuthUserRepository {
 
             if (user.isBlocked) {
                 console.log("User is blocked");
-                return false;
+                return "blocked";
+            }
+
+            if (!user.isVerified) {
+                console.log("User is not verified");
+                return "unverified";
             }
 
             const isPasswordValid = await bcrypt.compare(password, user.password);
@@ -129,13 +134,14 @@ export class AuthRepository implements IAuthUserRepository {
             if (!isPasswordValid) {
                 throw new Error('Invalid password');
             }
-            return user;
 
+            return user;
         } catch (error) {
             console.error("Error verifying password:", error);
             throw new Error("Failed to verify password. Please try again later.");
         }
     }
+
 
     async clearotp(email: string): Promise<User | null> {
         try {

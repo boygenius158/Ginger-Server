@@ -8,7 +8,7 @@ export interface IAuthUseCase {
     getUserRole(email: string): Promise<string | null | undefined>
     storeotp(otp: string, email: string): Promise<User | null>
     verifyotp(otp: string, email: string): Promise<User | null>
-    verifyPassword(email: string, password: string): Promise<User | boolean>
+    verifyPassword(email: string, password: string): Promise<User | boolean | string>
     clearotp(email: string): Promise<User | null>
     uploadProfilePicture(userId: string, url: string): Promise<any>;
     searchUsers(searchQuery: string): Promise<any[]>;

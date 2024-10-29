@@ -132,7 +132,11 @@ class AuthRepository {
                 }
                 if (user.isBlocked) {
                     console.log("User is blocked");
-                    return false;
+                    return "blocked";
+                }
+                if (!user.isVerified) {
+                    console.log("User is not verified");
+                    return "unverified";
                 }
                 const isPasswordValid = yield bcrypt.compare(password, user.password);
                 console.log(isPasswordValid, "Password validity check");

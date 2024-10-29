@@ -7,7 +7,7 @@ export interface IAuthUserRepository {
     updatePassword(email: string, newPassword: string): Promise<User | null>
     storeotp(otp: string, email: string): Promise<User>,
     verifyotp(otp: string, email: string): Promise<User | null>
-    verifyPassword(otp: string, email: string): Promise<User | boolean>
+    verifyPassword(otp: string, email: string): Promise<User | boolean | string>
     clearotp(email: string): Promise<User | null>
     findById(userId: string): Promise<any>;
     updateProfilePicture(userId: string, url: string): Promise<any>;

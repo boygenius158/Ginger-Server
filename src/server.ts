@@ -12,7 +12,7 @@ import mediaRouter from './presentation/routes/PostRoute'
 import adminRouter from './presentation/routes/AdminRoute'
 import datingRouter from './presentation/routes/DatingRoute'
 import { setupSocketIO } from './presentation/socket/SocketIO';
-import scheduleCronJobs from './infrastructure/cron/cronScheduler';
+// import scheduleCronJobs from './infrastructure/cron/cronScheduler';
 
 import s3service from './application/Services/S3service'
 import logger from './utils/logger';
