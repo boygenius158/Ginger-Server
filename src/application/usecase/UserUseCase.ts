@@ -1,23 +1,23 @@
 // authUseCase.ts
 import { User, UserRole } from "../../domain/entities/User";
-import { IAuthUserRepository } from "../interface/IAuthUserRepository";
-import { IAuthUseCase } from "../interface/IUserUsecase";
+import { IUserRepository } from "../interface/IUserRepository";
+import { IUserUsecase } from "../interface/IUserUsecase";
 import Mailer from "../../utils/nodeMailer";
 import { TokenGenerator } from "../../utils/tokenGenerator";
 import ProfileSearchHistoryModel from "../../infrastructure/database/model/SearchHistoryModel";
 import { PremiumModel } from "../../infrastructure/database/model/PremiumModel";
 const Stripe = require('stripe');
 
-// const stripeClient = Stripe(process.env.STRIPE_SECRET_KEY)
+const stripeClient = Stripe(process.env.STRIPE_SECRET_KEY)
 
 const bcrypt = require('bcryptjs')
 
-export class AuthUseCase implements IAuthUseCase {
-    private _repository: IAuthUserRepository;
+export class UserUseCase implements IUserUsecase {
+    private _repository: IUserRepository;
     private mailer: Mailer;
     private tokenGenerator: TokenGenerator;
 
-    constructor(_repository: IAuthUserRepository) {
+    constructor(_repository: IUserRepository) {
         this._repository = _repository;
         this.mailer = new Mailer();
         this.tokenGenerator = new TokenGenerator();

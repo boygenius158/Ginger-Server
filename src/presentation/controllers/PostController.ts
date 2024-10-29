@@ -1,14 +1,14 @@
 import { Request, Response, NextFunction } from 'express';
-import { IMediaUseCase } from "../../application/interface/IMediaUseCase";
+import {  IPostUseCase } from "../../application/interface/IPostUseCase";
 import mongoose from 'mongoose';
 import { HttpStatus } from '../../utils/HttpStatus';
 interface MulterFile extends Express.Multer.File {
     location?: string; // This property will be added by your file upload middleware
 }
-export class MediaController {
-    private _mediaUseCase: IMediaUseCase;
+export class PostController {
+    private _mediaUseCase: IPostUseCase;
 
-    constructor(mediaUseCase: IMediaUseCase) {
+    constructor(mediaUseCase: IPostUseCase) {
         this._mediaUseCase = mediaUseCase;
     }
 

@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { IAuthUserRepository } from "../../application/interface/IAuthUserRepository";
+import { IUserRepository } from "../../application/interface/IUserRepository";
 import { User, UserRole } from "../../domain/entities/User";
 import UserModel from "../database/model/UserModel";
 import ProfileSearchHistoryModel from "../database/model/SearchHistoryModel";
@@ -8,7 +8,7 @@ import { PremiumModel } from "../database/model/PremiumModel";
 
 const bcrypt = require('bcryptjs'); // Import bcrypt for password hashing
 
-export class AuthRepository implements IAuthUserRepository {
+export class UserRepository implements IUserRepository {
 
     async addNewUser(user: User): Promise<User> {
         try {

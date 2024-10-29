@@ -1,7 +1,7 @@
 import express from 'express'
-import { authController } from '../controllers/UserController'
-import { AuthRepository } from '../../infrastructure/repository/UserRepository'
-import { AuthUseCase } from '../../application/usecase/UserUseCase'
+import { UserController } from '../controllers/UserController'
+import { UserRepository } from '../../infrastructure/repository/UserRepository'
+import { UserUseCase } from '../../application/usecase/UserUseCase'
 import UserModel from '../../infrastructure/database/model/UserModel'
 import verifyJWT from '../../utils/verifyJWT'
 import { ChartConfig, ChartData } from '../../application/interface/ChartInterfaces'
@@ -13,9 +13,9 @@ import { PostModel } from '../../infrastructure/database/model/PostModel'
 
 const router = express.Router()
 
-const repo = new AuthRepository()
-const auth = new AuthUseCase(repo)
-const controller = new authController(auth)
+const repo = new UserRepository()
+const auth = new UserUseCase(repo)
+const controller = new UserController(auth)
 
 
 

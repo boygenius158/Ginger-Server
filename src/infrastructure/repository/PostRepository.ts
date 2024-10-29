@@ -1,5 +1,5 @@
 import mongoose, { Types } from "mongoose";
-import { IMediaRepository } from "../../application/interface/IMediaRepository";
+import { IPostRepository } from "../../application/interface/IPostRepository";
 import { Post } from "../../domain/entities/Post";
 import { User } from "../../domain/entities/User";
 import UserModel from "../database/model/UserModel";
@@ -12,7 +12,7 @@ import Report from "../database/model/ReportModel";
 import Message from "../database/model/MessageModel";
 import { PremiumModel } from "../database/model/PremiumModel";
 
-export class MediaRepository implements IMediaRepository {
+export class PostRepository implements IPostRepository {
     async getUserDemographics(): Promise<{ _id: string; count: number }[]> {
         try {
             console.log("ys");

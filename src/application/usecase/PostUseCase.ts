@@ -3,14 +3,14 @@ import { Post } from "../../domain/entities/Post";
 import { User } from "../../domain/entities/User";
 import { Comment } from "../../domain/entities/Comment";
 
-import { IMediaRepository } from "../interface/IMediaRepository";
-import { IMediaUseCase } from "../interface/IMediaUseCase";
+import { IPostRepository } from "../interface/IPostRepository";
+import { IPostUseCase } from "../interface/IPostUseCase";
 import { ChartConfig, ChartData } from "../interface/ChartInterfaces";
 
-export class MediaUseCase implements IMediaUseCase {
-    private _repository: IMediaRepository;
+export class PostUseCase implements IPostUseCase {
+    private _repository: IPostRepository;
 
-    constructor(repository: IMediaRepository) {
+    constructor(repository: IPostRepository) {
         this._repository = repository;
     }
     async findUserId(email: string): Promise<string | null> {

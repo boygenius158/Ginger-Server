@@ -1,15 +1,15 @@
 import { Request, Response, NextFunction } from 'express'; // Import necessary types from Express
-import { IAuthUseCase } from '../../application/interface/IUserUsecase'; // Import the interface
+import { IUserUsecase } from '../../application/interface/IUserUsecase'; // Import the interface
 import { TokenGenerator } from '../../utils/tokenGenerator';
 import randomnumber from '../../utils/randomOTP';
 import { UserRole } from '../../domain/entities/User';
 import { HttpStatus } from '../../utils/HttpStatus';
 // import { UserModel } from '../../infrastructure/database/model/authModel';
-export class authController {
-    private _authUsecase: IAuthUseCase;
+export class UserController {
+    private _authUsecase: IUserUsecase;
     private _tokenGenerator: TokenGenerator;
 
-    constructor(authUsecase: IAuthUseCase) {
+    constructor(authUsecase: IUserUsecase) {
         this._authUsecase = authUsecase;
         this._tokenGenerator = new TokenGenerator();
     }

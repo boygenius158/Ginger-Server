@@ -5,7 +5,7 @@ import { Post } from "../../domain/entities/Post";
 import { User } from "../../domain/entities/User";
 import { Comment } from "../../domain/entities/Comment";
 
-export interface IMediaRepository {
+export interface IPostRepository {
     uploadPost(post: Post): Promise<Post | null>;
     findUserId(email: string): Promise<string | null>
     findUserIdByUsername(username: string): Promise<User | null>

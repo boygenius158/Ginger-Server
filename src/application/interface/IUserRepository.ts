@@ -1,6 +1,6 @@
 import { User } from "../../domain/entities/User";
 
-export interface IAuthUserRepository {
+export interface IUserRepository {
     addNewUser(user: User): Promise<User>;
     findUserByEmail(email: string): Promise<User | null>;
     storeToken(email: string, token: string): Promise<User | null>

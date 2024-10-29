@@ -8,18 +8,18 @@ const router = express.Router();
 
 
 // Import media repository, use case, and controller
-import { MediaRepository } from '../../infrastructure/repository/PostRepository';
-import { MediaUseCase } from '../../application/usecase/PostUseCase';
-import { MediaController } from '../controllers/PostController';
+import { PostRepository } from '../../infrastructure/repository/PostRepository';
+import { PostUseCase } from '../../application/usecase/PostUseCase';
+import { PostController } from '../controllers/PostController';
 
 import verifyJWT from '../../utils/verifyJWT';
 
 
 
 // Instantiate the repository, use case, and controller
-const repo = new MediaRepository();
-const mediaUseCase = new MediaUseCase(repo);
-const mediaController = new MediaController(mediaUseCase);
+const repo = new PostRepository();
+const mediaUseCase = new PostUseCase(repo);
+const mediaController = new PostController(mediaUseCase);
 
 // Configure multer for file handling (if needed)
 const storage = multer.memoryStorage();

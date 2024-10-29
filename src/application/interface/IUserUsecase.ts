@@ -1,6 +1,6 @@
 import { User } from "../../domain/entities/User";
 
-export interface IAuthUseCase {
+export interface IUserUsecase {
     registerUser(user: User): Promise<User>;
     userExists(email: string): Promise<User | null>;
     forgotPassword(email: string): Promise<string | null>;

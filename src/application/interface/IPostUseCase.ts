@@ -4,7 +4,7 @@ import { User } from "../../domain/entities/User";
 import { Comment } from "../../domain/entities/Comment";
 import { ChartConfig, ChartData } from "./ChartInterfaces";
 
-export interface IMediaUseCase {
+export interface IPostUseCase {
     findUserId(email: string): Promise<string | null>
     findUserIdByUsername(username: string): Promise<User>
     createPost(imageUrl: string[], caption: string, email: string): Promise<Post | null>;
