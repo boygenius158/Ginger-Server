@@ -1,8 +1,10 @@
 import { Request, Response, NextFunction } from "express";
-import { IDatingUseCase } from "../../application/usecase/DatingUseCase";
+// import { IDatingUseCase } from "../../application/usecase/DatingUseCase";
+
 import { HttpStatus } from "../../utils/HttpStatus";
 import CommentModel from "../../infrastructure/database/model/CommentModel";
 import mongoose from "mongoose";
+import { IDatingUseCase } from "../../application/interface/IDatingUseCase";
 
 export class DatingController {
     private _datingUseCase: IDatingUseCase;

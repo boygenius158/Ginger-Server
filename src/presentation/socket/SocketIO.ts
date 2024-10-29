@@ -24,8 +24,9 @@ export function setupSocketIO(server: any) {
 
   const io = new Server(server, {
     cors: {
-      origin: 'https://gingerfrontend.vercel.app',
+      // origin: 'https://gingerfrontend.vercel.app',
       // origin: 'http://localhost:3000',
+      origin: ['http://localhost:3000', 'https://gingerfrontend.vercel.app'],
 
       methods: ["GET", "POST"],
       allowedHeaders: ["Authorization"],
@@ -241,7 +242,7 @@ export function setupSocketIO(server: any) {
         io.to(user1SocketId).emit('match', "its a match")
         io.to(user2SocketId).emit('match', "its a match")
       }
- 
+
 
 
     });

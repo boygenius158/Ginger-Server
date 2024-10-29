@@ -159,5 +159,77 @@ class AdminRepository {
             }
         });
     }
+    userDemoInfo() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const counts = yield UserModel_1.default.aggregate([
+                    {
+                        $match: {
+                            roles: { $in: ['user', 'premium'] } // Include only user and premium roles
+                        }
+                    },
+                    {
+                        $group: {
+                            _id: '$roles', // Group by the roles
+                            count: { $sum: 1 } // Count each role
+                        }
+                    }
+                ]);
+                // Format the response data
+                const responseData = counts.map(roleCount => ({
+                    label: roleCount._id,
+                    value: roleCount.count
+                }));
+                return responseData;
+            }
+            catch (error) {
+                console.error(`Error fetching post with ID :`, error);
+                throw new Error('Failed to fetch post');
+            }
+        });
+    }
+    banPostUser(postId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield PostModel_1.PostModel.findByIdAndDelete(postId);
+                return response;
+            }
+            catch (error) {
+                console.error(`Error banning user:`, error);
+                throw new Error('Failed');
+            }
+        });
+    }
+    isPostSaved(userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const user = yield UserModel_1.default.findById(userId);
+                return user;
+            }
+            catch (error) {
+                console.error(`Error isPostSaved:`, error);
+                throw new Error('Failed');
+            }
+        });
+    }
+    filterPost() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const posts = yield ReportModel_1.default.find({}).populate({
+                    path: 'postId',
+                    populate: {
+                        path: 'userId'
+                    }
+                })
+                    .sort({ createdAt: -1 })
+                    .exec();
+                return posts;
+            }
+            catch (error) {
+                console.error(`Error filterPost:`, error);
+                throw new Error('Failed');
+            }
+        });
+    }
 }
 exports.AdminRepository = AdminRepository;

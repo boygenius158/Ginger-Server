@@ -11,6 +11,10 @@ export interface IAdminUseCase {
     getBlockedUsers(): Promise<any[]>;
     execute(): Promise<any[]>;
     banPost(postId: string): Promise<void>;
+    userDemoInfo(): Promise<any>
+    banPostUser(postId: string): Promise<any>
+    isPostSaved(userId: string): Promise<any>
+    filterPost():Promise<any>
 }
 
 export class AdminUseCase implements IAdminUseCase {
@@ -67,7 +71,7 @@ export class AdminUseCase implements IAdminUseCase {
             }
         } catch (error) {
             console.error("Error unblocking user:", error);
-            throw new Error("Could not unblock user: " + error  );
+            throw new Error("Could not unblock user: " + error);
         }
     }
 
@@ -104,4 +108,40 @@ export class AdminUseCase implements IAdminUseCase {
             throw new Error("Could not ban post: " + error);
         }
     }
+    async userDemoInfo(): Promise<any> {
+        try {
+            const responseData = this._repository.userDemoInfo()
+            return responseData
+        } catch (error) {
+            console.error("Error userDemoInof:", error);
+            throw new Error("Could not get user: " + error);
+        }
+    }
+    async banPostUser(postId: string): Promise<any> {
+        try {
+            const response = this._repository.banPostUser(postId)
+        } catch (error) {
+            console.error("Error banning post:", error);
+            throw new Error("Could not ban post: " + error);
+        }
+    }
+    async isPostSaved(userId: string): Promise<any> {
+        try {
+            const user = this._repository.isPostSaved(userId)
+            return user
+        } catch (error) {
+            console.error(`Error isPostSaved:`, error);
+            throw new Error('Failed');
+        }
+    }
+    async filterPost(): Promise<any> {
+        try {
+            const posts = this._repository.filterPost()
+            return posts
+        } catch (error) {
+            console.error(`Error filterPost:`, error);
+            throw new Error('Failed');
+        }
+    }
+
 }

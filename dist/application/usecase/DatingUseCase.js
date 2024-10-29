@@ -1,5 +1,4 @@
 "use strict";
-// import { IDatingRepository } from "../../infrastructure/repository/DatingRepository";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -11,6 +10,26 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DatingUseCase = void 0;
+// export interface IDatingUseCase {
+//     swipeProfiles(userId: string): Promise<any>;
+//     updateProfileImages(userId: string, url: string[]): Promise<any>;
+//     fetchMatches(userId: string): Promise<any>;
+//     getUserDatingProfile(userId: string): Promise<any>;
+//     handleDatingTab1(userId: string, formData: { name: string, age: number, bio: string, gender: string }): Promise<any>;
+//     getProfileImages(userId: string): Promise<string[] | null>;
+//     updateUserPreferences(userId: string, maximumAge: number, profileVisibility: boolean, interestedGender: string): Promise<any>;
+//     getUserSettings(userId: string): Promise<any>;
+//     getDatingTab1Details(userId: string): Promise<any>;
+//     adminDeleteRecord(id: string): Promise<void>
+//     deleteComment(commentId: string): Promise<void>
+//     deletePost(postId: string): Promise<void>
+//     fetchPostComment(postId: string): Promise<any>
+//     executed(content: string, userId: string, postId: string): Promise<any>;
+//     deleteCommentReply(parentCommentId: string, comment: any): Promise<any>
+//     likedUserDetails(likedUsersId: any): Promise<any>
+//     postAlreadyReported(postId: any, victimUser: any): Promise<any>
+//     userPostedReply(content:any, userId:any, postId:any, parentId:any): Promise<any>
+// }
 class DatingUseCase {
     constructor(_repository) {
         this._repository = _repository;

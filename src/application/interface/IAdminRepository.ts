@@ -6,5 +6,10 @@ export interface IAdminRepository {
     findBlockedUsers(): Promise<any[]>;
     findReportsByActionTaken(actionTaken: boolean): Promise<any[]>;
     findPostById(postId: string): Promise<any>;
-    banPost(postId:string):Promise<any>
+    banPost(postId: string): Promise<any>
+    userDemoInfo(): Promise<any>
+    banPostUser(postId: string): Promise<any>
+    isPostSaved(userId: string): Promise<any> 
+    filterPost():Promise<any>
+
 }

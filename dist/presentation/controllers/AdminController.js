@@ -126,5 +126,55 @@ class AdminController {
             }
         });
     }
+    userDemoInfo(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const responseData = this._adminUseCase.userDemoInfo();
+                return responseData;
+            }
+            catch (error) {
+                console.error('Error getting user info:', error);
+                res.status(HttpStatus_1.HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Internal Server Error' });
+            }
+        });
+    }
+    banPostUser(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { postId } = req.body;
+                const response = this._adminUseCase.banPostUser(postId);
+                res.json({});
+            }
+            catch (error) {
+                console.error('Error banning post:', error);
+                res.status(HttpStatus_1.HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Internal Server Error' });
+            }
+        });
+    }
+    isPostSaved(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { userId } = req.body;
+                const user = this._adminUseCase.isPostSaved(userId);
+                return user;
+            }
+            catch (error) {
+                console.error(`Error isPostSaved:`, error);
+                throw new Error('Failed');
+            }
+        });
+    }
+    filterPost(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const posts = this._adminUseCase.filterPost();
+                return posts;
+            }
+            catch (error) {
+                console.error(`Error isPostSaved:`, error);
+                throw new Error('Failed');
+            }
+        });
+    }
 }
 exports.AdminController = AdminController;

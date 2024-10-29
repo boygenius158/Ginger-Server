@@ -26,32 +26,33 @@ const app = express();
 app.use(express.json());
 
 app.use(cors({
-    // origin:['*'],
-    // origin: 'http://localhost:3000',
+  // origin:['*'],
+  // origin: 'http://localhost:3000',
+  origin: ['http://localhost:3000', 'https://gingerfrontend.vercel.app'],
 
-    origin: 'https://gingerfrontend.vercel.app',
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'], // Allow all common HTTP methods
-    allowedHeaders: ['Authorization', 'Content-Type'], // Allow Authorization and Content-Type headers
-    credentials: true // If you want to support credentials (cookies, etc.)
+  // origin: 'https://gingerfrontend.vercel.app',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'], // Allow all common HTTP methods
+  allowedHeaders: ['Authorization', 'Content-Type'], // Allow Authorization and Content-Type headers
+  credentials: true // If you want to support credentials (cookies, etc.)
 }));
 
 const server = http.createServer(app);
 connectDatabase();
-setupSocketIO(server) 
+setupSocketIO(server)
 
 logger
 app.get('/', (req, res) => {
-    // console.log("hi");
-    
-    res.send('backend is running on awss .....')
+  // console.log("hi");
+
+  res.send('backend is running on awss .....')
 })
 app.use(
-    morgan('combined', {
-      stream: {
-        write: (message: string) => logger.info(message.trim()), // Use Winston's info level
-      },
-    })
-  );
+  morgan('combined', {
+    stream: {
+      write: (message: string) => logger.info(message.trim()), // Use Winston's info level
+    },
+  })
+);
 app.use('/', authRouter);
 app.use('/', mediaRouter);
 app.use('/', adminRouter);
@@ -61,7 +62,7 @@ app.use('/', s3service)
 
 // Start the server using 'server.listen' instead of 'app.listen'
 server.listen(port, () => {
-    console.log(`Server started successfully on http://localhost:${port}`);
+  console.log(`Server started successfully on http://localhost:${port}`);
 });
 
 

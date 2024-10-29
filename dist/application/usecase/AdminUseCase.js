@@ -116,5 +116,52 @@ class AdminUseCase {
             }
         });
     }
+    userDemoInfo() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const responseData = this._repository.userDemoInfo();
+                return responseData;
+            }
+            catch (error) {
+                console.error("Error userDemoInof:", error);
+                throw new Error("Could not get user: " + error);
+            }
+        });
+    }
+    banPostUser(postId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = this._repository.banPostUser(postId);
+            }
+            catch (error) {
+                console.error("Error banning post:", error);
+                throw new Error("Could not ban post: " + error);
+            }
+        });
+    }
+    isPostSaved(userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const user = this._repository.isPostSaved(userId);
+                return user;
+            }
+            catch (error) {
+                console.error(`Error isPostSaved:`, error);
+                throw new Error('Failed');
+            }
+        });
+    }
+    filterPost() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const posts = this._repository.filterPost();
+                return posts;
+            }
+            catch (error) {
+                console.error(`Error filterPost:`, error);
+                throw new Error('Failed');
+            }
+        });
+    }
 }
 exports.AdminUseCase = AdminUseCase;
