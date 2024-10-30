@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MediaRepository = void 0;
+exports.PostRepository = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
 const UserModel_1 = __importDefault(require("../database/model/UserModel"));
 const PostModel_1 = require("../database/model/PostModel");
@@ -22,7 +22,7 @@ const NotificationModel_1 = require("../database/model/NotificationModel");
 const ReportModel_1 = __importDefault(require("../database/model/ReportModel"));
 const MessageModel_1 = __importDefault(require("../database/model/MessageModel"));
 const PremiumModel_1 = require("../database/model/PremiumModel");
-class MediaRepository {
+class PostRepository {
     getUserDemographics() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -633,4 +633,4 @@ class MediaRepository {
         });
     }
 }
-exports.MediaRepository = MediaRepository;
+exports.PostRepository = PostRepository;

@@ -88,7 +88,7 @@ export class UserController {
             const { token, password } = req.body;
             const secretKey = "nibla158";
             console.log(req.body);
-            
+
             const decodedToken = this._tokenGenerator.verifyToken(token, secretKey);
             if (!decodedToken) {
                 return res.status(HttpStatus.UNAUTHORIZED).json({ error: "Invalid or expired token" });
@@ -129,6 +129,12 @@ export class UserController {
     async generateotp(req: Request, res: Response, next: NextFunction) {
         try {
             const { email } = req.body;
+            const user = await this._authUsecase.userExists(req.body.email);
+            if (!user) {
+            return res.json({ success: false });
+
+                // return res.status(HttpStatus.NOT_FOUND).json({ success: false, message: "User not found" });
+            }
             const otp = await randomnumber();
             await this._authUsecase.storeotp(otp, email);
             return res.json({ success: true });
@@ -169,7 +175,7 @@ export class UserController {
         try {
             const { url, userId } = req.body;
             const updatedUser = await this._authUsecase.uploadProfilePicture(userId, url);
-            res.status(HttpStatus.OK).json({ success:true });
+            res.status(HttpStatus.OK).json({ success: true });
         } catch (error) {
             console.error("Error uploading profile picture:", error);
             res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: "Internal Server Error" });
@@ -215,7 +221,7 @@ export class UserController {
         try {
             const { id, name, username, bio } = req.body;
             // console.log(req.body);
-            
+
             const result = await this._authUsecase.updateUser(id, name, username, bio);
             if (result.success === false) {
                 res.json(result);

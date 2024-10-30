@@ -12,17 +12,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.AuthUseCase = void 0;
+exports.UserUseCase = void 0;
 // authUseCase.ts
 const User_1 = require("../../domain/entities/User");
 const nodeMailer_1 = __importDefault(require("../../utils/nodeMailer"));
 const tokenGenerator_1 = require("../../utils/tokenGenerator");
 const SearchHistoryModel_1 = __importDefault(require("../../infrastructure/database/model/SearchHistoryModel"));
 const Stripe = require('stripe');
-const stripeClient = Stripe('sk_test_51PirppRr9XEd7LoYrVRdZGs1hNtVrylVeCidygk60qvoe1h23IPqRE0vDD7Zltc4XuSBLA7jlHofNHyGlnwmzxKP00zS0tmxlX'); // Replace with your Stripe secret key
-// const stripeClient = Stripe(process.env.STRIPE_SECRET_KEY)
+const stripeClient = Stripe(process.env.STRIPE_SECRET_KEY);
 const bcrypt = require('bcryptjs');
-class AuthUseCase {
+class UserUseCase {
     constructor(_repository) {
         this._repository = _repository;
         this.mailer = new nodeMailer_1.default();
@@ -281,4 +280,4 @@ class AuthUseCase {
         });
     }
 }
-exports.AuthUseCase = AuthUseCase;
+exports.UserUseCase = UserUseCase;

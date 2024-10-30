@@ -14,9 +14,9 @@ const PostUseCase_1 = require("../../application/usecase/PostUseCase");
 const PostController_1 = require("../controllers/PostController");
 const verifyJWT_1 = __importDefault(require("../../utils/verifyJWT"));
 // Instantiate the repository, use case, and controller
-const repo = new PostRepository_1.MediaRepository();
-const mediaUseCase = new PostUseCase_1.MediaUseCase(repo);
-const mediaController = new PostController_1.MediaController(mediaUseCase);
+const repo = new PostRepository_1.PostRepository();
+const mediaUseCase = new PostUseCase_1.PostUseCase(repo);
+const mediaController = new PostController_1.PostController(mediaUseCase);
 // Configure multer for file handling (if needed)
 const storage = multer_1.default.memoryStorage();
 // router.post('/api/storageMediaInCloud', verifyJWT, upload.array("files"), mediaController.uploadImage.bind(mediaController));

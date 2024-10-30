@@ -9,9 +9,9 @@ const UserRepository_1 = require("../../infrastructure/repository/UserRepository
 const UserUseCase_1 = require("../../application/usecase/UserUseCase");
 const verifyJWT_1 = __importDefault(require("../../utils/verifyJWT"));
 const router = express_1.default.Router();
-const repo = new UserRepository_1.AuthRepository();
-const auth = new UserUseCase_1.AuthUseCase(repo);
-const controller = new UserController_1.authController(auth);
+const repo = new UserRepository_1.UserRepository();
+const auth = new UserUseCase_1.UserUseCase(repo);
+const controller = new UserController_1.UserController(auth);
 router.post('/api/user/custom-signin', controller.loginUser.bind(controller));
 router.post('/api/registration', controller.signUpUser.bind(controller));
 router.post('/api/user/google-auth', controller.googleAuth.bind(controller));

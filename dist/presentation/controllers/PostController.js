@@ -9,9 +9,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MediaController = void 0;
+exports.PostController = void 0;
 const HttpStatus_1 = require("../../utils/HttpStatus");
-class MediaController {
+class PostController {
     constructor(mediaUseCase) {
         this._mediaUseCase = mediaUseCase;
     }
@@ -388,4 +388,4 @@ class MediaController {
         });
     }
 }
-exports.MediaController = MediaController;
+exports.PostController = PostController;

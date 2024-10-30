@@ -12,9 +12,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MediaUseCase = void 0;
+exports.PostUseCase = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
-class MediaUseCase {
+class PostUseCase {
     constructor(repository) {
         this._repository = repository;
     }
@@ -400,4 +400,4 @@ class MediaUseCase {
         });
     }
 }
-exports.MediaUseCase = MediaUseCase;
+exports.PostUseCase = PostUseCase;

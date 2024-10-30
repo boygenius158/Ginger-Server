@@ -12,14 +12,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.AuthRepository = void 0;
+exports.UserRepository = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
 const UserModel_1 = __importDefault(require("../database/model/UserModel"));
 const SearchHistoryModel_1 = __importDefault(require("../database/model/SearchHistoryModel"));
 const PostModel_1 = require("../database/model/PostModel");
 const PremiumModel_1 = require("../database/model/PremiumModel");
 const bcrypt = require('bcryptjs'); // Import bcrypt for password hashing
-class AuthRepository {
+class UserRepository {
     addNewUser(user) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -329,4 +329,4 @@ class AuthRepository {
         });
     }
 }
-exports.AuthRepository = AuthRepository;
+exports.UserRepository = UserRepository;

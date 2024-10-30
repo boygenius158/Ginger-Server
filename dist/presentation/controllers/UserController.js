@@ -12,13 +12,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.authController = void 0;
+exports.UserController = void 0;
 const tokenGenerator_1 = require("../../utils/tokenGenerator");
 const randomOTP_1 = __importDefault(require("../../utils/randomOTP"));
 const User_1 = require("../../domain/entities/User");
 const HttpStatus_1 = require("../../utils/HttpStatus");
 // import { UserModel } from '../../infrastructure/database/model/authModel';
-class authController {
+class UserController {
     constructor(authUsecase) {
         this._authUsecase = authUsecase;
         this._tokenGenerator = new tokenGenerator_1.TokenGenerator();
@@ -28,6 +28,7 @@ class authController {
             try {
                 const { email } = req.body;
                 const userExists = yield this._authUsecase.userExists(email);
+                // this._authUsecase
                 if (!userExists) {
                     const userData = yield this._authUsecase.registerUser(req.body);
                     console.log(userData, "990099");
@@ -144,6 +145,11 @@ class authController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { email } = req.body;
+                const user = yield this._authUsecase.userExists(req.body.email);
+                if (!user) {
+                    return res.json({ success: false });
+                    // return res.status(HttpStatus.NOT_FOUND).json({ success: false, message: "User not found" });
+                }
                 const otp = yield (0, randomOTP_1.default)();
                 yield this._authUsecase.storeotp(otp, email);
                 return res.json({ success: true });
@@ -343,4 +349,4 @@ class authController {
         });
     }
 }
-exports.authController = authController;
+exports.UserController = UserController;
