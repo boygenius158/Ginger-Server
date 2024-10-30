@@ -131,7 +131,7 @@ export class UserController {
             const { email } = req.body;
             const user = await this._authUsecase.userExists(req.body.email);
             if (!user) {
-            return res.json({ success: false });
+                return res.json({ success: false });
 
                 // return res.status(HttpStatus.NOT_FOUND).json({ success: false, message: "User not found" });
             }
@@ -146,6 +146,13 @@ export class UserController {
 
     async verifyotp(req: Request, res: Response, next: NextFunction) {
         try {
+            const userAlreadyVerified = await this._authUsecase.userExists(req.body.email)
+            if (!userAlreadyVerified) {
+                return res.json({ success: false })
+            }
+            if (userAlreadyVerified.isVerified === true) {
+                return res.json({ success: false })
+            }
             const valid = await this._authUsecase.verifyotp(req.body.otp, req.body.email);
 
             if (valid) {

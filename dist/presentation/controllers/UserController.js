@@ -163,6 +163,13 @@ class UserController {
     verifyotp(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                const userAlreadyVerified = yield this._authUsecase.userExists(req.body.email);
+                if (!userAlreadyVerified) {
+                    return res.json({ success: false });
+                }
+                if (userAlreadyVerified.isVerified === true) {
+                    return res.json({ success: false });
+                }
                 const valid = yield this._authUsecase.verifyotp(req.body.otp, req.body.email);
                 if (valid) {
                     return res.json({ success: true });

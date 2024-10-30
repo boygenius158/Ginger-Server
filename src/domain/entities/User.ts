@@ -10,10 +10,11 @@ export interface User {
     _id: mongoose.Types.ObjectId;
     email: string;
     password: string;
-    username?:string;
+    username?: string;
     roles?: UserRole;
-    otp?:string | null
-    savedposts?:string[]
-    
+    otp?: string | null
+    savedposts?: string[]
+    isVerified?: boolean
+
 
 }
