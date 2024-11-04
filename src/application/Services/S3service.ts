@@ -12,6 +12,7 @@ import CommentModel from "../../infrastructure/database/model/CommentModel";
 import { log } from "console";
 import { Notification } from "../../infrastructure/database/model/NotificationModel";
 import { DatingUseCase } from "../usecase/DatingUseCase";
+import DatingProfile from "../../infrastructure/database/model/DatingProfileMode";
 const jwt = require("jsonwebtoken");
 
 const router = express.Router();
@@ -125,6 +126,34 @@ router.post("/refresh-token", (req, res) => {
 
         res.json({ accessToken: newAccessToken });
     });
+});
+
+router.post('/api/user/profile-completion-status', async (req, res) => {
+    const userId = req.body.userId;
+
+    try {
+        const profile = await DatingProfile.findOne({ userId });
+
+        if (!profile) {
+            return res.status(404).json({ error: "Profile not found" });
+        }
+
+        // Using <any> to bypass TypeScript's strict property checks
+        const requiredFields = ["name", "age", "bio", "images", "gender", "profileVisibility", "maximumAge", "interestedGender"];
+        const isProfileComplete = requiredFields.every(field => {
+            const value = (profile as any)[field];
+            return value !== undefined && value !== null && !(Array.isArray(value) && value.length === 0) && value !== '';
+        });
+
+        res.json({
+            profile,
+            isProfileComplete
+        });
+
+    } catch (error) {
+        console.error("Error fetching profile:", error);
+        res.status(500).json({ error: "Server error" });
+    }
 });
 
 

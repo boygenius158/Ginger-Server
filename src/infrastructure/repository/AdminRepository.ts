@@ -180,6 +180,8 @@ export class AdminRepository implements IAdminRepository {
     async isPostSaved(userId: string): Promise<any> {
         try {
             const user = await UserModel.findById(userId)
+            console.log(user,"oio");
+            
             return user
         } catch (error) {
             console.error(`Error isPostSaved:`, error);

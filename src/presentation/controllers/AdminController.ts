@@ -106,7 +106,7 @@ export class AdminController {
     }
     async userDemoInfo(req: Request, res: Response): Promise<any> {
         try {
-            const responseData = this._adminUseCase.userDemoInfo()
+            const responseData = await this._adminUseCase.userDemoInfo()
             return responseData
         } catch (error) {
             console.error('Error getting user info:', error);
@@ -117,7 +117,7 @@ export class AdminController {
         try {
             const { postId } = req.body
 
-            const response = this._adminUseCase.banPostUser(postId)
+            const response = await this._adminUseCase.banPostUser(postId)
             res.json({})
         } catch (error) {
             console.error('Error banning post:', error);
@@ -127,8 +127,10 @@ export class AdminController {
     async isPostSaved(req: Request, res: Response): Promise<any> {
         try {
             const { userId } = req.body
-            const user = this._adminUseCase.isPostSaved(userId)
-            res.json({user}) 
+            const user = await this._adminUseCase.isPostSaved(userId)
+            console.log(user, "poi");
+
+            res.json({ user })
         } catch (error) {
             console.error(`Error isPostSaved:`, error);
             throw new Error('Failed');
@@ -136,8 +138,8 @@ export class AdminController {
     }
     async filterPost(req: Request, res: Response): Promise<any> {
         try {
-            const posts = this._adminUseCase.filterPost()
-            res.json({posts})
+            const posts = await this._adminUseCase.filterPost()
+            res.json({ posts })
         } catch (error) {
             console.error(`Error isPostSaved:`, error);
             throw new Error('Failed');

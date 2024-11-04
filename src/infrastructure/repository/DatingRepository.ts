@@ -29,14 +29,28 @@ interface Reply {
 export class DatingRepository implements IDatingRepository {
     async swipeProfiles(userId: string, maximumAge: number, interestedGender: string): Promise<any> {
         console.log(userId, maximumAge, interestedGender, "maximumage");
+
         try {
+            // Verify if the user has images
+            const user = await DatingProfile.findOne({ userId });
+            if (!user || !user.images || user.images.length === 0) {
+                console.log("User has no images, returning an empty profile list.");
+                return [];  // Return an empty array if the user doesn't have images
+            }
+            if(!user.profileVisibility){
+                return []
+            }
+
+            // Fetch profiles based on provided filters
             const profiles = await DatingProfile.find({
                 userId: { $ne: userId },
                 profileVisibility: true,
                 age: { $lte: maximumAge },
                 gender: interestedGender,
-                likedByUsers: { $ne: userId }
+                likedByUsers: { $ne: userId },
+                images: { $ne: [] }  // Filter out profiles with an empty images array
             });
+
             console.log(profiles, "profiles");
             return profiles;
         } catch (error) {
@@ -44,6 +58,8 @@ export class DatingRepository implements IDatingRepository {
             throw new Error("Failed to fetch swipe profiles. Please try again later.");
         }
     }
+
+
 
     async updateProfileImages(userId: string, url: string[]): Promise<any> {
         try {

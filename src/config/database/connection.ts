@@ -2,8 +2,8 @@ import mongoose from "mongoose";
 require('dotenv').config();
 
 export async function connectDatabase() {
-    const uri = "mongodb+srv://albindamn:albin381@gingercluster.tni02.mongodb.net/?retryWrites=true&w=majority&appName=gingercluster"
-    // const uri = process.env.DB
+    // const uri = "mongodb+srv://albindamn:albin381@gingercluster.tni02.mongodb.net/?retryWrites=true&w=majority&appName=gingercluster"
+    const uri = process.env.DB
     if (uri) {
         await mongoose.connect(uri).then(
             () =>
@@ -18,4 +18,4 @@ export async function connectDatabase() {
 
     }
 
-}       
+}         

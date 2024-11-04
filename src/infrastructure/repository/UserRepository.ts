@@ -202,14 +202,18 @@ export class UserRepository implements IUserRepository {
 
     async searchByUsername(query: string): Promise<any[]> {
         try {
+            // Trim any leading and trailing whitespace
+            const sanitizedQuery = query.trim();
+    
             return await UserModel.find({
-                username: { $regex: '^' + query, $options: 'i' }
+                username: { $regex: '^' + sanitizedQuery, $options: 'i' }
             });
         } catch (error) {
             console.error("Error searching by username:", error);
             throw new Error("Failed to search by username. Please try again later.");
         }
     }
+    
 
     async findOneByUsername(username: string): Promise<any> {
         try {

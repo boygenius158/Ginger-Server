@@ -27,7 +27,7 @@ const DatingProfileSchema = new Schema<IDatingProfile>({
   likedUsers: [{ type: Schema.Types.ObjectId, ref: 'User', default: [] }],
   likedByUsers: [{ type: Schema.Types.ObjectId, ref: 'User', default: [] }],
   gender: { type: String, required: false , default:"" }, // Add gender field
-  profileVisibility: { type: Boolean, default: true }, // Add profileVisibility field
+  profileVisibility: { type: Boolean, default: false }, // Add profileVisibility field
   maximumAge: { type: Number, required: false , default:""}, // Add maximumAge field
   interestedGender: { type: String, required: false, default:"" }, // Add interestedGender field
 });

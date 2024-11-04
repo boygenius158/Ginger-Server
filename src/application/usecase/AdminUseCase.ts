@@ -110,7 +110,7 @@ export class AdminUseCase implements IAdminUseCase {
     }
     async userDemoInfo(): Promise<any> {
         try {
-            const responseData = this._repository.userDemoInfo()
+            const responseData = await this._repository.userDemoInfo()
             return responseData
         } catch (error) {
             console.error("Error userDemoInof:", error);
@@ -119,7 +119,7 @@ export class AdminUseCase implements IAdminUseCase {
     }
     async banPostUser(postId: string): Promise<any> {
         try {
-            const response = this._repository.banPostUser(postId)
+            const response = await this._repository.banPostUser(postId)
         } catch (error) {
             console.error("Error banning post:", error);
             throw new Error("Could not ban post: " + error);
@@ -127,7 +127,7 @@ export class AdminUseCase implements IAdminUseCase {
     }
     async isPostSaved(userId: string): Promise<any> {
         try {
-            const user = this._repository.isPostSaved(userId)
+            const user = await this._repository.isPostSaved(userId)
             return user
         } catch (error) {
             console.error(`Error isPostSaved:`, error);
@@ -136,7 +136,7 @@ export class AdminUseCase implements IAdminUseCase {
     }
     async filterPost(): Promise<any> {
         try {
-            const posts = this._repository.filterPost()
+            const posts = await this._repository.filterPost()
             return posts
         } catch (error) {
             console.error(`Error filterPost:`, error);
