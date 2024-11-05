@@ -30,4 +30,5 @@ router.post('/api/user/likedUserDetails', verifyJWT_1.default, datingController.
 router.post('/api/user/delete-commentreply', verifyJWT_1.default, datingController.deleteCommentReply.bind(datingController));
 router.post('/api/user/post-already-reported', verifyJWT_1.default, datingController.postAlreadyReported.bind(datingController));
 router.post('/api/user/user-posted-reply', verifyJWT_1.default, datingController.userPostedReply.bind(datingController));
+router.post('/api/user/profile-completion-status', verifyJWT_1.default, datingController.profileCompletionStatus.bind(datingController));
 exports.default = router;

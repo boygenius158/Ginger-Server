@@ -11,7 +11,7 @@ const verifyJWT = (req, res, next) => {
         console.log(`Authorization token missing or malformed for path: ${req.originalUrl}`);
         return res.status(HttpStatus_1.HttpStatus.UNAUTHORIZED).json({ message: "Authorization token missing or malformed" });
     }
-    const token = authHeader.split(" ")[1]; // Extract the token after "Bearer"
+    const token = authHeader.split(" ")[1];
     console.log(token, "token in header");
     try {
         console.log("Token verification initiated");
@@ -23,7 +23,6 @@ const verifyJWT = (req, res, next) => {
     }
     catch (err) {
         console.error(`Token verification failed for path: ${req.originalUrl}`, err);
-        // Handle specific JWT errors (like token expiration)
         if (err.name === "TokenExpiredError") {
             return res.status(HttpStatus_1.HttpStatus.UNAUTHORIZED).json({ message: "Token has expired" });
         }

@@ -192,8 +192,8 @@ class DatingUseCase {
                 yield this._repository.deleteComment(commentId);
             }
             catch (error) {
-                console.error("Error fetching adminDeleteRecord:", error);
-                throw new Error("Failed to get adminDeleteRecord");
+                console.error("Error fetching deleteComment:", error);
+                throw new Error("Failed to get deleteComment");
             }
         });
     }
@@ -203,8 +203,8 @@ class DatingUseCase {
                 yield this._repository.deletePost(postId);
             }
             catch (error) {
-                console.error("Error fetching adminDeleteRecord:", error);
-                throw new Error("Failed to get adminDeleteRecord");
+                console.error("Error fetching deletePost:", error);
+                throw new Error("Failed to get deletePost");
             }
         });
     }
@@ -216,52 +216,58 @@ class DatingUseCase {
                 return formattedComments;
             }
             catch (error) {
-                console.error("Error fetching adminDeleteRecord:", error);
-                throw new Error("Failed to get adminDeleteRecord");
+                console.error("Error fetching fetchPostComment:", error);
+                throw new Error("Failed to get fetchPostComment");
             }
         });
     }
     executed(content, userId, postId) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!content || !userId || !postId) {
-                throw new Error("Content, userId, and postId are required");
+            try {
+                if (!content || !userId || !postId) {
+                    throw new Error("Content, userId, and postId are required");
+                }
+                const user = yield this._repository.findUser(userId);
+                if (!user) {
+                    throw new Error("User not found");
+                }
+                const postDetails = yield this._repository.findPostById(postId);
+                if (!postDetails) {
+                    throw new Error("Post not found");
+                }
+                const newComment = yield this._repository.saveComment({
+                    userId,
+                    postId,
+                    content,
+                    replies: []
+                });
+                const message = `${user.username} commented: ${content}`;
+                yield this._repository.createNotification({
+                    user: postDetails.userId,
+                    interactorId: userId,
+                    type: 'comment',
+                    message: message
+                });
+                const repliesWithUserData = yield this._repository.getRepliesWithUserData(newComment._id);
+                const formattedReplies = repliesWithUserData.map((reply) => ({
+                    _id: reply.replies._id,
+                    content: reply.replies.content,
+                    createdAt: reply.replies.createdAt,
+                    avatar: reply.replies.author.profilePicture,
+                    author: reply.replies.author.username
+                }));
+                return {
+                    _id: newComment._id,
+                    content: newComment.content,
+                    avatar: user.profilePicture,
+                    author: user.username,
+                    replies: formattedReplies
+                };
             }
-            const user = yield this._repository.findUser(userId);
-            if (!user) {
-                throw new Error("User not found");
+            catch (error) {
+                console.error("Error fetching executed:", error);
+                throw new Error("Failed to get executed");
             }
-            const postDetails = yield this._repository.findPostById(postId);
-            if (!postDetails) {
-                throw new Error("Post not found");
-            }
-            const newComment = yield this._repository.saveComment({
-                userId,
-                postId,
-                content,
-                replies: []
-            });
-            const message = `${user.username} commented: ${content}`;
-            yield this._repository.createNotification({
-                user: postDetails.userId,
-                interactorId: userId,
-                type: 'comment',
-                message: message
-            });
-            const repliesWithUserData = yield this._repository.getRepliesWithUserData(newComment._id);
-            const formattedReplies = repliesWithUserData.map((reply) => ({
-                _id: reply.replies._id,
-                content: reply.replies.content,
-                createdAt: reply.replies.createdAt,
-                avatar: reply.replies.author.profilePicture,
-                author: reply.replies.author.username
-            }));
-            return {
-                _id: newComment._id,
-                content: newComment.content,
-                avatar: user.profilePicture,
-                author: user.username,
-                replies: formattedReplies
-            };
         });
     }
     deleteCommentReply(parentCommentId, comment) {
@@ -271,8 +277,8 @@ class DatingUseCase {
                 return result;
             }
             catch (error) {
-                console.error("Error fetching adminDeleteRecord:", error);
-                throw new Error("Failed to get adminDeleteRecord");
+                console.error("Error fetching deleteCommentReply:", error);
+                throw new Error("Failed to get deleteCommentReply");
             }
         });
     }
@@ -283,8 +289,8 @@ class DatingUseCase {
                 return LikedUsers;
             }
             catch (error) {
-                console.error("Error fetching adminDeleteRecord:", error);
-                throw new Error("Failed to get adminDeleteRecord");
+                console.error("Error fetching likedUserDetails:", error);
+                throw new Error("Failed to get likedUserDetails");
             }
         });
     }
@@ -295,8 +301,8 @@ class DatingUseCase {
                 return existingReport;
             }
             catch (error) {
-                console.error("Error fetching adminDeleteRecord:", error);
-                throw new Error("Failed to get adminDeleteRecord");
+                console.error("Error fetching postAlreadyReported:", error);
+                throw new Error("Failed to get postAlreadyReported");
             }
         });
     }
@@ -307,8 +313,20 @@ class DatingUseCase {
                 return formattedReply;
             }
             catch (error) {
-                console.error("Error fetching adminDeleteRecord:", error);
-                throw new Error("Failed to get adminDeleteRecord");
+                console.error("Error fetching userPostedReply:", error);
+                throw new Error("Failed to get userPostedReply");
+            }
+        });
+    }
+    profileCompletionStatus(userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { profile, isProfileComplete } = yield this._repository.profileCompletionStatus(userId);
+                return { profile, isProfileComplete };
+            }
+            catch (error) {
+                console.error("Error fetching profileCompletionStatus:", error);
+                throw new Error("Failed to get profileCompletionStatus");
             }
         });
     }

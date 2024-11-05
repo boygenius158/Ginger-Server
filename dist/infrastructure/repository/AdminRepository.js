@@ -207,6 +207,7 @@ class AdminRepository {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const user = yield UserModel_1.default.findById(userId);
+                console.log(user, "oio");
                 return user;
             }
             catch (error) {

@@ -53,9 +53,9 @@ class Mailer {
     sendVerificationMail(to, token) {
         return __awaiter(this, void 0, void 0, function* () {
             console.log("hi");
-            const subject = "Email Verification";
+            const subject = "Password Reset";
             const htmlContent = `<p>Hi,</p>
-                             <p>Please click <a href="https://gingerfrontend.vercel.app/verify?token=${token}">here</a> to verify your email.</p>`;
+                             <p>Please click <a href="http://localhost:3000/verify?token=${token}">here</a> to reset your password.</p>`;
             yield this.sendMail(to, subject, htmlContent);
         });
     }

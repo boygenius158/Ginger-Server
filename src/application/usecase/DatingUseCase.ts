@@ -1,5 +1,5 @@
 
-import { IDatingRepository } from "../interface/IDatingRepository";
+import { IDatingRepository, ProfileCompletionStatus } from "../interface/IDatingRepository";
 import { IDatingUseCase } from "../interface/IDatingUseCase";
 
 // export interface IDatingUseCase {
@@ -32,7 +32,7 @@ export class DatingUseCase implements IDatingUseCase {
         this._repository = _repository;
     }
 
-    async swipeProfiles(userId: string, ): Promise<any> {
+    async swipeProfiles(userId: string,): Promise<any> {
         try {
             const datingProfile = await this._repository.getUserDatingProfile(userId);
             console.log(datingProfile.name);
@@ -169,16 +169,16 @@ export class DatingUseCase implements IDatingUseCase {
         try {
             await this._repository.deleteComment(commentId)
         } catch (error) {
-            console.error("Error fetching adminDeleteRecord:", error);
-            throw new Error("Failed to get adminDeleteRecord");
+            console.error("Error fetching deleteComment:", error);
+            throw new Error("Failed to get deleteComment");
         }
     }
     async deletePost(postId: string): Promise<void> {
         try {
             await this._repository.deletePost(postId)
         } catch (error) {
-            console.error("Error fetching adminDeleteRecord:", error);
-            throw new Error("Failed to get adminDeleteRecord");
+            console.error("Error fetching deletePost:", error);
+            throw new Error("Failed to get deletePost");
         }
     }
     async fetchPostComment(postId: string): Promise<any> {
@@ -188,66 +188,71 @@ export class DatingUseCase implements IDatingUseCase {
             const formattedComments = await this._repository.fetchPostComment(postId)
             return formattedComments
         } catch (error) {
-            console.error("Error fetching adminDeleteRecord:", error);
-            throw new Error("Failed to get adminDeleteRecord");
+            console.error("Error fetching fetchPostComment:", error);
+            throw new Error("Failed to get fetchPostComment");
         }
     }
 
     async executed(content: string, userId: string, postId: string): Promise<any> {
-        if (!content || !userId || !postId) {
-            throw new Error("Content, userId, and postId are required");
+        try {
+            if (!content || !userId || !postId) {
+                throw new Error("Content, userId, and postId are required");
+            }
+
+            const user = await this._repository.findUser(userId);
+            if (!user) {
+                throw new Error("User not found");
+            }
+
+            const postDetails = await this._repository.findPostById(postId);
+            if (!postDetails) {
+                throw new Error("Post not found");
+            }
+
+            const newComment = await this._repository.saveComment({
+                userId,
+                postId,
+                content,
+                replies: []
+            });
+
+            const message = `${user.username} commented: ${content}`;
+            await this._repository.createNotification({
+                user: postDetails.userId,
+                interactorId: userId,
+                type: 'comment',
+                message: message
+            });
+
+            const repliesWithUserData = await this._repository.getRepliesWithUserData(newComment._id);
+
+            const formattedReplies = repliesWithUserData.map((reply: any) => ({
+                _id: reply.replies._id,
+                content: reply.replies.content,
+                createdAt: reply.replies.createdAt,
+                avatar: reply.replies.author.profilePicture,
+                author: reply.replies.author.username
+            }));
+
+            return {
+                _id: newComment._id,
+                content: newComment.content,
+                avatar: user.profilePicture,
+                author: user.username,
+                replies: formattedReplies
+            };
+        } catch (error) {
+            console.error("Error fetching executed:", error);
+            throw new Error("Failed to get executed");
         }
-
-        const user = await this._repository.findUser(userId);
-        if (!user) {
-            throw new Error("User not found");
-        }
-
-        const postDetails = await this._repository.findPostById(postId);
-        if (!postDetails) {
-            throw new Error("Post not found");
-        }
-
-        const newComment = await this._repository.saveComment({
-            userId,
-            postId,
-            content,
-            replies: []
-        });
-
-        const message = `${user.username} commented: ${content}`;
-        await this._repository.createNotification({
-            user: postDetails.userId,
-            interactorId: userId,
-            type: 'comment',
-            message: message
-        });
-
-        const repliesWithUserData = await this._repository.getRepliesWithUserData(newComment._id);
-
-        const formattedReplies = repliesWithUserData.map((reply: any) => ({
-            _id: reply.replies._id,
-            content: reply.replies.content,
-            createdAt: reply.replies.createdAt,
-            avatar: reply.replies.author.profilePicture,
-            author: reply.replies.author.username
-        }));
-
-        return {
-            _id: newComment._id,
-            content: newComment.content,
-            avatar: user.profilePicture,
-            author: user.username,
-            replies: formattedReplies
-        };
     }
     async deleteCommentReply(parentCommentId: string, comment: string) {
         try {
             const result = await this._repository.deleteCommentReply(parentCommentId, comment)
             return result
         } catch (error) {
-            console.error("Error fetching adminDeleteRecord:", error);
-            throw new Error("Failed to get adminDeleteRecord");
+            console.error("Error fetching deleteCommentReply:", error);
+            throw new Error("Failed to get deleteCommentReply");
         }
     }
     async likedUserDetails(likedUsersId: any): Promise<any> {
@@ -255,8 +260,8 @@ export class DatingUseCase implements IDatingUseCase {
             const LikedUsers = await this._repository.likedUserDetails(likedUsersId)
             return LikedUsers
         } catch (error) {
-            console.error("Error fetching adminDeleteRecord:", error);
-            throw new Error("Failed to get adminDeleteRecord");
+            console.error("Error fetching likedUserDetails:", error);
+            throw new Error("Failed to get likedUserDetails");
         }
     }
     async postAlreadyReported(postId: any, victimUser: any): Promise<any> {
@@ -264,8 +269,8 @@ export class DatingUseCase implements IDatingUseCase {
             const existingReport = await this._repository.postAlreadyReported(postId, victimUser)
             return existingReport
         } catch (error) {
-            console.error("Error fetching adminDeleteRecord:", error);
-            throw new Error("Failed to get adminDeleteRecord");
+            console.error("Error fetching postAlreadyReported:", error);
+            throw new Error("Failed to get postAlreadyReported");
         }
     }
     async userPostedReply(content: any, userId: any, postId: any, parentId: any): Promise<any> {
@@ -273,8 +278,18 @@ export class DatingUseCase implements IDatingUseCase {
             const formattedReply = await this._repository.userPostedReply(content, userId, postId, parentId)
             return formattedReply
         } catch (error) {
-            console.error("Error fetching adminDeleteRecord:", error);
-            throw new Error("Failed to get adminDeleteRecord");
+            console.error("Error fetching userPostedReply:", error);
+            throw new Error("Failed to get userPostedReply");
+        }
+    }
+
+    async profileCompletionStatus(userId: string): Promise<ProfileCompletionStatus> {
+        try {
+            const { profile, isProfileComplete } = await this._repository.profileCompletionStatus(userId)
+            return { profile, isProfileComplete }
+        } catch (error) {
+            console.error("Error fetching profileCompletionStatus:", error);
+            throw new Error("Failed to get profileCompletionStatus");
         }
     }
 

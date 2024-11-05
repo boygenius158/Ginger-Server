@@ -204,7 +204,7 @@ export class UserRepository implements IUserRepository {
         try {
             // Trim any leading and trailing whitespace
             const sanitizedQuery = query.trim();
-    
+
             return await UserModel.find({
                 username: { $regex: '^' + sanitizedQuery, $options: 'i' }
             });
@@ -213,7 +213,7 @@ export class UserRepository implements IUserRepository {
             throw new Error("Failed to search by username. Please try again later.");
         }
     }
-    
+
 
     async findOneByUsername(username: string): Promise<any> {
         try {
@@ -294,17 +294,24 @@ export class UserRepository implements IUserRepository {
             if (!user) {
                 throw new Error('User not found');
             }
-            user.roles = role
 
-            await user.save()
-            const premium = new PremiumModel({
-                userId,
-                amount: 350
-            });
-            await premium.save()
+            // Update the role
+            user.roles = role;
+            await user.save();  
+
+            // Check if a PremiumModel entry already exists for this userId
+            const existingPremium = await PremiumModel.findOne({ userId });
+            if (!existingPremium) {
+                const premium = new PremiumModel({
+                    userId,
+                    amount: 350,
+                });
+                await premium.save();
+            }
         } catch (error) {
             console.error("Error updating user roles:", error);
             throw new Error("Failed to update user roles. Please try again later.");
         }
     }
+
 }

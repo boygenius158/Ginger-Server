@@ -63,7 +63,7 @@ class UserUseCase {
                     action: 'reset_password',
                 };
                 const secretKey = 'nibla158';
-                const expiresIn = '1h';
+                const expiresIn = '5m';
                 const token = this.tokenGenerator.generateToken(payload, secretKey, expiresIn);
                 yield this.mailer.sendVerificationMail(email, token);
                 yield this._repository.storeToken(email, token);

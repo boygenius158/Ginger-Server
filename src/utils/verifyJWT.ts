@@ -3,7 +3,7 @@ import jwt, { JwtPayload } from 'jsonwebtoken';
 import { HttpStatus } from './HttpStatus';
 
 interface CustomRequest extends Request {
-  user?: JwtPayload | string; // Attach the decoded payload (it can be string or object)
+  user?: JwtPayload | string;
 }
 
 const verifyJWT = (req: CustomRequest, res: Response, next: NextFunction) => {
@@ -14,7 +14,7 @@ const verifyJWT = (req: CustomRequest, res: Response, next: NextFunction) => {
     return res.status(HttpStatus.UNAUTHORIZED).json({ message: "Authorization token missing or malformed" });
   }
 
-  const token = authHeader.split(" ")[1]; // Extract the token after "Bearer"
+  const token = authHeader.split(" ")[1];
   console.log(token, "token in header");
 
   try {
@@ -30,7 +30,7 @@ const verifyJWT = (req: CustomRequest, res: Response, next: NextFunction) => {
   } catch (err: any) {
     console.error(`Token verification failed for path: ${req.originalUrl}`, err);
 
-    // Handle specific JWT errors (like token expiration)
+  
     if (err.name === "TokenExpiredError") {
       return res.status(HttpStatus.UNAUTHORIZED).json({ message: "Token has expired" });
     } else if (err.name === "JsonWebTokenError") {

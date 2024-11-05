@@ -1,3 +1,4 @@
+import { ProfileCompletionStatus } from "./IDatingRepository";
 
 
 export interface IDatingUseCase {
@@ -19,6 +20,6 @@ export interface IDatingUseCase {
     likedUserDetails(likedUsersId: any): Promise<any>
     postAlreadyReported(postId: any, victimUser: any): Promise<any>
     userPostedReply(content:any, userId:any, postId:any, parentId:any): Promise<any>
-
+    profileCompletionStatus(userId: string): Promise<ProfileCompletionStatus>
 
 }

@@ -1,3 +1,7 @@
+export interface ProfileCompletionStatus {
+    profile: any; 
+    isProfileComplete: boolean;
+}
 export interface IDatingRepository {
     swipeProfiles(userId: string, maximumAge: number, interestedGender: string): Promise<any>;
     updateProfileImages(userId: string, url: string[]): Promise<any>;
@@ -20,6 +24,7 @@ export interface IDatingRepository {
     likedUserDetails(likedUsersId: any): Promise<any>
     postAlreadyReported(postId: any, victimUser: any): Promise<any>
     userPostedReply(content: any, userId: any, postId: any, parentId: any): Promise<any>
+    profileCompletionStatus(userId:string):Promise<ProfileCompletionStatus>
 
 
 }

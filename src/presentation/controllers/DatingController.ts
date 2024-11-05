@@ -5,6 +5,7 @@ import { HttpStatus } from "../../utils/HttpStatus";
 import CommentModel from "../../infrastructure/database/model/CommentModel";
 import mongoose from "mongoose";
 import { IDatingUseCase } from "../../application/interface/IDatingUseCase";
+import { ProfileCompletionStatus } from "../../application/interface/IDatingRepository";
 
 export class DatingController {
     private _datingUseCase: IDatingUseCase;
@@ -287,6 +288,25 @@ export class DatingController {
             res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: "Internal Server Error" });
         }
     }
+
+
+
+    async profileCompletionStatus(req: Request, res: Response): Promise<void> {
+        try {
+            const { userId } = req.body
+            const { profile, isProfileComplete } = await this._datingUseCase.profileCompletionStatus(userId)
+            console.log("success",profile,isProfileComplete);
+            
+            res.json({
+                profile,
+                isProfileComplete
+            })
+        } catch (error) {
+            console.error("Error occurred:", error);
+            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: "Internal Server Error" });
+        }
+    }
+
 
 
 }

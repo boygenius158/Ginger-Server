@@ -32,4 +32,6 @@ router.post('/api/user/likedUserDetails', verifyJWT, datingController.likedUserD
 router.post('/api/user/delete-commentreply', verifyJWT, datingController.deleteCommentReply.bind(datingController))
 router.post('/api/user/post-already-reported', verifyJWT, datingController.postAlreadyReported.bind(datingController))
 router.post('/api/user/user-posted-reply', verifyJWT, datingController.userPostedReply.bind(datingController))
+
+router.post('/api/user/profile-completion-status',verifyJWT,datingController.profileCompletionStatus.bind(datingController))
 export default router

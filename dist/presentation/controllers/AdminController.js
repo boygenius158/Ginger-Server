@@ -129,7 +129,7 @@ class AdminController {
     userDemoInfo(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const responseData = this._adminUseCase.userDemoInfo();
+                const responseData = yield this._adminUseCase.userDemoInfo();
                 return responseData;
             }
             catch (error) {
@@ -142,7 +142,7 @@ class AdminController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { postId } = req.body;
-                const response = this._adminUseCase.banPostUser(postId);
+                const response = yield this._adminUseCase.banPostUser(postId);
                 res.json({});
             }
             catch (error) {
@@ -155,7 +155,8 @@ class AdminController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { userId } = req.body;
-                const user = this._adminUseCase.isPostSaved(userId);
+                const user = yield this._adminUseCase.isPostSaved(userId);
+                console.log(user, "poi");
                 res.json({ user });
             }
             catch (error) {
@@ -167,7 +168,7 @@ class AdminController {
     filterPost(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const posts = this._adminUseCase.filterPost();
+                const posts = yield this._adminUseCase.filterPost();
                 res.json({ posts });
             }
             catch (error) {

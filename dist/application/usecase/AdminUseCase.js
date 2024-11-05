@@ -119,7 +119,7 @@ class AdminUseCase {
     userDemoInfo() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const responseData = this._repository.userDemoInfo();
+                const responseData = yield this._repository.userDemoInfo();
                 return responseData;
             }
             catch (error) {
@@ -131,7 +131,7 @@ class AdminUseCase {
     banPostUser(postId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = this._repository.banPostUser(postId);
+                const response = yield this._repository.banPostUser(postId);
             }
             catch (error) {
                 console.error("Error banning post:", error);
@@ -142,7 +142,7 @@ class AdminUseCase {
     isPostSaved(userId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const user = this._repository.isPostSaved(userId);
+                const user = yield this._repository.isPostSaved(userId);
                 return user;
             }
             catch (error) {
@@ -154,7 +154,7 @@ class AdminUseCase {
     filterPost() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const posts = this._repository.filterPost();
+                const posts = yield this._repository.filterPost();
                 return posts;
             }
             catch (error) {

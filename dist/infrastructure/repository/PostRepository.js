@@ -26,7 +26,6 @@ class PostRepository {
     getUserDemographics() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log("ys");
                 return yield UserModel_1.default.aggregate([
                     {
                         $match: {

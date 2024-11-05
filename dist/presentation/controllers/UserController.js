@@ -19,18 +19,18 @@ const User_1 = require("../../domain/entities/User");
 const HttpStatus_1 = require("../../utils/HttpStatus");
 // import { UserModel } from '../../infrastructure/database/model/authModel';
 class UserController {
-    constructor(authUsecase) {
-        this._authUsecase = authUsecase;
+    constructor(UserUseCase) {
+        this._userUseCase = UserUseCase;
         this._tokenGenerator = new tokenGenerator_1.TokenGenerator();
     }
     signUpUser(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { email } = req.body;
-                const userExists = yield this._authUsecase.userExists(email);
-                // this._authUsecase
+                const userExists = yield this._userUseCase.userExists(email);
+                // this._userUseCase
                 if (!userExists) {
-                    const userData = yield this._authUsecase.registerUser(req.body);
+                    const userData = yield this._userUseCase.registerUser(req.body);
                     console.log(userData, "990099");
                     return res.json(userData);
                 }
@@ -45,12 +45,12 @@ class UserController {
     loginUser(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const user = yield this._authUsecase.userExists(req.body.email);
+                const user = yield this._userUseCase.userExists(req.body.email);
                 if (!user) {
                     return res.status(HttpStatus_1.HttpStatus.UNAUTHORIZED).json({ error: "User not found" });
                 }
                 // console.log(user,"{{{");
-                const user2 = yield this._authUsecase.verifyPassword(req.body.email, req.body.password);
+                const user2 = yield this._userUseCase.verifyPassword(req.body.email, req.body.password);
                 // console.log("user",user2);
                 console.log(user2, "popo");
                 return res.json(user2);
@@ -64,13 +64,13 @@ class UserController {
     googleAuth(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const user = yield this._authUsecase.userExists(req.body.email);
+                const user = yield this._userUseCase.userExists(req.body.email);
                 if (user) {
                     return res.json(user);
                 }
                 else {
                     console.log("0099");
-                    const newUser = yield this._authUsecase.registerUser(req.body);
+                    const newUser = yield this._userUseCase.registerUser(req.body);
                     return res.json(newUser);
                 }
             }
@@ -83,9 +83,9 @@ class UserController {
     forgetPassword(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const user = yield this._authUsecase.userExists(req.body.email);
+                const user = yield this._userUseCase.userExists(req.body.email);
                 if (user) {
-                    yield this._authUsecase.forgotPassword(user.email);
+                    yield this._userUseCase.forgotPassword(user.email);
                     return res.json({ success: true, message: "Email has been sent" });
                 }
                 else {
@@ -108,7 +108,7 @@ class UserController {
                 if (!decodedToken) {
                     return res.status(HttpStatus_1.HttpStatus.UNAUTHORIZED).json({ error: "Invalid or expired token" });
                 }
-                yield this._authUsecase.changePassword(decodedToken.email, password);
+                yield this._userUseCase.changePassword(decodedToken.email, password);
                 return res.json({ success: true, message: "Password changed successfully" });
             }
             catch (error) {
@@ -121,12 +121,12 @@ class UserController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 console.log("check role", req.body);
-                const user = yield this._authUsecase.userExists(req.body.email);
+                const user = yield this._userUseCase.userExists(req.body.email);
                 // console.log(user);
                 if (!user) {
                     return res.status(HttpStatus_1.HttpStatus.NOT_FOUND).json({ success: false, message: "User not found" });
                 }
-                const userRole = yield this._authUsecase.getUserRole(req.body.email);
+                const userRole = yield this._userUseCase.getUserRole(req.body.email);
                 console.log("Ds", userRole, "sd");
                 if (userRole) {
                     return res.json({ success: true, role: userRole });
@@ -145,13 +145,13 @@ class UserController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { email } = req.body;
-                const user = yield this._authUsecase.userExists(req.body.email);
+                const user = yield this._userUseCase.userExists(req.body.email);
                 if (!user) {
                     return res.json({ success: false });
                     // return res.status(HttpStatus.NOT_FOUND).json({ success: false, message: "User not found" });
                 }
                 const otp = yield (0, randomOTP_1.default)();
-                yield this._authUsecase.storeotp(otp, email);
+                yield this._userUseCase.storeotp(otp, email);
                 return res.json({ success: true });
             }
             catch (error) {
@@ -163,14 +163,14 @@ class UserController {
     verifyotp(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const userAlreadyVerified = yield this._authUsecase.userExists(req.body.email);
+                const userAlreadyVerified = yield this._userUseCase.userExists(req.body.email);
                 if (!userAlreadyVerified) {
                     return res.json({ success: false });
                 }
                 if (userAlreadyVerified.isVerified === true) {
                     return res.json({ success: false });
                 }
-                const valid = yield this._authUsecase.verifyotp(req.body.otp, req.body.email);
+                const valid = yield this._userUseCase.verifyotp(req.body.otp, req.body.email);
                 if (valid) {
                     return res.json({ success: true });
                 }
@@ -187,7 +187,7 @@ class UserController {
     clearotp(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                yield this._authUsecase.clearotp(req.body.email);
+                yield this._userUseCase.clearotp(req.body.email);
                 return res.json({ success: true });
             }
             catch (error) {
@@ -200,7 +200,7 @@ class UserController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { url, userId } = req.body;
-                const updatedUser = yield this._authUsecase.uploadProfilePicture(userId, url);
+                const updatedUser = yield this._userUseCase.uploadProfilePicture(userId, url);
                 res.status(HttpStatus_1.HttpStatus.OK).json({ success: true });
             }
             catch (error) {
@@ -216,7 +216,7 @@ class UserController {
                 if (!searchQuery) {
                     res.status(HttpStatus_1.HttpStatus.BAD_REQUEST).json({ error: "Search query is required" });
                 }
-                const users = yield this._authUsecase.searchUsers(searchQuery);
+                const users = yield this._userUseCase.searchUsers(searchQuery);
                 res.json({ users });
             }
             catch (error) {
@@ -228,7 +228,7 @@ class UserController {
     fetchNameUsername(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const user = yield this._authUsecase.getUserById(req.body.id);
+                const user = yield this._userUseCase.getUserById(req.body.id);
                 if (!user) {
                     res.status(HttpStatus_1.HttpStatus.NOT_FOUND).json({ error: 'User not found' });
                 }
@@ -245,7 +245,7 @@ class UserController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { id } = req.body;
-                const result = yield this._authUsecase.hasPassword(id);
+                const result = yield this._userUseCase.hasPassword(id);
                 res.json(result);
             }
             catch (error) {
@@ -258,7 +258,7 @@ class UserController {
             try {
                 const { id, name, username, bio } = req.body;
                 // console.log(req.body);
-                const result = yield this._authUsecase.updateUser(id, name, username, bio);
+                const result = yield this._userUseCase.updateUser(id, name, username, bio);
                 if (result.success === false) {
                     res.json(result);
                 }
@@ -275,7 +275,7 @@ class UserController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { id, currentPassword, newPassword } = req.body;
-                const result = yield this._authUsecase.updatePassword(id, currentPassword, newPassword);
+                const result = yield this._userUseCase.updatePassword(id, currentPassword, newPassword);
                 res.json(result);
             }
             catch (error) {
@@ -286,7 +286,7 @@ class UserController {
     miniProfile(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const user = yield this._authUsecase.getMiniProfile(req.body.id);
+                const user = yield this._userUseCase.getMiniProfile(req.body.id);
                 res.json({ user });
             }
             catch (error) {
@@ -297,7 +297,7 @@ class UserController {
     saveUserToSearchHistory(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = yield this._authUsecase.saveUserToSearchHistory(req.body.userId, req.body.key);
+                const result = yield this._userUseCase.saveUserToSearchHistory(req.body.userId, req.body.key);
                 res.json(result);
             }
             catch (error) {
@@ -308,7 +308,7 @@ class UserController {
     getRecentSearches(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const searches = yield this._authUsecase.getRecentSearches(req.body.userId);
+                const searches = yield this._userUseCase.getRecentSearches(req.body.userId);
                 res.json({ searches });
             }
             catch (error) {
@@ -319,7 +319,7 @@ class UserController {
     premiumPayment(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                yield this._authUsecase.handlePremiumPayment(req.body.userId);
+                yield this._userUseCase.handlePremiumPayment(req.body.userId);
                 res.json({ message: 'Premium payment recorded' });
             }
             catch (error) {
@@ -331,7 +331,7 @@ class UserController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 console.log("req.body.emali", req.body.email);
-                const user = yield this._authUsecase.findUserByEmail(req.body.email);
+                const user = yield this._userUseCase.findUserByEmail(req.body.email);
                 console.log("userrT", user);
                 res.json({ user });
             }
@@ -344,9 +344,9 @@ class UserController {
         return __awaiter(this, void 0, void 0, function* () {
             const { amount, userId, currency = 'usd' } = req.body;
             try {
-                const clientSecret = yield this._authUsecase.createPaymentIntent(amount, currency);
+                const clientSecret = yield this._userUseCase.createPaymentIntent(amount, currency);
                 // Assume premium role for the user
-                yield this._authUsecase.updateUserRole(userId, User_1.UserRole.Premium);
+                yield this._userUseCase.updateUserRole(userId, User_1.UserRole.Premium);
                 res.send({ clientSecret });
             }
             catch (error) {

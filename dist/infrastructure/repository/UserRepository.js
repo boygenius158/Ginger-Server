@@ -213,8 +213,10 @@ class UserRepository {
     searchByUsername(query) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                // Trim any leading and trailing whitespace
+                const sanitizedQuery = query.trim();
                 return yield UserModel_1.default.find({
-                    username: { $regex: '^' + query, $options: 'i' }
+                    username: { $regex: '^' + sanitizedQuery, $options: 'i' }
                 });
             }
             catch (error) {
@@ -314,13 +316,18 @@ class UserRepository {
                 if (!user) {
                     throw new Error('User not found');
                 }
+                // Update the role
                 user.roles = role;
                 yield user.save();
-                const premium = new PremiumModel_1.PremiumModel({
-                    userId,
-                    amount: 350
-                });
-                yield premium.save();
+                // Check if a PremiumModel entry already exists for this userId
+                const existingPremium = yield PremiumModel_1.PremiumModel.findOne({ userId });
+                if (!existingPremium) {
+                    const premium = new PremiumModel_1.PremiumModel({
+                        userId,
+                        amount: 350,
+                    });
+                    yield premium.save();
+                }
             }
             catch (error) {
                 console.error("Error updating user roles:", error);

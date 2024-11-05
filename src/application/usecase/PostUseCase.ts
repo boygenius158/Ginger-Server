@@ -19,7 +19,7 @@ export class PostUseCase implements IPostUseCase {
             return userId;
         } catch (error) {
             console.error("Error in findUserId:", error);
-            throw new Error("Unable to find user by email");
+            throw new Error("findUserId resulting in error");
         }
     }
 
@@ -193,13 +193,6 @@ export class PostUseCase implements IPostUseCase {
             throw new Error("Unable to report post");
         }
     }
-
-    // Continue adding try-catch blocks for the rest of the functions following this same pattern.
-
-
-
-
-
     async fetchSavedPosts(username: string): Promise<any> {
         try {
             // Fetch user from _repository
@@ -353,32 +346,36 @@ export class PostUseCase implements IPostUseCase {
             followerCount: number;
         }
 
-        const data = await this._repository.getTopUsersByFollowers(3);
+        try {
+            const data = await this._repository.getTopUsersByFollowers(3);
 
-        // Map the aggregation result to the required chartData format
-        const chartData: ChartData[] = data.map((user: UserType) => ({
-            username: user.username,
-            followers: user.followerCount,
-            fill: "var(--color-other)" // Replace this with actual color logic if needed
-        }));
+            // Map the aggregation result to the required chartData format
+            const chartData: ChartData[] = data.map((user: UserType) => ({
+                username: user.username,
+                followers: user.followerCount,
+                fill: "var(--color-other)" // Replace this with actual color logic if needed
+            }));
 
-        // Generate chartConfig dynamically based on chartData
-        const chartConfig: ChartConfig = chartData.reduce((config, user, index) => {
-            const colorVar = `--chart-${index + 2}`;
-            config[user.username] = {
-                label: user.username,
-                color: `hsl(var(${colorVar}))`
+            // Generate chartConfig dynamically based on chartData
+            const chartConfig: ChartConfig = chartData.reduce((config, user, index) => {
+                const colorVar = `--chart-${index + 2}`;
+                config[user.username] = {
+                    label: user.username,
+                    color: `hsl(var(${colorVar}))`
+                };
+                return config;
+            }, {} as ChartConfig);
+
+            // Add any additional static or predefined configurations
+            chartConfig.visitors = {
+                label: "Visitors",
+                color: 'hsl(var(--chart-visitors))' // Add a default color if needed
             };
-            return config;
-        }, {} as ChartConfig);
 
-        // Add any additional static or predefined configurations
-        chartConfig.visitors = {
-            label: "Visitors",
-            color: 'hsl(var(--chart-visitors))' // Add a default color if needed
-        };
-
-        return { chartData, chartConfig };
+            return { chartData, chartConfig };
+        } catch (error) {
+            throw new Error("error at getChartData()")
+        }
     }
-    
+
 } 

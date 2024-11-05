@@ -310,5 +310,22 @@ class DatingController {
             }
         });
     }
+    profileCompletionStatus(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { userId } = req.body;
+                const { profile, isProfileComplete } = yield this._datingUseCase.profileCompletionStatus(userId);
+                console.log("success", profile, isProfileComplete);
+                res.json({
+                    profile,
+                    isProfileComplete
+                });
+            }
+            catch (error) {
+                console.error("Error occurred:", error);
+                res.status(HttpStatus_1.HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: "Internal Server Error" });
+            }
+        });
+    }
 }
 exports.DatingController = DatingController;

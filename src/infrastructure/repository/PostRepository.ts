@@ -15,7 +15,6 @@ import { PremiumModel } from "../database/model/PremiumModel";
 export class PostRepository implements IPostRepository {
     async getUserDemographics(): Promise<{ _id: string; count: number }[]> {
         try {
-            console.log("ys");
             return await UserModel.aggregate([
                 {
                     $match: {

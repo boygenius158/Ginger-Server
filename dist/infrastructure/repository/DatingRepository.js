@@ -25,12 +25,23 @@ class DatingRepository {
         return __awaiter(this, void 0, void 0, function* () {
             console.log(userId, maximumAge, interestedGender, "maximumage");
             try {
+                // Verify if the user has images
+                const user = yield DatingProfileMode_1.default.findOne({ userId });
+                if (!user || !user.images || user.images.length === 0) {
+                    console.log("User has no images, returning an empty profile list.");
+                    return []; // Return an empty array if the user doesn't have images
+                }
+                if (!user.profileVisibility) {
+                    return [];
+                }
+                // Fetch profiles based on provided filters
                 const profiles = yield DatingProfileMode_1.default.find({
                     userId: { $ne: userId },
                     profileVisibility: true,
                     age: { $lte: maximumAge },
                     gender: interestedGender,
-                    likedByUsers: { $ne: userId }
+                    likedByUsers: { $ne: userId },
+                    images: { $ne: [] } // Filter out profiles with an empty images array
                 });
                 console.log(profiles, "profiles");
                 return profiles;
@@ -284,58 +295,88 @@ class DatingRepository {
     }
     findUser(userId) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield UserModel_1.default.findById(userId);
+            try {
+                return yield UserModel_1.default.findById(userId);
+            }
+            catch (error) {
+                console.error("Error finding user:", error);
+                throw error;
+            }
         });
     }
     findPostById(postId) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield PostModel_1.PostModel.findById(postId);
+            try {
+                return yield PostModel_1.PostModel.findById(postId);
+            }
+            catch (error) {
+                console.error("Error finding post by ID:", error);
+                throw error;
+            }
         });
     }
     saveComment(commentData) {
         return __awaiter(this, void 0, void 0, function* () {
-            const comment = new CommentModel_1.default(commentData);
-            return yield comment.save();
+            try {
+                const comment = new CommentModel_1.default(commentData);
+                return yield comment.save();
+            }
+            catch (error) {
+                console.error("Error saving comment:", error);
+                throw error;
+            }
         });
     }
     createNotification(notificationData) {
         return __awaiter(this, void 0, void 0, function* () {
-            const notification = new NotificationModel_1.Notification(notificationData);
-            return yield notification.save();
+            try {
+                const notification = new NotificationModel_1.Notification(notificationData);
+                return yield notification.save();
+            }
+            catch (error) {
+                console.error("Error creating notification:", error);
+                throw error;
+            }
         });
     }
     getRepliesWithUserData(commentId) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield CommentModel_1.default.aggregate([
-                {
-                    $match: { _id: new mongoose_1.default.Types.ObjectId(commentId) }
-                },
-                {
-                    $unwind: "$replies"
-                },
-                {
-                    $lookup: {
-                        from: 'users',
-                        localField: 'replies.userId',
-                        foreignField: '_id',
-                        as: 'replyUser'
+            try {
+                return yield CommentModel_1.default.aggregate([
+                    {
+                        $match: { _id: new mongoose_1.default.Types.ObjectId(commentId) }
+                    },
+                    {
+                        $unwind: "$replies"
+                    },
+                    {
+                        $lookup: {
+                            from: 'users',
+                            localField: 'replies.userId',
+                            foreignField: '_id',
+                            as: 'replyUser'
+                        }
+                    },
+                    {
+                        $addFields: {
+                            "replies.author": { $arrayElemAt: ["$replyUser", 0] }
+                        }
+                    },
+                    {
+                        $project: {
+                            "replies._id": 1,
+                            "replies.content": 1,
+                            "replies.createdAt": 1,
+                            "replies.author.profilePicture": "$replies.author.profilePicture",
+                            "replies.author.username": "$replies.author.username"
+                        }
                     }
-                },
-                {
-                    $addFields: {
-                        "replies.author": { $arrayElemAt: ["$replyUser", 0] }
-                    }
-                },
-                {
-                    $project: {
-                        "replies._id": 1,
-                        "replies.content": 1,
-                        "replies.createdAt": 1,
-                        "replies.author.profilePicture": "$replies.author.profilePicture",
-                        "replies.author.username": "$replies.author.username"
-                    }
-                }
-            ]);
+                ]);
+            }
+            catch (error) {
+                console.error("Error getting replies with user data:", error);
+                throw error;
+            }
         });
     }
     deleteCommentReply(parentCommentId, comment) {
@@ -350,6 +391,8 @@ class DatingRepository {
                 return result;
             }
             catch (error) {
+                console.error("Error deleteCommentReply:", error);
+                throw new Error("Failed deleteCommentReply. Please try again later.");
             }
         });
     }
@@ -362,6 +405,8 @@ class DatingRepository {
                 return LikedUsers;
             }
             catch (error) {
+                console.error("Error likedUserDetails:", error);
+                throw new Error("Failed likedUserDetails. Please try again later.");
             }
         });
     }
@@ -375,6 +420,8 @@ class DatingRepository {
                 return existingReport;
             }
             catch (error) {
+                console.error("Error postAlreadyReported:", error);
+                throw new Error("Failed postAlreadyReported. Please try again later.");
             }
         });
     }
@@ -418,6 +465,32 @@ class DatingRepository {
                 return formattedReply;
             }
             catch (error) {
+                console.error("Error userPostedReply:", error);
+                throw new Error("Failed userPostedReply. Please try again later.");
+            }
+        });
+    }
+    profileCompletionStatus(userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const profile = yield DatingProfileMode_1.default.findOne({ userId });
+                if (!profile) {
+                    throw new Error;
+                }
+                // Using <any> to bypass TypeScript's strict property checks
+                const requiredFields = ["name", "age", "bio", "images", "gender", "profileVisibility", "maximumAge", "interestedGender"];
+                const isProfileComplete = requiredFields.every(field => {
+                    const value = profile[field];
+                    return value !== undefined && value !== null && !(Array.isArray(value) && value.length === 0) && value !== '';
+                });
+                return {
+                    profile,
+                    isProfileComplete
+                };
+            }
+            catch (error) {
+                console.error("Error saving profileCompletionStatus:", error);
+                throw new Error("Failed to save profileCompletionStatus. Please try again later.");
             }
         });
     }

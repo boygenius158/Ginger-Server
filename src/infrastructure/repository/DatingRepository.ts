@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { IDatingRepository } from "../../application/interface/IDatingRepository";
+import { IDatingRepository, ProfileCompletionStatus } from "../../application/interface/IDatingRepository";
 import CommentModel from "../database/model/CommentModel";
 import DatingProfile from "../database/model/DatingProfileMode";
 import { PostModel } from "../database/model/PostModel";
@@ -37,7 +37,7 @@ export class DatingRepository implements IDatingRepository {
                 console.log("User has no images, returning an empty profile list.");
                 return [];  // Return an empty array if the user doesn't have images
             }
-            if(!user.profileVisibility){
+            if (!user.profileVisibility) {
                 return []
             }
 
@@ -289,54 +289,79 @@ export class DatingRepository implements IDatingRepository {
         }
     }
     async findUser(userId: string): Promise<any> {
-        return await UserModel.findById(userId);
+        try {
+            return await UserModel.findById(userId);
+        } catch (error) {
+            console.error("Error finding user:", error);
+            throw error;
+        }
     }
 
     async findPostById(postId: string): Promise<any> {
-        return await PostModel.findById(postId);
+        try {
+            return await PostModel.findById(postId);
+        } catch (error) {
+            console.error("Error finding post by ID:", error);
+            throw error;
+        }
     }
 
     async saveComment(commentData: any): Promise<any> {
-        const comment = new CommentModel(commentData);
-        return await comment.save();
+        try {
+            const comment = new CommentModel(commentData);
+            return await comment.save();
+        } catch (error) {
+            console.error("Error saving comment:", error);
+            throw error;
+        }
     }
 
     async createNotification(notificationData: any): Promise<any> {
-        const notification = new Notification(notificationData);
-        return await notification.save();
+        try {
+            const notification = new Notification(notificationData);
+            return await notification.save();
+        } catch (error) {
+            console.error("Error creating notification:", error);
+            throw error;
+        }
     }
 
     async getRepliesWithUserData(commentId: string): Promise<any> {
-        return await CommentModel.aggregate([
-            {
-                $match: { _id: new mongoose.Types.ObjectId(commentId) }
-            },
-            {
-                $unwind: "$replies"
-            },
-            {
-                $lookup: {
-                    from: 'users',
-                    localField: 'replies.userId',
-                    foreignField: '_id',
-                    as: 'replyUser'
+        try {
+            return await CommentModel.aggregate([
+                {
+                    $match: { _id: new mongoose.Types.ObjectId(commentId) }
+                },
+                {
+                    $unwind: "$replies"
+                },
+                {
+                    $lookup: {
+                        from: 'users',
+                        localField: 'replies.userId',
+                        foreignField: '_id',
+                        as: 'replyUser'
+                    }
+                },
+                {
+                    $addFields: {
+                        "replies.author": { $arrayElemAt: ["$replyUser", 0] }
+                    }
+                },
+                {
+                    $project: {
+                        "replies._id": 1,
+                        "replies.content": 1,
+                        "replies.createdAt": 1,
+                        "replies.author.profilePicture": "$replies.author.profilePicture",
+                        "replies.author.username": "$replies.author.username"
+                    }
                 }
-            },
-            {
-                $addFields: {
-                    "replies.author": { $arrayElemAt: ["$replyUser", 0] }
-                }
-            },
-            {
-                $project: {
-                    "replies._id": 1,
-                    "replies.content": 1,
-                    "replies.createdAt": 1,
-                    "replies.author.profilePicture": "$replies.author.profilePicture",
-                    "replies.author.username": "$replies.author.username"
-                }
-            }
-        ]);
+            ]);
+        } catch (error) {
+            console.error("Error getting replies with user data:", error);
+            throw error;
+        }
     }
 
     async deleteCommentReply(parentCommentId: string, comment: any) {
@@ -354,7 +379,8 @@ export class DatingRepository implements IDatingRepository {
             );
             return result
         } catch (error) {
-
+            console.error("Error deleteCommentReply:", error);
+            throw new Error("Failed deleteCommentReply. Please try again later.");
         }
     }
     async likedUserDetails(likedUsersId: any): Promise<any> {
@@ -365,7 +391,8 @@ export class DatingRepository implements IDatingRepository {
             })
             return LikedUsers
         } catch (error) {
-
+            console.error("Error likedUserDetails:", error);
+            throw new Error("Failed likedUserDetails. Please try again later.");
         }
     }
 
@@ -377,7 +404,8 @@ export class DatingRepository implements IDatingRepository {
             });
             return existingReport
         } catch (error) {
-
+            console.error("Error postAlreadyReported:", error);
+            throw new Error("Failed postAlreadyReported. Please try again later.");
         }
     }
 
@@ -425,7 +453,32 @@ export class DatingRepository implements IDatingRepository {
             return formattedReply
 
         } catch (error) {
+            console.error("Error userPostedReply:", error);
+            throw new Error("Failed userPostedReply. Please try again later.");
+        }
+    }
+    async profileCompletionStatus(userId: string): Promise<ProfileCompletionStatus> {
+        try {
+            const profile = await DatingProfile.findOne({ userId });
 
+            if (!profile) {
+                throw new Error
+            }
+
+            // Using <any> to bypass TypeScript's strict property checks
+            const requiredFields = ["name", "age", "bio", "images", "gender", "profileVisibility", "maximumAge", "interestedGender"];
+            const isProfileComplete = requiredFields.every(field => {
+                const value = (profile as any)[field];
+                return value !== undefined && value !== null && !(Array.isArray(value) && value.length === 0) && value !== '';
+            });
+
+            return {
+                profile,
+                isProfileComplete
+            }
+        } catch (error) {
+            console.error("Error saving profileCompletionStatus:", error);
+            throw new Error("Failed to save profileCompletionStatus. Please try again later.");
         }
     }
 

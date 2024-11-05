@@ -26,7 +26,7 @@ class PostUseCase {
             }
             catch (error) {
                 console.error("Error in findUserId:", error);
-                throw new Error("Unable to find user by email");
+                throw new Error("findUserId resulting in error");
             }
         });
     }
@@ -220,7 +220,6 @@ class PostUseCase {
             }
         });
     }
-    // Continue adding try-catch blocks for the rest of the functions following this same pattern.
     fetchSavedPosts(username) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -375,28 +374,33 @@ class PostUseCase {
     }
     getChartData() {
         return __awaiter(this, void 0, void 0, function* () {
-            const data = yield this._repository.getTopUsersByFollowers(3);
-            // Map the aggregation result to the required chartData format
-            const chartData = data.map((user) => ({
-                username: user.username,
-                followers: user.followerCount,
-                fill: "var(--color-other)" // Replace this with actual color logic if needed
-            }));
-            // Generate chartConfig dynamically based on chartData
-            const chartConfig = chartData.reduce((config, user, index) => {
-                const colorVar = `--chart-${index + 2}`;
-                config[user.username] = {
-                    label: user.username,
-                    color: `hsl(var(${colorVar}))`
+            try {
+                const data = yield this._repository.getTopUsersByFollowers(3);
+                // Map the aggregation result to the required chartData format
+                const chartData = data.map((user) => ({
+                    username: user.username,
+                    followers: user.followerCount,
+                    fill: "var(--color-other)" // Replace this with actual color logic if needed
+                }));
+                // Generate chartConfig dynamically based on chartData
+                const chartConfig = chartData.reduce((config, user, index) => {
+                    const colorVar = `--chart-${index + 2}`;
+                    config[user.username] = {
+                        label: user.username,
+                        color: `hsl(var(${colorVar}))`
+                    };
+                    return config;
+                }, {});
+                // Add any additional static or predefined configurations
+                chartConfig.visitors = {
+                    label: "Visitors",
+                    color: 'hsl(var(--chart-visitors))' // Add a default color if needed
                 };
-                return config;
-            }, {});
-            // Add any additional static or predefined configurations
-            chartConfig.visitors = {
-                label: "Visitors",
-                color: 'hsl(var(--chart-visitors))' // Add a default color if needed
-            };
-            return { chartData, chartConfig };
+                return { chartData, chartConfig };
+            }
+            catch (error) {
+                throw new Error("error at getChartData()");
+            }
         });
     }
 }

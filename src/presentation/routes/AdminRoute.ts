@@ -28,63 +28,6 @@ router.post('/api/user/is-post-saved', verifyJWT, adminController.isPostSaved.bi
 router.get('/api/admin/user-demographics-info', verifyJWT, adminController.userDemoInfo.bind(adminController))
 
 
-// router.post('/api/admin/banPost', async (req, res) => {
-//     console.log("ban", req.body);
-//     const { postId } = req.body
-//     await PostModel.findByIdAndDelete(postId)
-//     res.json({})
 
-// })
-// router.post('/api/user/is-post-saved', async (req, res) => {
-//     console.log(req.body, "hello");
-//     const { userId } = req.body
-//     const user = await UserModel.findById(userId)
-//     res.json({user})
-
-// })
-// router.post('/api/admin/filterPost', async (req, res) => {
-//     console.log("filter post");
-//         const posts = await Report.find({}).populate({
-//             path: 'postId',
-//             populate: {
-//                 path: 'userId'
-//             }
-//         })
-//             .sort({ createdAt: -1 })
-//             .exec();
-
-//         return res.json({ posts })
-
-// })
-// router.get('/api/admin/user-demographics-info', async (req, res) => {
-//     try {
-//         // Use aggregation to count the number of users with specific roles
-//         const counts = await UserModel.aggregate([
-//             {
-//                 $match: {
-//                     roles: { $in: ['user', 'premium'] } // Include only user and premium roles
-//                 }
-//             },
-//             {
-//                 $group: {
-//                     _id: '$roles', // Group by the roles
-//                     count: { $sum: 1 } // Count each role
-//                 }
-//             }
-//         ]);
-
-//         // Format the response data
-//         const responseData = counts.map(roleCount => ({
-//             label: roleCount._id,
-//             value: roleCount.count
-//         }));
-
-//         // Send the response
-//         res.json(responseData);
-//     } catch (error) {
-//         console.error("Error fetching user demographics info:", error);
-//         res.status(500).json({ error: 'Server error' });
-//     }
-// });
 
 export default router   

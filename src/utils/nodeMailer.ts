@@ -45,10 +45,10 @@ class Mailer {
 
     async sendVerificationMail(to: string, token: string) {
         console.log("hi");
-        
-        const subject = "Email Verification";
+
+        const subject = "Password Reset";
         const htmlContent = `<p>Hi,</p>
-                             <p>Please click <a href="https://gingerfrontend.vercel.app/verify?token=${token}">here</a> to verify your email.</p>`;
+                             <p>Please click <a href="http://localhost:3000/verify?token=${token}">here</a> to reset your password.</p>`;
         await this.sendMail(to, subject, htmlContent);
     }
 }
