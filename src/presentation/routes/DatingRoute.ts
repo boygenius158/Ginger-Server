@@ -3,6 +3,7 @@ import { DatingRepository } from '../../infrastructure/repository/DatingReposito
 import { DatingUseCase } from '../../application/usecase/DatingUseCase';
 import { DatingController } from '../controllers/DatingController';
 import verifyJWT from '../../utils/verifyJWT';
+import DatingProfile from '../../infrastructure/database/model/DatingProfileMode';
 const router = express.Router()
 
 
@@ -33,5 +34,17 @@ router.post('/api/user/delete-commentreply', verifyJWT, datingController.deleteC
 router.post('/api/user/post-already-reported', verifyJWT, datingController.postAlreadyReported.bind(datingController))
 router.post('/api/user/user-posted-reply', verifyJWT, datingController.userPostedReply.bind(datingController))
 
-router.post('/api/user/profile-completion-status',verifyJWT,datingController.profileCompletionStatus.bind(datingController))
+router.post('/api/user/profile-completion-status', verifyJWT, datingController.profileCompletionStatus.bind(datingController))
+
+router.post('/api/user/profile-visibility', async (req, res) => {
+    console.log(req.body);
+    const profile = await DatingProfile.findOne({ userId: req.body.userId })
+    if (!profile) {
+        throw new Error
+    }
+    profile.profileVisibility = req.body.profileVisibility
+    await profile.save()
+
+})
+
 export default router

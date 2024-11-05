@@ -8,7 +8,7 @@ export interface IDatingUseCase {
     getUserDatingProfile(userId: string): Promise<any>;
     handleDatingTab1(userId: string, formData: { name: string, age: number, bio: string, gender: string }): Promise<any>;
     getProfileImages(userId: string): Promise<string[] | null>;
-    updateUserPreferences(userId: string, maximumAge: number, profileVisibility: boolean, interestedGender: string): Promise<any>;
+    updateUserPreferences(userId: string, maximumAge: number,  interestedGender: string): Promise<any>;
     getUserSettings(userId: string): Promise<any>;
     getDatingTab1Details(userId: string): Promise<any>;
     adminDeleteRecord(id: string): Promise<void>

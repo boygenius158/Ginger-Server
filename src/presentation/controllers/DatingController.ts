@@ -96,11 +96,11 @@ export class DatingController {
     }
     async handleDatingTab4(req: Request, res: Response, next: NextFunction) {
         try {
-            const { userId, maximumAge, profileVisibility, interestedGender } = req.body;
+            const { userId, maximumAge, interestedGender } = req.body;
             console.log(req.body, "ooo");
 
 
-            const updatedUser = await this._datingUseCase.updateUserPreferences(userId, maximumAge, profileVisibility, interestedGender);
+            const updatedUser = await this._datingUseCase.updateUserPreferences(userId, maximumAge, interestedGender);
 
             if (!updatedUser) {
                 return res.status(HttpStatus.NOT_FOUND).json({ message: "User not found" });

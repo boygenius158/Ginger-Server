@@ -98,7 +98,7 @@ export class DatingUseCase implements IDatingUseCase {
         }
     }
 
-    async updateUserPreferences(userId: string, maximumAge: number, profileVisibility: boolean, interestedGender: string): Promise<any> {
+    async updateUserPreferences(userId: string, maximumAge: number, interestedGender: string): Promise<any> {
         try {
             console.log("Interested Gender:", interestedGender);
             const user = await this._repository.findUserById(userId);
@@ -107,7 +107,6 @@ export class DatingUseCase implements IDatingUseCase {
             }
 
             user.maximumAge = maximumAge;
-            user.profileVisibility = profileVisibility;
             user.interestedGender = interestedGender;
             await this._repository.saveUser(user);
 
