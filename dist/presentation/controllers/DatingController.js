@@ -112,9 +112,9 @@ class DatingController {
     handleDatingTab4(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const { userId, maximumAge, profileVisibility, interestedGender } = req.body;
+                const { userId, maximumAge, interestedGender } = req.body;
                 console.log(req.body, "ooo");
-                const updatedUser = yield this._datingUseCase.updateUserPreferences(userId, maximumAge, profileVisibility, interestedGender);
+                const updatedUser = yield this._datingUseCase.updateUserPreferences(userId, maximumAge, interestedGender);
                 if (!updatedUser) {
                     return res.status(HttpStatus_1.HttpStatus.NOT_FOUND).json({ message: "User not found" });
                 }

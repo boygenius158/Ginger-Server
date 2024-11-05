@@ -113,7 +113,7 @@ class DatingUseCase {
             }
         });
     }
-    updateUserPreferences(userId, maximumAge, profileVisibility, interestedGender) {
+    updateUserPreferences(userId, maximumAge, interestedGender) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 console.log("Interested Gender:", interestedGender);
@@ -122,7 +122,6 @@ class DatingUseCase {
                     throw new Error("User not found");
                 }
                 user.maximumAge = maximumAge;
-                user.profileVisibility = profileVisibility;
                 user.interestedGender = interestedGender;
                 yield this._repository.saveUser(user);
                 return user;
