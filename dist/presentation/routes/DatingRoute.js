@@ -49,5 +49,6 @@ router.post('/api/user/profile-visibility', (req, res) => __awaiter(void 0, void
     }
     profile.profileVisibility = req.body.profileVisibility;
     yield profile.save();
+    res.json({});
 }));
 exports.default = router;

@@ -44,6 +44,7 @@ router.post('/api/user/profile-visibility', async (req, res) => {
     }
     profile.profileVisibility = req.body.profileVisibility
     await profile.save()
+    res.json({})
 
 })
 
