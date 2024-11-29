@@ -35,7 +35,6 @@ router.post('/api/user/post-already-reported', verifyJWT, datingController.postA
 router.post('/api/user/user-posted-reply', verifyJWT, datingController.userPostedReply.bind(datingController))
 
 router.post('/api/user/profile-completion-status', verifyJWT, datingController.profileCompletionStatus.bind(datingController))
-
 router.post('/api/user/profile-visibility', async (req, res) => {
     console.log(req.body);
     const profile = await DatingProfile.findOne({ userId: req.body.userId })
