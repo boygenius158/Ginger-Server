@@ -89,6 +89,25 @@ export class DatingRepository implements IDatingRepository {
             throw new Error("Failed to fetch matches. Please try again later.");
         }
     }
+    async fetchPostDetails(postId: string): Promise<any> {
+        try {
+            const post = await PostModel.findById(postId)
+            return post
+        } catch (error) {
+            console.error('Not able to fetch post details')
+            throw new Error
+        }
+    }
+    async getCommentById(commentId: string): Promise<any> {
+        //valid
+        try {
+            const comment = await CommentModel.findById(commentId)
+            return comment
+        } catch (error) {
+            console.error('error fetching comment details')
+            throw new Error
+        }
+    }
 
     async getUserDatingProfile(userId: string): Promise<any> {
         try {
@@ -481,6 +500,21 @@ export class DatingRepository implements IDatingRepository {
             throw new Error("Failed to save profileCompletionStatus. Please try again later.");
         }
     }
+
+    async profileVisibility(userId: string, profileVisibility: boolean): Promise<any> {
+        try {
+            const profile = await DatingProfile.findOne({ userId })
+            if (!profile) {
+                throw new Error
+            }
+            profile.profileVisibility = profileVisibility
+            await profile.save()
+        } catch (error) {
+            console.error('error in profile visibility')
+            throw new Error('error in profile visibiliy')
+        }
+    }
+
 
 
 }

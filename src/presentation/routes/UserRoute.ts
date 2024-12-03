@@ -34,18 +34,22 @@ router.post('/api/user/register/verifyotp', controller.verifyotp.bind(controller
 router.post('/api/user/custom-registration', controller.customBackendSession.bind(controller));
 
 // Routes that require `verifyJWT` 
-router.post('/api/user/checkrole', verifyJWT, controller.checkRole.bind(controller));
-router.post('/api/user/uploadProfile', verifyJWT, controller.uploadProfile.bind(controller));
-router.get('/api/user/searchUser', verifyJWT, controller.searchUser.bind(controller));
+// router.post('/api/user/checkrole', verifyJWT, controller.checkRole.bind(controller));
+router.put('/api/user/uploadProfile', verifyJWT, controller.uploadProfile.bind(controller));
 router.post('/api/user/fetch-name-username', verifyJWT, controller.fetchNameUsername.bind(controller));
-router.post('/api/user/has-password', controller.hasPassword.bind(controller));
-router.post('/api/user/update-user', verifyJWT, controller.updateUser.bind(controller));
+router.get('/api/user/searchUser', verifyJWT, controller.searchUser.bind(controller));
+router.post('/api/user/has-password',verifyJWT, controller.hasPassword.bind(controller));
+router.put('/api/user/update-user', verifyJWT, controller.updateUser.bind(controller));
 router.post('/api/user/update-password', verifyJWT, controller.updatePassword.bind(controller));
-router.post('/api/user/miniProfile', controller.miniProfile.bind(controller));
-router.post('/api/user/save-user-to-search-history', verifyJWT, controller.saveUserToSearchHistory.bind(controller));
-router.post('/api/user/get-recent-searches', verifyJWT, controller.getRecentSearches.bind(controller));
+router.post('/api/user/miniProfile',verifyJWT, controller.miniProfile.bind(controller));
 router.post('/api/user/premium-payment', verifyJWT, controller.premiumPayment.bind(controller));
-router.post('/api/create-payment-intent', controller.createPaymentIntent.bind(controller));
+router.post('/api/create-payment-intent',verifyJWT, controller.createPaymentIntent.bind(controller));
+
+//Routes left to be fixed
+// router.post('/api/user/save-user-to-search-history', verifyJWT, controller.saveUserToSearchHistory.bind(controller));
+// router.post('/api/user/get-recent-searches', verifyJWT, controller.getRecentSearches.bind(controller));
+
+// router.post('/test', controller.testapi.bind(controller));
 // router.post('/api/user/user-posted-reply',controller.)
 
 

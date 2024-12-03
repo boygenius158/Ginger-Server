@@ -36,38 +36,38 @@ export class PostUseCase implements IPostUseCase {
         }
     }
 
-    async getExpiryDate(userId: string): Promise<number> {
-        try {
-            const user = await this._repository.findUserById(userId);
+    // async getExpiryDate(userId: string): Promise<number> {
+    //     try {
+    //         const user = await this._repository.findUserById(userId);
 
-            if (!user) {
-                throw new Error("User not found");
-            }
+    //         if (!user) {
+    //             throw new Error("User not found");
+    //         }
 
-            if (user.roles !== 'premium' && user.roles !== 'admin') {
-                throw new Error("User does not have the required role");
-            }
+    //         if (user.roles !== 'premium' && user.roles !== 'admin') {
+    //             throw new Error("User does not have the required role");
+    //         }
 
-            const premium = await this._repository.findPremiumByUserId(userId);
+    //         const premium = await this._repository.findPremiumByUserId(userId);
 
-            if (!premium?.createdAt) {
-                throw new Error("Premium document or createdAt not found");
-            }
+    //         if (!premium?.createdAt) {
+    //             throw new Error("Premium document or createdAt not found");
+    //         }
 
-            const createdAt = new Date(premium.createdAt);
-            const expiryDate = new Date(createdAt);
-            expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+    //         const createdAt = new Date(premium.createdAt);
+    //         const expiryDate = new Date(createdAt);
+    //         expiryDate.setFullYear(expiryDate.getFullYear() + 1);
 
-            const today = new Date();
-            const timeDiff = expiryDate.getTime() - today.getTime();
-            const daysLeft = Math.ceil(timeDiff / (1000 * 3600 * 24));
+    //         const today = new Date();
+    //         const timeDiff = expiryDate.getTime() - today.getTime();
+    //         const daysLeft = Math.ceil(timeDiff / (1000 * 3600 * 24));
 
-            return daysLeft;
-        } catch (error) {
-            console.error("Error in getExpiryDate:", error);
-            throw new Error("Unable to calculate expiry date");
-        }
-    }
+    //         return daysLeft;
+    //     } catch (error) {
+    //         console.error("Error in getExpiryDate:", error);
+    //         throw new Error("Unable to calculate expiry date");
+    //     }
+    // }
 
     async getUserDemographics(): Promise<{ label: string; value: number }[]> {
         try {
@@ -121,22 +121,22 @@ export class PostUseCase implements IPostUseCase {
         }
     }
 
-    async checkFollowingStatus(email: string, id: string): Promise<boolean> {
-        try {
-            const user = await this._repository.checkFollowingStatus(email, id);
-            return !!user;
-        } catch (error) {
-            console.error("Error in checkFollowingStatus:", error);
-            throw new Error("Unable to check following status");
-        }
-    }
+    // async checkFollowingStatus(email: string, id: string): Promise<boolean> {
+    //     try {
+    //         const user = await this._repository.checkFollowingStatus(email, id);
+    //         return !!user;
+    //     } catch (error) {
+    //         console.error("Error in checkFollowingStatus:", error);
+    //         throw new Error("Unable to check following status");
+    //     }
+    // }
 
-    async fetchFeed(email: string, offset: number, limit: number): Promise<Post[] | null> {
+    async fetchFeed(userId: string, offset: number, limit: number): Promise<Post[] | null> {
         try {
-            const userId = await this.findUserId(email);
-            if (!userId) {
-                return null;
-            }
+            // const userId = await this.findUserId(email);
+            // if (!userId) {
+            //     return null;
+            // }
             const feed = await this._repository.fetchFeed(userId, offset, limit);
             return feed ?? null;
         } catch (error) {
@@ -165,25 +165,25 @@ export class PostUseCase implements IPostUseCase {
         }
     }
 
-    async uploadStory(url: string, userId: string): Promise<boolean> {
-        try {
-            await this._repository.uploadStory(url, userId);
-            return true;
-        } catch (error) {
-            console.error("Error in uploadStory:", error);
-            throw new Error("Unable to upload story");
-        }
-    }
+    // async uploadStory(url: string, userId: string): Promise<boolean> {
+    //     try {
+    //         await this._repository.uploadStory(url, userId);
+    //         return true;
+    //     } catch (error) {
+    //         console.error("Error in uploadStory:", error);
+    //         throw new Error("Unable to upload story");
+    //     }
+    // }
 
-    async updateProfile(name: string, bio: string, email: string): Promise<boolean> {
-        try {
-            await this._repository.updateProfile(name, bio, email);
-            return true;
-        } catch (error) {
-            console.error("Error in updateProfile:", error);
-            throw new Error("Unable to update profile");
-        }
-    }
+    // async updateProfile(name: string, bio: string, email: string): Promise<boolean> {
+    //     try {
+    //         await this._repository.updateProfile(name, bio, email);
+    //         return true;
+    //     } catch (error) {
+    //         console.error("Error in updateProfile:", error);
+    //         throw new Error("Unable to update profile");
+    //     }
+    // }
 
     async reportPost(reporterId: string, postId: string): Promise<void> {
         try {
@@ -211,15 +211,15 @@ export class PostUseCase implements IPostUseCase {
         }
     }
 
-    async updateReadStatus(sender: string, recipient: string): Promise<any> {
-        try {
-            // Update the read status of messages
-            const result = await this._repository.updateMessageReadStatus(sender, recipient);
-            return result;
-        } catch (error) {
-            throw new Error(`Failed to update read status: ${error}`);
-        }
-    }
+    // async updateReadStatus(sender: string, recipient: string): Promise<any> {
+    //     try {
+    //         // Update the read status of messages
+    //         const result = await this._repository.updateMessageReadStatus(sender, recipient);
+    //         return result;
+    //     } catch (error) {
+    //         throw new Error(`Failed to update read status: ${error}`);
+    //     }
+    // }
 
     async fetchHistoricalData(senderId: string, receiverId: string): Promise<any> {
         try {
@@ -231,15 +231,15 @@ export class PostUseCase implements IPostUseCase {
         }
     }
 
-    async getPremiumStatus(userId: string): Promise<any> {
-        try {
-            // Fetch the user and their roles to determine premium status
-            const user = await this._repository.getUserById(userId);
-            return user ? user.roles : null;
-        } catch (error) {
-            throw new Error(`Failed to fetch premium status: ${error}`);
-        }
-    }
+    // async getPremiumStatus(userId: string): Promise<any> {
+    //     try {
+    //         // Fetch the user and their roles to determine premium status
+    //         const user = await this._repository.getUserById(userId);
+    //         return user ? user.roles : null;
+    //     } catch (error) {
+    //         throw new Error(`Failed to fetch premium status: ${error}`);
+    //     }
+    // }
 
     async getChatList(userId: string): Promise<any> {
         try {
@@ -276,16 +276,16 @@ export class PostUseCase implements IPostUseCase {
         }
     }
 
-    async fetchStories(userId: string): Promise<any> {
-        try {
-            const followingList = await this._repository.getUserFollowing(userId);
-            const stories = await this._repository.getStoriesByFollowingList(userId, followingList);
+    // async fetchStories(userId: string): Promise<any> {
+    //     try {
+    //         const followingList = await this._repository.getUserFollowing(userId);
+    //         const stories = await this._repository.getStoriesByFollowingList(userId, followingList);
 
-            return stories;
-        } catch (error) {
-            throw new Error(`Failed to fetch stories: ${error}`);
-        }
-    }
+    //         return stories;
+    //     } catch (error) {
+    //         throw new Error(`Failed to fetch stories: ${error}`);
+    //     }
+    // }
 
     async processAudioUpload(senderId: string, receiverId: string, audioUrl: string): Promise<void> {
         try {

@@ -202,30 +202,30 @@ export class UserUseCase implements IUserUsecase {
         return this._repository.findById(id);
     }
 
-    async saveUserToSearchHistory(userId: string, key: any): Promise<{ message: string }> {
-        const existingEntry = await this._repository.findOne({
-            userId: userId,
-            searchedProfileId: key._id
-        });
+    // async saveUserToSearchHistory(userId: string, key: any): Promise<{ message: string }> {
+    //     const existingEntry = await this._repository.findOne({
+    //         userId: userId,
+    //         searchedProfileId: key._id
+    //     });
 
-        if (existingEntry) {
-            return { message: "Entry already exists" };
-        }
+    //     if (existingEntry) {
+    //         return { message: "Entry already exists" };
+    //     }
 
-        const searchHistory = new ProfileSearchHistoryModel({
-            userId: userId,
-            searchedProfileId: key._id
-        });
+    //     const searchHistory = new ProfileSearchHistoryModel({
+    //         userId: userId,
+    //         searchedProfileId: key._id
+    //     });
 
-        await this._repository.save(searchHistory);
-        return { message: "Search history saved" };
-    }
+    //     await this._repository.save(searchHistory);
+    //     return { message: "Search history saved" };
+    // }
 
-    async getRecentSearches(userId: string): Promise<any[]> {
-        // Perform the query and populate the results
-        return this._repository.find({ userId });
+    // async getRecentSearches(userId: string): Promise<any[]> {
+    //     // Perform the query and populate the results
+    //     return this._repository.find({ userId });
 
-    }
+    // }
 
     async handlePremiumPayment(userId: string): Promise<void> {
         

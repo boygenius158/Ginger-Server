@@ -213,14 +213,14 @@ export class PostRepository implements IPostRepository {
     }
 
 
-    async followProfile(email: string, id: string): Promise<User> {
+    async followProfile(followedUserId: string, id: string): Promise<User> {
         try {
             if (!mongoose.Types.ObjectId.isValid(id)) {
                 throw new Error('Invalid user ID format');
             }
             const objectId = new mongoose.Types.ObjectId(id);
 
-            const user = await UserModel.findOne({ email });
+            const user = await UserModel.findById(followedUserId)
             const user2 = await UserModel.findById(objectId);
             console.log(user, user2);
 
@@ -261,19 +261,19 @@ export class PostRepository implements IPostRepository {
         }
     }
 
-    async checkFollowingStatus(email: string, id: string): Promise<boolean> {
-        try {
-            const user = await UserModel.findOne({ email });
-            if (!user) {
-                throw new Error('User not found');
-            }
-            const objectId = new mongoose.Types.ObjectId(id);
-            return user.following?.includes(objectId) ?? false;
-        } catch (error) {
-            console.error("Error checking following status:", error);
-            throw new Error('Error checking following status');
-        }
-    }
+    // async checkFollowingStatus(email: string, id: string): Promise<boolean> {
+    //     try {
+    //         const user = await UserModel.findOne({ email });
+    //         if (!user) {
+    //             throw new Error('User not found');
+    //         }
+    //         const objectId = new mongoose.Types.ObjectId(id);
+    //         return user.following?.includes(objectId) ?? false;
+    //     } catch (error) {
+    //         console.error("Error checking following status:", error);
+    //         throw new Error('Error checking following status');
+    //     }
+    // }
 
     async fetchFeed(userId: string, offset: number, limit: number): Promise<Post[] | null> {
         try {

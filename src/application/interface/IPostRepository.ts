@@ -11,7 +11,7 @@ export interface IPostRepository {
     findUserIdByUsername(username: string): Promise<User | null>
     fetchPost(id: mongoose.Types.ObjectId): Promise<Post[] | null>;
     followProfile(email: string, id: string): Promise<User>
-    checkFollowingStatus(email: string, id: string): Promise<boolean>
+    // checkFollowingStatus(email: string, id: string): Promise<boolean>
     fetchFeed(id: string, offset: number, limit: number): Promise<Post[] | null>
     likePost(postId: string, orginalUser: string): Promise<boolean | null>
     postComment(email: string, postId: string, postedComment: string): Promise<Comment>

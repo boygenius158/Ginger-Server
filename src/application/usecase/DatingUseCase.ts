@@ -136,7 +136,24 @@ export class DatingUseCase implements IDatingUseCase {
             throw new Error("Failed to get user settings");
         }
     }
-
+    async fetchPostDetails(postId:string):Promise<any>{
+        try {
+            const post = await this._repository.fetchPostDetails(postId)
+            return post
+        } catch (error) {
+            console.error('Not able to fetch post details')
+            throw new Error
+        }
+    }
+    async getCommentById(commentId:string):Promise<any>{
+        try {
+            const comment = await this._repository.getCommentById(commentId)
+            return comment
+        } catch (error) {
+            console.error('error fetching comment details')
+            throw new Error
+        }
+    }
     async getDatingTab1Details(userId: string): Promise<any> {
         try {
             const user = await this._repository.findUserById(userId);
@@ -289,6 +306,15 @@ export class DatingUseCase implements IDatingUseCase {
         } catch (error) {
             console.error("Error fetching profileCompletionStatus:", error);
             throw new Error("Failed to get profileCompletionStatus");
+        }
+    }
+
+    async profileVisibility(userId:string,profileVisibility:boolean):Promise<any>{
+        try {
+            await this._repository.profileVisibility(userId,profileVisibility)
+        } catch (error) {
+            console.error(error,"error in profile visiblity")
+            throw new Error('error in profile visibility')
         }
     }
 

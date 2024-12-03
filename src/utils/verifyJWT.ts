@@ -24,7 +24,7 @@ const verifyJWT = (req: CustomRequest, res: Response, next: NextFunction) => {
     const decoded = jwt.verify(token, secret) as JwtPayload; 
 
     req.user = decoded;
-    console.log("Token verified successfully", decoded);
+    // console.log("Token verified successfully", decoded);
 
     next();   
   } catch (err: any) {

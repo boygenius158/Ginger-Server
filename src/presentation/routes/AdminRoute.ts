@@ -21,12 +21,14 @@ router.get('/api/admin/total-revenue', verifyJWT, adminController.getTotalRevenu
 router.post('/api/admin/unblockUser', verifyJWT, adminController.unblockUser.bind(adminController));
 router.post('/api/admin/getBlockedUsers', verifyJWT, adminController.getBlockedUsers.bind(adminController));
 router.post('/api/admin/filterPost', verifyJWT, adminController.handle.bind(adminController));
-// router.post('/api/admin/banPost', verifyJWT, adminController.banPost.bind(adminController));
 router.post('/api/admin/banPost', verifyJWT, adminController.banPostUser.bind(adminController))
-router.post('/api/user/is-post-saved', verifyJWT, adminController.isPostSaved.bind(adminController))
-// router.post('/api/admin/filterPost', verifyJWT, adminController.filterPost.bind(adminController))
 router.get('/api/admin/user-demographics-info', verifyJWT, adminController.userDemoInfo.bind(adminController))
 
+
+router.post('/api/user/is-post-saved', verifyJWT, adminController.isPostSaved.bind(adminController))
+
+// router.post('/api/admin/banPost', verifyJWT, adminController.banPost.bind(adminController));
+// router.post('/api/admin/filterPost', verifyJWT, adminController.filterPost.bind(adminController))
 
 
 

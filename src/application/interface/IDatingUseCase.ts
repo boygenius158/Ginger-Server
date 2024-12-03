@@ -22,4 +22,8 @@ export interface IDatingUseCase {
     userPostedReply(content:any, userId:any, postId:any, parentId:any): Promise<any>
     profileCompletionStatus(userId: string): Promise<ProfileCompletionStatus>
 
+
+    getCommentById(commentId:string):Promise<any>
+    fetchPostDetails(postId:string):Promise<any>
+    profileVisibility(userId:string,profileVisibility:boolean):Promise<any>
 }

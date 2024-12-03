@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
-import {  IPostUseCase } from "../../application/interface/IPostUseCase";
+import { IPostUseCase } from "../../application/interface/IPostUseCase";
 import mongoose from 'mongoose';
 import { HttpStatus } from '../../utils/HttpStatus';
+import { CustomRequest } from '../../application/interface/CustomRequest';
 interface MulterFile extends Express.Multer.File {
     location?: string; // This property will be added by your file upload middleware
 }
@@ -13,20 +14,20 @@ export class PostController {
     }
 
 
-    async getExpiryDate(req: Request, res: Response) {
-        try {
-            const { userId } = req.body;
-            if (!userId) {
-                return res.status(HttpStatus.BAD_REQUEST).json({ message: 'User ID is required' });
-            }
+    // async getExpiryDate(req: Request, res: Response) {
+    //     try {
+    //         const { userId } = req.body;
+    //         if (!userId) {
+    //             return res.status(HttpStatus.BAD_REQUEST).json({ message: 'User ID is required' });
+    //         }
 
-            const daysLeft = await this._mediaUseCase.getExpiryDate(userId);
-            res.status(HttpStatus.OK).json({ daysLeft });
-        } catch (error) {
-            console.error('Error occurred while fetching expiry date:', error);
-            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: error });
-        }
-    }
+    //         const daysLeft = await this._mediaUseCase.getExpiryDate(userId);
+    //         res.status(HttpStatus.OK).json({ daysLeft });
+    //     } catch (error) {
+    //         console.error('Error occurred while fetching expiry date:', error);
+    //         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: error });
+    //     }
+    // }
     async uploadImage(req: Request, res: Response, next: NextFunction) {
         // console.log("reached");
 
@@ -89,21 +90,19 @@ export class PostController {
             res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Internal Server Error' });
         }
     }
-    async followProfile(req: Request, res: Response, next: NextFunction) {
+    async followProfile(req: CustomRequest, res: Response, next: NextFunction) {
         try {
-            const { followUser, orginalUser } = req.body
-            console.log(followUser, orginalUser, "i909");
+            const { followUser } = req.body
 
-            const followUserId = await this._mediaUseCase.findUserId(followUser)
-            console.log(followUserId);
-
-            if (!followUserId) {
-                return
+            if (!req.user) {
+                throw new Error
             }
-            const followThatUser = await this._mediaUseCase.followProfile(orginalUser, followUserId)
+            const orginalUser = req.user.id
+            console.log(followUser, orginalUser);
 
-            // const user = await this._mediaUseCase.followProfile()
-            // console.log(followThatUser);
+            const followThatUser = await this._mediaUseCase.followProfile(orginalUser, followUser)
+
+
 
             res.json({ followThatUser })
         } catch (error) {
@@ -111,41 +110,48 @@ export class PostController {
             res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Internal Server Error' });
         }
     }
-    async checkFollowingStatus(req: Request, res: Response, next: NextFunction) {
-        try {
-            console.log("checkFollowingStatus", req.body);
+    // async checkFollowingStatus(req: Request, res: Response, next: NextFunction) {
+    //     try {
+    //         console.log("checkFollowingStatus", req.body);
 
-            const { followUser, orginalUser } = req.body
-            const followUserId = await this._mediaUseCase.findUserId(followUser)
-            if (!followUserId) {
-                return
-            }
-            const followThatUser = await this._mediaUseCase.checkFollowingStatus(orginalUser, followUserId)
+    //         const { followUser, orginalUser } = req.body
+    //         const followUserId = await this._mediaUseCase.findUserId(followUser)
+    //         if (!followUserId) {
+    //             return
+    //         }
+    //         const followThatUser = await this._mediaUseCase.checkFollowingStatus(orginalUser, followUserId)
 
-            // const user = await this._mediaUseCase.followProfile()
+    //         // const user = await this._mediaUseCase.followProfile()
 
-            res.json({ followThatUser })
-        } catch (error) {
-            console.log(error);
-            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Internal Server Error' });
-        }
-    }
-    async fetchFeed(req: Request, res: Response, next: NextFunction) {
+    //         res.json({ followThatUser })
+    //     } catch (error) {
+    //         console.log(error);
+    //         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Internal Server Error' });
+    //     }
+    // }
+    async fetchFeed(req: CustomRequest, res: Response, next: NextFunction) {
         try {
             // console.log(req.body,"helo9");
-            const { email, offset, limit } = req.body
+            const { offset, limit } = req.body
+            if (!req.user) {
+                throw new Error
+            }
+            const userId = req.user.id
 
-            const feed = await this._mediaUseCase.fetchFeed(email, offset, limit)
+            const feed = await this._mediaUseCase.fetchFeed(userId, offset, limit)
             res.json({ feed })
         } catch (error) {
             console.log(error);
             res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Internal Server Error' });
         }
     }
-    async likePost(req: Request, res: Response, next: NextFunction) {
+    async likePost(req: CustomRequest, res: Response, next: NextFunction) {
         try {
-            // console.log(req.body);
-            const { postId, originalUser } = req.body
+            const { postId } = req.body
+            if (!req.user) {
+                throw new Error
+            }
+            const originalUser = req.user.id
             console.log(originalUser, "original user");
 
             const result = await this._mediaUseCase.likePostAction(postId, originalUser)
@@ -156,9 +162,9 @@ export class PostController {
         }
     }
 
-    async postComment(req: Request, res: Response, next: NextFunction) {
+    async postComment(req: CustomRequest, res: Response, next: NextFunction) {
         try {
-            console.log(req.body);
+            console.log(req.body, req.user);
 
             const { postedComment, userOfPost, postId } = req.body;
             console.log(postId);
@@ -175,31 +181,36 @@ export class PostController {
         }
     }
 
-    async uploadStory(req: Request, res: Response, next: NextFunction) {
-        try {
-            console.log(req.body);
+    // async uploadStory(req: Request, res: Response, next: NextFunction) {
+    //     try {
+    //         console.log(req.body);
 
-            const usecase = await this._mediaUseCase.uploadStory(req.body.url, req.body.userId)
-            res.json({ usecase })
-        } catch (error) {
-            console.log(error);
-            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Internal Server Error' });
-        }
-    }
-    async updateProfile(req: Request, res: Response, next: NextFunction) {
-        try {
-            console.log(req.body);
+    //         const usecase = await this._mediaUseCase.uploadStory(req.body.url, req.body.userId)
+    //         res.json({ usecase })
+    //     } catch (error) {
+    //         console.log(error);
+    //         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Internal Server Error' });
+    //     }
+    // }
+    // async updateProfile(req: Request, res: Response, next: NextFunction) {
+    //     try {
+    //         console.log(req.body);
 
-            const usecase = await this._mediaUseCase.updateProfile(req.body.name, req.body.bio, req.body.email)
-            res.json({ usecase })
-        } catch (error) {
-            console.log(error);
-            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Internal Server Error' });
-        }
-    }
-    async reportPost(req: Request, res: Response): Promise<void> {
+    //         const usecase = await this._mediaUseCase.updateProfile(req.body.name, req.body.bio, req.body.email)
+    //         res.json({ usecase })
+    //     } catch (error) {
+    //         console.log(error);
+    //         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Internal Server Error' });
+    //     }
+    // }
+    async reportPost(req: CustomRequest, res: Response): Promise<void> {
         try {
-            const { victimUser, postId } = req.body;
+            if (!req.user) {
+                throw new Error
+            }
+
+            const { postId } = req.body;
+            const victimUser = req.user.id
             await this._mediaUseCase.reportPost(victimUser, postId);
             res.status(HttpStatus.OK).json({ message: "Post reported successfully" });
         } catch (error) {
@@ -207,31 +218,42 @@ export class PostController {
             res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: "An error occurred while reporting the post" });
         }
     }
-    async fetchSavedPosts(req: Request, res: Response, next: NextFunction) {
+    async fetchSavedPosts(req: CustomRequest, res: Response, next: NextFunction) {
         try {
             const { username } = req.body;
+            // if (!req.user) {
+            //     throw new Error
+
+            // }
+            // if (req.user.username !== username) {
+            //     return res.status(403).json({ message: 'Access denied' })
+            // }
             const result = await this._mediaUseCase.fetchSavedPosts(username);
             res.status(HttpStatus.OK).json(result);
         } catch (error) {
             console.error('Error fetching saved posts:', error);
             res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Server error' });
         }
-
+ 
 
     }
-    async updateReadStatus(req: Request, res: Response, next: NextFunction) {
+    // async updateReadStatus(req: Request, res: Response, next: NextFunction) {
+    //     try {
+    //         const { sender, recipient } = req.body;
+    //         const result = await this._mediaUseCase.updateReadStatus(sender, recipient);
+    //         res.status(HttpStatus.OK).json(result);
+    //     } catch (error) {
+    //         console.error('Error updating read status:', error);
+    //         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Server error' });
+    //     }
+    // }
+    async fetchHistoricalData(req: CustomRequest, res: Response, next: NextFunction) {
         try {
-            const { sender, recipient } = req.body;
-            const result = await this._mediaUseCase.updateReadStatus(sender, recipient);
-            res.status(HttpStatus.OK).json(result);
-        } catch (error) {
-            console.error('Error updating read status:', error);
-            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Server error' });
-        }
-    }
-    async fetchHistoricalData(req: Request, res: Response, next: NextFunction) {
-        try {
-            const { senderId, receiverId } = req.body;
+            if (!req.user) {
+                throw new Error
+            }
+            const { receiverId } = req.body;
+            const senderId = req.user.id
             const messages = await this._mediaUseCase.fetchHistoricalData(senderId, receiverId);
             res.status(HttpStatus.OK).json({ messages });
         } catch (error) {
@@ -239,26 +261,28 @@ export class PostController {
             res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Server error' });
         }
     }
-    async getPremiumStatus(req: Request, res: Response, next: NextFunction) {
-        try {
-            const { userId } = req.body;
-            const role = await this._mediaUseCase.getPremiumStatus(userId);
-            if (!role) {
-                return res.status(HttpStatus.NOT_FOUND).json({ error: 'User not found' });
-            }
+    // async getPremiumStatus(req: Request, res: Response, next: NextFunction) {
+    //     try {
+    //         const { userId } = req.body;
+    //         const role = await this._mediaUseCase.getPremiumStatus(userId);
+    //         if (!role) {
+    //             return res.status(HttpStatus.NOT_FOUND).json({ error: 'User not found' });
+    //         }
 
-            res.status(HttpStatus.OK).json({ role });
-        } catch (error) {
-            console.error('Error fetching premium status:', error);
-            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Server error' });
-        }
-    }
-    async getChatList(req: Request, res: Response, next: NextFunction) {
+    //         res.status(HttpStatus.OK).json({ role });
+    //     } catch (error) {
+    //         console.error('Error fetching premium status:', error);
+    //         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Server error' });
+    //     }
+    // }
+    async getChatList(req: CustomRequest, res: Response, next: NextFunction) {
         try {
-            const { userId } = req.body;
-            if (!userId) {
+            // const { userId } = req.body;
+            
+            if (!req.user) {
                 return res.status(HttpStatus.BAD_REQUEST).json({ error: 'User ID is required' });
             }
+            const userId = req.user.id
 
             const chatList = await this._mediaUseCase.getChatList(userId);
             res.status(HttpStatus.OK).json(chatList);
@@ -281,23 +305,28 @@ export class PostController {
             res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Internal server error' });
         }
     }
-    async fetchStories(req: Request, res: Response, next: NextFunction) {
-        try {
-            const { userId } = req.body;
-            if (!userId) {
-                return res.status(HttpStatus.BAD_REQUEST).json({ error: 'User ID is required' });
-            }
+    // async fetchStories(req: Request, res: Response, next: NextFunction) {
+    //     try {
+    //         const { userId } = req.body;
+    //         if (!userId) {
+    //             return res.status(HttpStatus.BAD_REQUEST).json({ error: 'User ID is required' });
+    //         }
 
-            const stories = await this._mediaUseCase.fetchStories(userId);
-            res.status(HttpStatus.OK).json({ stories });
-        } catch (error) {
-            console.error('Error fetching stories:', error);
-            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Internal server error' });
-        }
-    }
-    async handleAudioUpload(req: Request, res: Response): Promise<void> {
+    //         const stories = await this._mediaUseCase.fetchStories(userId);
+    //         res.status(HttpStatus.OK).json({ stories });
+    //     } catch (error) {
+    //         console.error('Error fetching stories:', error);
+    //         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Internal server error' });
+    //     }
+    // }
+    async handleAudioUpload(req: CustomRequest, res: Response): Promise<void> {
         try {
+            if(!req.user){
+                throw new Error
+            }
             const { sender, receiverId, audio_url } = req.body;
+            console.log(req.body.sender,req.user.id,"800");
+            
             await this._mediaUseCase.processAudioUpload(sender, receiverId, audio_url.url);
             res.json({ success: true });
         } catch (error) {
@@ -305,9 +334,13 @@ export class PostController {
             res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Server error' });
         }
     }
-    async handleFetchNotifications(req: Request, res: Response): Promise<void> {
+    async handleFetchNotifications(req: CustomRequest, res: Response): Promise<void> {
         try {
-            const { userId } = req.body;
+            // const { userId } = req.body;
+            if(!req.user){
+                throw new Error
+            }
+            const userId = req.user.id
             console.log("fetch notifications", req.body);
 
             const notifications = await this._mediaUseCase.execute(userId);
@@ -319,10 +352,13 @@ export class PostController {
             res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Server error' });
         }
     }
-    async handleSavePost(req: Request, res: Response): Promise<void> {
+    async handleSavePost(req: CustomRequest, res: Response): Promise<void> {
         try {
-            const { userId, postId } = req.body;
-
+            const { postId } = req.body;
+            if (!req.user) {
+                throw new Error
+            }
+            const userId = req.user.id
             const result = await this._mediaUseCase.executeSavePost(userId, postId);
             res.json(result);
         } catch (error) {
@@ -333,8 +369,6 @@ export class PostController {
     async getUserDemographics(req: Request, res: Response): Promise<void> {
 
         try {
-            console.log("90");
-
             const demographics = await this._mediaUseCase.getUserDemographics();
             res.status(HttpStatus.OK).json(demographics);
         } catch (error) {
@@ -352,16 +386,16 @@ export class PostController {
         }
     }
 
-    async userPostedReply(req: Request, res: Response): Promise<void> {
-        try {
-            const { chartData, chartConfig } = await this._mediaUseCase.getChartData();
-            res.status(HttpStatus.OK).json({ success: true, chartData, chartConfig });
-        } catch (error) {
-            console.error("Error occurred:", error);
-            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: "Internal Server Error" });
-        }
-    }
+    // async userPostedReply(req: Request, res: Response): Promise<void> {
+    //     try {
+    //         const { chartData, chartConfig } = await this._mediaUseCase.getChartData();
+    //         res.status(HttpStatus.OK).json({ success: true, chartData, chartConfig });
+    //     } catch (error) {
+    //         console.error("Error occurred:", error);
+    //         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: "Internal Server Error" });
+    //     }
+    // }
 
-    
+
 
 }

@@ -113,6 +113,7 @@ export class UserRepository implements IUserRepository {
 
     async verifyPassword(email: string, password: string): Promise<User | boolean | string> {
         try {
+            
             const user = await UserModel.findOne({ email });
             if (!user) {
                 throw new Error(`User with email ${email} not found`);
@@ -133,12 +134,15 @@ export class UserRepository implements IUserRepository {
 
             if (!isPasswordValid) {
                 throw new Error('Invalid password');
-            }
+            } 
+
+
+
 
             return user;
         } catch (error) {
             console.error("Error verifying password:", error);
-            throw new Error("Failed to verify password. Please try again later.");
+            throw new Error("Failed to verify password. Please try again later."); 
         }
     }
 

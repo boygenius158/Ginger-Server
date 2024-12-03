@@ -5,6 +5,7 @@ import randomnumber from '../../utils/randomOTP';
 import { UserRole } from '../../domain/entities/User';
 import { HttpStatus } from '../../utils/HttpStatus';
 import { UserUseCase } from '../../application/usecase/UserUseCase';
+import { CustomRequest } from '../../application/interface/CustomRequest';
 // import { UserModel } from '../../infrastructure/database/model/authModel';
 export class UserController {
     private _userUseCase: IUserUsecase;
@@ -179,9 +180,13 @@ export class UserController {
         }
     }
 
-    async uploadProfile(req: Request, res: Response): Promise<void> {
+    async uploadProfile(req: CustomRequest, res: Response): Promise<void> {
         try {
-            const { url, userId } = req.body;
+            const { url } = req.body;
+            if (!req.user) {
+                throw new Error
+            }
+            const userId = req.user.id
             const updatedUser = await this._userUseCase.uploadProfilePicture(userId, url);
             res.status(HttpStatus.OK).json({ success: true });
         } catch (error) {
@@ -202,9 +207,13 @@ export class UserController {
             res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: "Internal Server Error" });
         }
     }
-    async fetchNameUsername(req: Request, res: Response): Promise<void> {
+    async fetchNameUsername(req: CustomRequest, res: Response): Promise<void> {
         try {
-            const user = await this._userUseCase.getUserById(req.body.id);
+            if (!req.user) {
+                throw new Error
+            }
+            const userId = req.user.id
+            const user = await this._userUseCase.getUserById(userId);
             if (!user) {
                 res.status(HttpStatus.NOT_FOUND).json({ error: 'User not found' });
             } else {
@@ -215,22 +224,29 @@ export class UserController {
         }
     }
 
-    async hasPassword(req: Request, res: Response): Promise<void> {
+    async hasPassword(req: CustomRequest, res: Response): Promise<void> {
         try {
-            const { id } = req.body;
-            const result = await this._userUseCase.hasPassword(id);
+            if (!req.user) {
+                throw new Error
+            }
+            const userId = req.user.id
+            const result = await this._userUseCase.hasPassword(userId);
             res.json(result);
         } catch (error) {
             res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Server error' });
         }
     }
 
-    async updateUser(req: Request, res: Response): Promise<void> {
+    async updateUser(req: CustomRequest, res: Response): Promise<void> {
         try {
-            const { id, name, username, bio } = req.body;
+            if (!req.user) {
+                throw new Error
+            }
+            const userId = req.user.id
+            const { name, username, bio } = req.body;
             // console.log(req.body);
 
-            const result = await this._userUseCase.updateUser(id, name, username, bio);
+            const result = await this._userUseCase.updateUser(userId, name, username, bio);
             if (result.success === false) {
                 res.json(result);
             } else {
@@ -241,45 +257,57 @@ export class UserController {
         }
     }
 
-    async updatePassword(req: Request, res: Response): Promise<void> {
+    async updatePassword(req: CustomRequest, res: Response): Promise<void> {
         try {
-            const { id, currentPassword, newPassword } = req.body;
-            const result = await this._userUseCase.updatePassword(id, currentPassword, newPassword);
+            if (!req.user) {
+                throw new Error
+            }
+            const userId = req.user.id
+            const { currentPassword, newPassword } = req.body;
+            const result = await this._userUseCase.updatePassword(userId, currentPassword, newPassword);
             res.json(result);
         } catch (error) {
             res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Server error' });
         }
     }
-    async miniProfile(req: Request, res: Response): Promise<void> {
+    async miniProfile(req: CustomRequest, res: Response): Promise<void> {
         try {
-            const user = await this._userUseCase.getMiniProfile(req.body.id);
+            if (!req.user) {
+                throw new Error
+            }
+            const userId = req.user.id
+            const user = await this._userUseCase.getMiniProfile(userId);
             res.json({ user });
         } catch (error) {
             res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Server error' });
         }
     }
 
-    async saveUserToSearchHistory(req: Request, res: Response): Promise<void> {
-        try {
-            const result = await this._userUseCase.saveUserToSearchHistory(req.body.userId, req.body.key);
-            res.json(result);
-        } catch (error) {
-            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Server error' });
-        }
-    }
+    // async saveUserToSearchHistory(req: Request, res: Response): Promise<void> {
+    //     try {
+    //         const result = await this._userUseCase.saveUserToSearchHistory(req.body.userId, req.body.key);
+    //         res.json(result);
+    //     } catch (error) {
+    //         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Server error' });
+    //     }
+    // }
 
-    async getRecentSearches(req: Request, res: Response): Promise<void> {
-        try {
-            const searches = await this._userUseCase.getRecentSearches(req.body.userId);
-            res.json({ searches });
-        } catch (error) {
-            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Server error' });
-        }
-    }
+    // async getRecentSearches(req: Request, res: Response): Promise<void> {
+    //     try {
+    //         const searches = await this._userUseCase.getRecentSearches(req.body.userId);
+    //         res.json({ searches });
+    //     } catch (error) {
+    //         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Server error' });
+    //     }
+    // }
 
-    async premiumPayment(req: Request, res: Response): Promise<void> {
+    async premiumPayment(req: CustomRequest, res: Response): Promise<void> {
         try {
-            await this._userUseCase.handlePremiumPayment(req.body.userId);
+            if (!req.user) {
+                throw new Error
+            }
+            const userId = req.user.id
+            await this._userUseCase.handlePremiumPayment(userId);
             res.json({ message: 'Premium payment recorded' });
         } catch (error) {
             res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Server error' });
@@ -298,9 +326,12 @@ export class UserController {
             res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Server error' });
         }
     }
-    async createPaymentIntent(req: Request, res: Response): Promise<void> {
-        const { amount, userId, currency = 'usd' } = req.body;
-
+    async createPaymentIntent(req: CustomRequest, res: Response): Promise<void> {
+        const { amount, currency = 'usd' } = req.body;
+        if (!req.user) {
+            throw new Error
+        }
+        const userId = req.user.id
         try {
             const clientSecret = await this._userUseCase.createPaymentIntent(amount, currency);
 

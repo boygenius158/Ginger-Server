@@ -17,6 +17,8 @@ import { setupSocketIO } from './presentation/socket/SocketIO';
 import s3service from './application/Services/S3service'
 import logger from './utils/logger';
 import morgan from 'morgan';
+import verifyJWT from './utils/verifyJWT';
+import { CustomRequest } from './application/interface/CustomRequest';
 
 
 dotenv.config()
@@ -41,8 +43,8 @@ connectDatabase();
 setupSocketIO(server)
 
 logger
-app.get('/', (req, res) => {
-  // console.log("hi");
+app.post('/test',verifyJWT, (req:CustomRequest, res) => {
+  console.log(req.user);
 
   res.send('backend is running on awss .....')
 })

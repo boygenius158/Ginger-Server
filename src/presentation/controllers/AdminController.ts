@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { IAdminUseCase } from "../../application/usecase/AdminUseCase";
 import { HttpStatus } from "../../utils/HttpStatus";
+import { CustomRequest } from "../../application/interface/CustomRequest";
 
 export class AdminController {
     private _adminUseCase: IAdminUseCase
@@ -8,8 +9,14 @@ export class AdminController {
     constructor(adminUseCase: IAdminUseCase) {
         this._adminUseCase = adminUseCase
     }
-    async fetchPremiumPaymentDetails(req: Request, res: Response): Promise<void> {
+    async fetchPremiumPaymentDetails(req: CustomRequest, res: Response): Promise<void> {
         try {
+            if (!req.user) {
+                throw new Error
+            }
+            if (req.user.roles !== 'admin') {
+                res.status(HttpStatus.BAD_REQUEST).json({ error: 'User ID is required' });
+            }
             const data = await this._adminUseCase.fetchPremiumPaymentDetails();
             res.json(data);
         } catch (error) {
@@ -17,8 +24,14 @@ export class AdminController {
             res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Internal Server Error');
         }
     }
-    async fetchUserDetailsByRoles(req: Request, res: Response): Promise<void> {
+    async fetchUserDetailsByRoles(req: CustomRequest, res: Response): Promise<void> {
         try {
+            if (!req.user) {
+                throw new Error
+            }
+            if (req.user.roles !== 'admin') {
+                res.status(HttpStatus.BAD_REQUEST).json({ error: 'User ID is required' });
+            }
             const roles = ['user', 'premium']; // Roles to filter
             const userDetails = await this._adminUseCase.fetchUserDetailsByRoles(roles);
             res.json({ userDetails });
@@ -27,13 +40,18 @@ export class AdminController {
             res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Internal Server Error');
         }
     }
-    async blockUser(req: Request, res: Response): Promise<void> {
+    async blockUser(req: CustomRequest, res: Response): Promise<void> {
         try {
             const { userId } = req.body;
             if (!userId) {
                 res.status(HttpStatus.BAD_REQUEST).json({ error: 'User ID is required' });
             }
-
+            if (!req.user) {
+                throw new Error
+            }
+            if (req.user.roles !== 'admin') {
+                res.status(HttpStatus.BAD_REQUEST).json({ error: 'User ID is required' });
+            }
             await this._adminUseCase.blockUser(userId);
             res.json({ message: 'User blocked successfully' });
         } catch (error) {
@@ -41,8 +59,14 @@ export class AdminController {
             res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Internal Server Error' });
         }
     }
-    async getTotalRevenue(req: Request, res: Response): Promise<void> {
+    async getTotalRevenue(req: CustomRequest, res: Response): Promise<void> {
         try {
+            if (!req.user) {
+                throw new Error
+            }
+            if (req.user.roles !== 'admin') {
+                res.status(HttpStatus.BAD_REQUEST).json({ error: 'User ID is required' });
+            }
             const currentDate = new Date();
             const thirtyDaysAgo = new Date();
             thirtyDaysAgo.setDate(currentDate.getDate() - 30);
@@ -60,13 +84,18 @@ export class AdminController {
         }
     }
 
-    async unblockUser(req: Request, res: Response): Promise<void> {
+    async unblockUser(req: CustomRequest, res: Response): Promise<void> {
         try {
             const { userId } = req.body;
             if (!userId) {
                 res.status(HttpStatus.BAD_REQUEST).json({ error: 'User ID is required' });
             }
-
+            if (!req.user) {
+                throw new Error
+            }
+            if (req.user.roles !== 'admin') {
+                res.status(HttpStatus.BAD_REQUEST).json({ error: 'User ID is required' });
+            }
             await this._adminUseCase.unblockUser(userId);
             res.json({ message: 'User unblocked successfully' });
         } catch (error) {
@@ -74,8 +103,14 @@ export class AdminController {
             res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Internal Server Error' });
         }
     }
-    async getBlockedUsers(req: Request, res: Response): Promise<void> {
+    async getBlockedUsers(req: CustomRequest, res: Response): Promise<void> {
         try {
+            if (!req.user) {
+                throw new Error
+            }
+            if (req.user.roles !== 'admin') {
+                res.status(HttpStatus.BAD_REQUEST).json({ error: 'User ID is required' });
+            }
             const blockedUserIds = await this._adminUseCase.getBlockedUsers();
             res.json({ blockedUserIds });
         } catch (error) {
@@ -83,8 +118,14 @@ export class AdminController {
             res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Internal Server Error' });
         }
     }
-    async handle(req: Request, res: Response): Promise<void> {
+    async handle(req: CustomRequest, res: Response): Promise<void> {
         try {
+            if (!req.user) {
+                throw new Error
+            }
+            if (req.user.roles !== 'admin') {
+                res.status(HttpStatus.BAD_REQUEST).json({ error: 'User ID is required' });
+            }
             const posts = await this._adminUseCase.execute();
             console.log(posts, "po0999");
 
@@ -94,8 +135,14 @@ export class AdminController {
             res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Internal Server Error' });
         }
     }
-    async banPost(req: Request, res: Response): Promise<void> {
+    async banPost(req: CustomRequest, res: Response): Promise<void> {
         try {
+            if (!req.user) {
+                throw new Error
+            }
+            if (req.user.roles !== 'admin') {
+                res.status(HttpStatus.BAD_REQUEST).json({ error: 'User ID is required' });
+            }
             const { postId } = req.body;
             await this._adminUseCase.banPost(postId);
             res.json({});
@@ -104,8 +151,14 @@ export class AdminController {
             res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Internal Server Error' });
         }
     }
-    async userDemoInfo(req: Request, res: Response): Promise<any> {
+    async userDemoInfo(req: CustomRequest, res: Response): Promise<any> {
         try {
+            if (!req.user) {
+                throw new Error
+            }
+            if (req.user.roles !== 'admin') {
+                res.status(HttpStatus.BAD_REQUEST).json({ error: 'User ID is required' });
+            }
             const responseData = await this._adminUseCase.userDemoInfo()
             return responseData
         } catch (error) {
@@ -113,8 +166,14 @@ export class AdminController {
             res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Internal Server Error' });
         }
     }
-    async banPostUser(req: Request, res: Response): Promise<void> {
+    async banPostUser(req: CustomRequest, res: Response): Promise<void> {
         try {
+            if (!req.user) {
+                throw new Error
+            }
+            if (req.user.roles !== 'admin') {
+                res.status(HttpStatus.BAD_REQUEST).json({ error: 'User ID is required' });
+            }
             const { postId } = req.body
 
             const response = await this._adminUseCase.banPostUser(postId)
@@ -124,9 +183,14 @@ export class AdminController {
             res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Internal Server Error' });
         }
     }
-    async isPostSaved(req: Request, res: Response): Promise<any> {
+    async isPostSaved(req: CustomRequest, res: Response): Promise<any> {
         try {
-            const { userId } = req.body
+            
+            // const { userId } = req.body
+            if(!req.user){
+                return res.status(HttpStatus.BAD_REQUEST).json({ error: 'User ID is required' });
+            }
+            const userId = req.user.id
             const user = await this._adminUseCase.isPostSaved(userId)
             console.log(user, "poi");
 
@@ -136,8 +200,14 @@ export class AdminController {
             throw new Error('Failed');
         }
     }
-    async filterPost(req: Request, res: Response): Promise<any> {
+    async filterPost(req: CustomRequest, res: Response): Promise<any> {
         try {
+            if (!req.user) {
+                throw new Error
+            }
+            if (req.user.roles !== 'admin') {
+                res.status(HttpStatus.BAD_REQUEST).json({ error: 'User ID is required' });
+            }
             const posts = await this._adminUseCase.filterPost()
             res.json({ posts })
         } catch (error) {

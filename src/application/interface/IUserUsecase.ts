@@ -17,8 +17,8 @@ export interface IUserUsecase {
     updateUser(id: string, name: string, username: string, bio: string): Promise<any>;
     updatePassword(id: string, currentPassword: string, newPassword: string): Promise<{ success: boolean, message: string }>;
     getMiniProfile(id: string): Promise<any>;
-    saveUserToSearchHistory(userId: string, key: any): Promise<{ message: string }>;
-    getRecentSearches(userId: string): Promise<any[]>;
+    // saveUserToSearchHistory(userId: string, key: any): Promise<{ message: string }>;
+    // getRecentSearches(userId: string): Promise<any[]>;
     handlePremiumPayment(userId: string): Promise<void>;
     findUserByEmail(email: string): Promise<any>;
     createPaymentIntent(amount: number, currency?: string): Promise<string>;
